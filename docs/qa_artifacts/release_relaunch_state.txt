@@ -1,0 +1,40 @@
+Release relaunch smoke evidence
+checked_on=2026-06-08
+serial=emulator-5560
+avd_name=Medium_Phone_API_36
+expected_api=36
+api=36
+wm_size=Physical size: 1080x2400
+package=com.qgrid.mobile
+resolved_activity=priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=false
+com.qgrid.mobile/.MainActivity
+first_launch_command=am start -W -n com.qgrid.mobile/.MainActivity
+first_launch_result=Starting: Intent { cmp=com.qgrid.mobile/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.qgrid.mobile/.MainActivity
+TotalTime: 1932
+WaitTime: 1935
+Complete
+background_return_command=input keyevent HOME then am start -W
+background_return_result=Starting: Intent { cmp=com.qgrid.mobile/.MainActivity }
+Warning: Activity not started, its current task has been brought to the front
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: com.qgrid.mobile/.MainActivity
+WaitTime: 434
+Complete
+force_stop_relaunch_command=am force-stop com.qgrid.mobile then am start -W
+force_stop_relaunch_result=Starting: Intent { cmp=com.qgrid.mobile/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.qgrid.mobile/.MainActivity
+TotalTime: 855
+WaitTime: 930
+Complete
+home_progress_visible_after_relaunch=true
+home_start_action_visible_after_relaunch=true
+onboarding_not_visible_after_relaunch=true
+screenshot=docs/qa_artifacts/release_relaunch_home.png
+crash_buffer=no matching app crash entries
+release_relaunch_smoke_ok

@@ -1,0 +1,15 @@
+TalkBack QA state captured on 2026-06-03
+AVD: Medium_Phone_API_36 / Android 16
+enabled_accessibility_services=com.google.android.marvin.talkback/.TalkBackService
+accessibility_enabled=1
+
+TalkBack packages:
+package:com.android.systemui.accessibility.accessibilitymenu
+package:com.google.android.marvin.talkbackoverlay
+package:com.google.android.marvin.talkback
+package:com.android.systemui.accessibility.accessibilitymenu.auto_generated_rro_product__
+
+Accessibility state excerpt:
+12:     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=true, requestMultiFingerGestures=true, requestTwoFingerPassthrough=true, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=10000, installedServiceCount=3, magnificationModes={0=1}, magnificationCapabilities=3, audioDescriptionByDefaultEnabled=false, magnificationFollowTypingEnabled=true, alwaysOnMagnificationEnabled=true}
+20:     Bound services:{Service[label=TalkBack, feedbackType[FEEDBACK_SPOKEN, FEEDBACK_HAPTIC, FEEDBACK_AUDIBLE], capabilities=251, eventTypes=TYPES_ALL_MASK, notificationTimeout=0, requestA11yBtn=false]}
+21:     Enabled services:{{com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService}}

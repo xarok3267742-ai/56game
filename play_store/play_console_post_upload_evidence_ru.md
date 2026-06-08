@@ -1,0 +1,79 @@
+# Play Console Post-Upload Evidence - RU
+
+Этот файл предназначен для безопасной фиксации внешних Play Console фактов после upload. До реальной загрузки все пункты остаются owner-controlled и не доказываются локальным репозиторием.
+
+Не записывать сюда пароли, private keys, keystore contents, внутренние Play account tokens, персональные данные тестеров или закрытые ссылки с доступом к аккаунту.
+
+## Upload Artifact
+
+- Uploaded package name: not yet available locally; must be `com.qgrid.mobile`.
+- Uploaded version code: not yet available locally; must be `1`.
+- Uploaded version name: not yet available locally; must be `1.0.0`.
+- Uploaded AAB SHA-256: not yet available locally; compare with `play_store/upload_checksums.md`.
+- First release track used: not yet available locally.
+- Upload date/time: not yet available locally.
+
+## Privacy And Contact
+
+- Public privacy policy URL: not yet available locally.
+- Privacy policy URL check command returned `privacy_policy_url_ok`: not yet available locally.
+- Privacy policy URL is HTTPS: not yet available locally.
+- Privacy policy URL is accessible without login: not yet available locally.
+- Privacy policy URL is not PDF: not yet available locally.
+- Play Console support/contact field populated: not yet available locally.
+- Support/contact mechanism matches `play_store/privacy_policy_ru.html`: not yet available locally.
+
+## Signing Backup
+
+- Signing backup evidence file: `play_store/signing_backup_evidence_ru.md`.
+- Signing backup input check command returned `signing_backup_input_ok`: recorded locally on 6 June 2026.
+- Active upload keystore backed up before AAB upload: not yet available locally.
+- Owner-controlled backup evidence recorded without secrets: not yet available locally.
+
+After the real backup is complete, keep the backup evidence line explicit and safe, for example: `yes, recorded without secrets`.
+
+## Play-Generated Artifact Review
+
+- Play-generated APK verification command: run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.
+- Play-generated APK package is `com.qgrid.mobile`: not yet available locally.
+- Play-generated app label is `Линия 56`: not yet available locally.
+- Play-generated icon matches `play_store/icon/play_icon_512.png`: not yet available locally.
+- Play-generated version code/name match this release candidate: not yet available locally.
+- Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions: not yet available locally.
+- Play-generated APK installed and launched on at least one Android device or emulator: not yet available locally.
+
+After Play-generated artifact review, the permissions line must explicitly include `no INTERNET`, `no ACCESS_NETWORK_STATE` and `no dangerous runtime permissions`.
+
+## Policy Forms
+
+- App access completed as no restricted access/login/account: not yet available locally.
+- Ads declaration completed as no ads: not yet available locally.
+- Data Safety completed as no user data collected or shared: not yet available locally.
+- Content rating completed as Games / Puzzle posture: not yet available locally.
+- Target audience completed as non-child-directed 13+ posture unless publisher intentionally chose a child-directed path: not yet available locally.
+- AI disclosure completed as no in-app generative AI features: not yet available locally.
+
+## Testing And Review
+
+- Internal testing upload completed: not yet available locally.
+- Closed testing required for this account: not yet available locally.
+- Closed testing status if required: not yet available locally.
+- Pre-launch report result: not yet available locally.
+- Reproducible crashes in pre-launch report: not yet available locally.
+- Play policy warnings: not yet available locally.
+- Store listing preview checked for damaging image crops: not yet available locally.
+
+## Stop-Release Notes
+
+Stop production rollout and return to local rebuild/recheck if any external evidence contradicts:
+
+- package `com.qgrid.mobile`;
+- versionCode `1` and versionName `1.0.0`;
+- no-data/no-network/no-ads/no-payments/no-accounts posture;
+- Play-ready icon, feature graphic and screenshot set;
+- no reproducible crash in Play-generated artifacts;
+- owner-approved public privacy policy URL and support/contact fields.
+
+## Safe Summary To Copy Back
+
+After upload, copy only a safe summary into `docs/release_report.md`: track used, public privacy policy URL, Play-generated artifact review result, pre-launch report result, policy warning status and testing-track status. Do not copy secrets or tester personal data.
