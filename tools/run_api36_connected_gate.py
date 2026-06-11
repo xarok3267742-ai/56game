@@ -42,6 +42,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--emulator-log", type=Path, default=DEFAULT_LOG, help=f"Emulator log path. Default: {DEFAULT_LOG}.")
     parser.add_argument("--keep-emulator", action="store_true", help="Do not stop an emulator started by this helper.")
     parser.add_argument(
+        "--include-hosted-privacy",
+        action="store_true",
+        help="Pass --include-hosted-privacy through to the final local gate.",
+    )
+    parser.add_argument(
         "--preserve-avd-data",
         action="store_true",
         help="Do not pass -wipe-data when this helper starts the project-owned AVD.",
@@ -187,8 +192,10 @@ def stop_started_emulator(serial: str, process: subprocess.Popen[bytes] | None) 
             process.kill()
 
 
-def run_gate(serial: str) -> int:
+def run_gate(serial: str, *, include_hosted_privacy: bool) -> int:
     command = ["./tools/run_final_local_gate.py", "--include-connected", "--connected-serial", serial]
+    if include_hosted_privacy:
+        command.append("--include-hosted-privacy")
     completed = subprocess.run(command, cwd=ROOT)
     return completed.returncode
 
@@ -209,7 +216,8 @@ def main() -> int:
         print(f"- start {args.avd} on {args.serial} if needed{wipe_note}")
         if not args.preserve_avd_data:
             print("- if -wipe-data exits after reset before boot, retry the cleaned AVD once without -wipe-data")
-        print(f"- ./tools/run_final_local_gate.py --include-connected --connected-serial {args.serial}")
+        hosted_privacy = " --include-hosted-privacy" if args.include_hosted_privacy else ""
+        print(f"- ./tools/run_final_local_gate.py --include-connected --connected-serial {args.serial}{hosted_privacy}")
         print("- stop only the emulator started by this helper unless --keep-emulator is set")
         print("api36_connected_gate_dry_run_ok")
         return 0
@@ -237,7 +245,7 @@ def main() -> int:
             print("wipe-data boot exited before boot; retrying cleaned AVD without -wipe-data")
             process = start_emulator(args.avd, args.port, args.emulator_log, wipe_data=False)
             wait_for_boot(args.serial, args.avd, args.boot_timeout, process, args.emulator_log)
-        exit_code = run_gate(args.serial)
+        exit_code = run_gate(args.serial, include_hosted_privacy=args.include_hosted_privacy)
         if exit_code != 0:
             return exit_code
         print("api36_connected_gate_ok")

@@ -519,6 +519,7 @@ def check_agents_handoff() -> None:
             "./tools/run_final_local_gate.py --include-connected --connected-serial <serial>",
             "./tools/run_final_local_gate.py --include-connected --connected-serial <serial> --include-hosted-privacy",
             "./tools/run_api36_connected_gate.py",
+            "./tools/run_api36_connected_gate.py --include-hosted-privacy",
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
@@ -562,6 +563,7 @@ def check_agents_handoff() -> None:
             "uninstalls known stale local debug/test packages on the selected serial",
             "prints `final_local_gate_ok` only after every command succeeds.",
             "`./tools/run_api36_connected_gate.py` is the managed API 36 connected gate helper.",
+            "can pass through `--include-hosted-privacy` for the networked upload-day preflight",
             "wipes that project-owned AVD data on managed start to avoid stale debug/test APK interference",
             "refuses to touch a different AVD on that serial.",
             "`./tools/print_upload_packet.py` is the read-only owner helper for upload day.",
@@ -638,6 +640,7 @@ def check_readme_handoff() -> None:
             "./tools/run_final_local_gate.py --include-connected --connected-serial <serial>",
             "./tools/run_final_local_gate.py --include-connected --connected-serial <serial> --include-hosted-privacy",
             "./tools/run_api36_connected_gate.py",
+            "./tools/run_api36_connected_gate.py --include-hosted-privacy",
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
@@ -677,7 +680,9 @@ def check_readme_handoff() -> None:
             "uninstalls known stale local debug/test packages on the selected serial",
             "old instrumentation packages cannot pollute verifier evidence or steal focus",
             "When an API 36 emulator/device is available, `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` refreshes `connectedDebugAndroidTest` evidence before the verifier.",
-            "`./tools/run_api36_connected_gate.py` boots the project-owned `Medium_Phone_API_36` AVD on `emulator-5560` with `-wipe-data`, retries the cleaned AVD once without `-wipe-data` if the emulator exits after the wipe reset before boot, runs that connected final gate, and stops only the emulator it started",
+            "`./tools/run_api36_connected_gate.py` boots the project-owned `Medium_Phone_API_36` AVD on `emulator-5560` with `-wipe-data`, retries the cleaned AVD once without `-wipe-data` if the emulator exits after the wipe reset before boot, runs that connected final gate",
+            "can pass through `--include-hosted-privacy` for the networked upload-day preflight",
+            "and stops only the emulator it started",
             "`--preserve-avd-data` is for diagnostics only",
             "`./tools/print_upload_packet.py` prints and verifies the exact ordered upload packet",
             "`./tools/create_store_asset_review_sheet.py --write` regenerates the internal visual review sheet",
@@ -812,9 +817,11 @@ def check_google_play_checklist_handoff() -> None:
             "Resolve owner inputs from `play_store/owner_release_inputs.md`.",
             "Compare AAB and asset bytes/SHA-256 against `play_store/upload_checksums.md` after the final local build.",
             "Run `./tools/run_final_local_gate.py` and require `final_local_gate_ok` before starting the Play Console upload.",
+            "When network is available before upload, run `./tools/run_final_local_gate.py --include-hosted-privacy` and require `final_local_gate_ok`",
             "When an API 36 emulator/device is available, prefer `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` so connected evidence is refreshed before the verifier",
             "uninstalls known stale local debug/test packages on the selected serial before instrumentation starts",
             "To have the project manage the API 36 emulator itself, run `./tools/run_api36_connected_gate.py` and require `api36_connected_gate_ok`",
+            "add `--include-hosted-privacy` when network is available before upload",
             "Run `./tools/print_upload_packet.py` and require `upload_packet_ok` before uploading assets.",
             "Run `./tools/create_store_asset_review_sheet.py --dry-run` and review `play_store/store_asset_review_sheet.png` before upload",
             "Run `./tools/print_play_console_packet.py` and require `play_console_packet_ok` before filling Play Console listing/App content forms.",
@@ -2777,7 +2784,9 @@ def check_upload_runbook_handoff() -> None:
             "./tools/run_final_local_gate.py --include-connected --connected-serial <serial>",
             "При доступном API 36 устройстве `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` тоже возвращает `final_local_gate_ok`",
             "./tools/run_api36_connected_gate.py",
+            "./tools/run_api36_connected_gate.py --include-hosted-privacy",
             "`./tools/run_api36_connected_gate.py` возвращает `api36_connected_gate_ok`",
+            "добавьте `--include-hosted-privacy`, когда сеть доступна",
             "ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest",
             "`./tools/run_final_local_gate.py` возвращает `final_local_gate_ok`.",
             "`./tools/verify_release.py` возвращает `release_verification_ok`.",
@@ -3013,6 +3022,7 @@ def check_api36_connected_gate_helper() -> None:
             "DEFAULT_BOOT_TIMEOUT_SECONDS = 180",
             "DEFAULT_LOG = Path(\"/tmp/line56_api36_connected_gate.log\")",
             "--keep-emulator",
+            "--include-hosted-privacy",
             "--preserve-avd-data",
             "--dry-run",
             "-wipe-data",
@@ -3024,6 +3034,7 @@ def check_api36_connected_gate_helper() -> None:
             "refusing to use or stop it",
             "wait_for_boot(",
             "run_final_local_gate.py\", \"--include-connected\", \"--connected-serial\"",
+            "command.append(\"--include-hosted-privacy\")",
             "stop only the emulator started by this helper",
             "api36_connected_gate_dry_run_ok",
             "api36_connected_gate_ok",
@@ -3048,6 +3059,16 @@ def check_api36_connected_gate_helper() -> None:
         "api36_connected_gate_dry_run_ok",
     ]:
         require(marker in output, f"api36 connected gate dry-run missing marker: {marker}")
+
+    hosted_output = subprocess.check_output(
+        [str(helper), "--dry-run", "--include-hosted-privacy"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    hosted_marker = "- ./tools/run_final_local_gate.py --include-connected --connected-serial emulator-5560 --include-hosted-privacy"
+    require(hosted_marker in hosted_output, f"api36 connected hosted-privacy dry-run missing marker: {hosted_marker}")
+    require("api36_connected_gate_dry_run_ok" in hosted_output, "api36 connected hosted-privacy dry-run did not finish with api36_connected_gate_dry_run_ok")
 
 
 def check_upload_packet_helper() -> None:

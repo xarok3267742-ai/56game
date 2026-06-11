@@ -57,6 +57,7 @@ Never commit signing files, passwords, private keys, `local.properties`, APKs, A
 ./tools/run_final_local_gate.py --include-connected --connected-serial <serial>
 ./tools/run_final_local_gate.py --include-connected --connected-serial <serial> --include-hosted-privacy
 ./tools/run_api36_connected_gate.py
+./tools/run_api36_connected_gate.py --include-hosted-privacy
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
 ./tools/create_store_asset_review_sheet.py --dry-run
@@ -86,7 +87,7 @@ Final local gate before handoff:
 
 The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local` and `./tools/check_signing_backup_inputs.py` in order. Add `--include-hosted-privacy` for a networked pre-upload run that replaces the publication-readiness step with `./tools/print_publication_readiness.py --check-recorded-privacy-url`.
 
-Run `connectedDebugAndroidTest` when an emulator/device is available. For a one-command owner preflight on an available API 36 device, use `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` so connected evidence is refreshed before `./tools/verify_release.py`. To let the project start and stop its own API 36 AVD safely, use `./tools/run_api36_connected_gate.py`; it targets `Medium_Phone_API_36` on `emulator-5560`, wipes that project-owned AVD data on managed start to avoid stale debug/test APK interference, and refuses to touch a different AVD on that serial.
+Run `connectedDebugAndroidTest` when an emulator/device is available. For a one-command owner preflight on an available API 36 device, use `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` so connected evidence is refreshed before `./tools/verify_release.py`. To let the project start and stop its own API 36 AVD safely, use `./tools/run_api36_connected_gate.py`; add `--include-hosted-privacy` for the networked upload-day version. It targets `Medium_Phone_API_36` on `emulator-5560`, wipes that project-owned AVD data on managed start to avoid stale debug/test APK interference, and refuses to touch a different AVD on that serial.
 
 ## Directory Structure
 
@@ -185,7 +186,7 @@ Release-facing Play files must stay present:
 
 `./tools/run_final_local_gate.py` is the owner-facing final local gate runner. It runs the local build/test/release verifier and read-only handoff helpers in the required order, supports optional `--include-hosted-privacy` recorded hosted privacy URL validation, supports optional `--include-connected --connected-serial <serial>` connected evidence refresh, cleans generated connected-test outputs, force-stops/kills known stale local package processes and uninstalls known stale local debug/test packages on the selected serial before that optional connected run, and prints `final_local_gate_ok` only after every command succeeds.
 
-`./tools/run_api36_connected_gate.py` is the managed API 36 connected gate helper. It boots a clean `Medium_Phone_API_36` on `emulator-5560` with `-wipe-data`, retries the cleaned AVD once without `-wipe-data` if the emulator exits after the wipe reset before boot, runs `./tools/run_final_local_gate.py --include-connected --connected-serial emulator-5560`, then stops only the emulator it started. If that serial is already occupied by another AVD, it fails instead of stopping or reusing it. Use `--preserve-avd-data` only for diagnostics where stale installed packages are intentionally being preserved.
+`./tools/run_api36_connected_gate.py` is the managed API 36 connected gate helper. It boots a clean `Medium_Phone_API_36` on `emulator-5560` with `-wipe-data`, retries the cleaned AVD once without `-wipe-data` if the emulator exits after the wipe reset before boot, runs `./tools/run_final_local_gate.py --include-connected --connected-serial emulator-5560`, can pass through `--include-hosted-privacy` for the networked upload-day preflight, then stops only the emulator it started. If that serial is already occupied by another AVD, it fails instead of stopping or reusing it. Use `--preserve-avd-data` only for diagnostics where stale installed packages are intentionally being preserved.
 
 `./tools/print_upload_packet.py` is the read-only owner helper for upload day. It verifies `play_store/upload_checksums.md` against the current AAB/assets, requires the exact ordered upload path set and prints the Google Play upload packet plus the Do Not Upload list.
 
