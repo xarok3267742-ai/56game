@@ -29,6 +29,8 @@ CONNECTED_OUTPUT_DIRS: tuple[Path, ...] = (
     ROOT / "app/build/reports/androidTests/connected/debug",
 )
 STALE_CONNECTED_PACKAGES: tuple[str, ...] = (
+    "com.qgrid.mobile.debug.test",
+    "com.qgrid.mobile.debug",
     "com.fiftyfive.seconds",
     "com.fiftyfive.seconds.debug.test",
     "com.fiftyfive.seconds.debug",
