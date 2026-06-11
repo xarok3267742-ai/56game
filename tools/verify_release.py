@@ -776,7 +776,8 @@ def check_google_play_checklist_handoff() -> None:
             "Format: Android App Bundle",
             "Signed AAB path: `app/build/outputs/bundle/release/app-release.aab`",
             "Current local upload keystore: `private/signing/qgrid-upload.p12`",
-            "case-insensitive common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) and case-insensitive Android upload/install artifact extensions (`*.apk`, `*.aab`, `*.apks`, `*.idsig`) are intentionally ignored",
+            "common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) and Android upload/install artifact extensions (`*.apk`, `*.aab`, `*.apks`, `*.idsig`) are intentionally ignored case-insensitively",
+            "`tools/verify_release.py` verifies these `.gitignore` patterns with `git check-ignore`",
             "Before Play upload, run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok`.",
             "Before Play upload, back up the keystore and credentials in secure owner-controlled storage, keep at least two owner-controlled secure copies, test recovery without exposing secrets and record only safe evidence in `play_store/signing_backup_evidence_ru.md`.",
             "./tools/run_final_local_gate.py",
@@ -1160,6 +1161,7 @@ def check_release_report_handoff() -> None:
             "Latest local signing-ignore extension hardening",
             "Latest case-insensitive signing-artifact hygiene hardening",
             "Latest local install-artifact ignore case hardening",
+            "Latest semantic git-ignore verification hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Current API 36 connected check",
@@ -1329,6 +1331,7 @@ def check_completion_audit_handoff() -> None:
             "Latest local signing-ignore extension hardening",
             "Latest case-insensitive signing-artifact hygiene hardening",
             "Latest local install-artifact ignore case hardening",
+            "Latest semantic git-ignore verification hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Requirements traceability matrix created and verifier-gated",
@@ -1469,8 +1472,8 @@ def check_sensitive_files_ignored() -> None:
         if line.strip() and not line.strip().startswith("#")
     }
     required_entries = {
-        "local.properties",
-        "keystore.properties",
+        "[lL][oO][cC][aA][lL].[pP][rR][oO][pP][eE][rR][tT][iI][eE][sS]",
+        "[kK][eE][yY][sS][tT][oO][rR][eE].[pP][rR][oO][pP][eE][rR][tT][iI][eE][sS]",
         "*.[jJ][kK][sS]",
         "*.[kK][eE][yY][sS][tT][oO][rR][eE]",
         "*.[pP]12",
@@ -1486,6 +1489,40 @@ def check_sensitive_files_ignored() -> None:
     }
     for entry in required_entries:
         require(entry in entries, f".gitignore must ignore {entry}")
+
+    git_ignore_cases = [
+        "local.properties",
+        "LOCAL.PROPERTIES",
+        "keystore.properties",
+        "KEYSTORE.PROPERTIES",
+        "private/signing/qgrid-upload.p12",
+        "PRIVATE/SIGNING/QGRID-UPLOAD.P12",
+        "release/upload.jks",
+        "release/UPLOAD.JKS",
+        "release/upload.keystore",
+        "release/UPLOAD.KEYSTORE",
+        "release/upload.pem",
+        "release/UPLOAD.PEM",
+        "release/upload.pk8",
+        "release/UPLOAD.PK8",
+        "release/upload.key",
+        "release/UPLOAD.KEY",
+        "app-release.apk",
+        "APP-RELEASE.APK",
+        "play.aab",
+        "PLAY.AAB",
+        "bundle.apks",
+        "BUNDLE.APKS",
+        "artifact.idsig",
+        "ARTIFACT.IDSIG",
+    ]
+    for ignored_path in git_ignore_cases:
+        ignored = subprocess.run(
+            ["git", "check-ignore", "-q", "--", ignored_path],
+            cwd=ROOT,
+            check=False,
+        )
+        require(ignored.returncode == 0, f".gitignore must ignore sensitive path case: {ignored_path}")
 
     sensitive_local_paths = [ROOT / "local.properties", ROOT / "keystore.properties"]
     sensitive_signing_suffixes = {".jks", ".keystore", ".p12", ".pem", ".pk8", ".key"}
@@ -2851,7 +2888,7 @@ def check_upload_runbook_handoff() -> None:
             "`app/build/outputs/bundle/release/app-release.aab`",
             "AAB SHA-256 совпадает с `play_store/upload_checksums.md`.",
             "Store icon, feature graphic, phone screenshots and large/tablet screenshots совпадают с `play_store/upload_manifest.md`.",
-            "`keystore.properties`, `local.properties`, `private/signing/*.p12`, case-insensitive common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) and case-insensitive APK/AAB/APKS/IDSIG files не добавляются в публичные материалы.",
+            "`keystore.properties`, `local.properties`, `private/signing/*.p12`, common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) and APK/AAB/APKS/IDSIG files case-insensitively игнорируются `.gitignore`, проверяются через `git check-ignore` in `tools/verify_release.py` and не добавляются в публичные материалы.",
             "Owner Inputs До Создания Релиза",
             "Play Console support/contact fields",
             "Public privacy policy URL: HTTPS, без логина, не PDF, без credentials/query/fragments",
@@ -5306,8 +5343,12 @@ def check_signing_certificate_report() -> None:
     require("qgrid_upload" in text, "signing report must include upload key alias")
     require("QuietGrid Upload" in text, "signing report must include QuietGrid certificate owner")
     require(
-        "case-insensitive common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) are ignored by `.gitignore`" in text,
-        "signing report must document local ignore coverage for common signing-key extensions",
+        "common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) and Android upload/install artifact extensions (`*.apk`, `*.aab`, `*.apks`, `*.idsig`) are ignored case-insensitively by `.gitignore`" in text,
+        "signing report must document local ignore coverage for common signing-key and Android artifact extensions",
+    )
+    require(
+        "`tools/verify_release.py` verifies representative lower/upper-case paths with `git check-ignore`" in text,
+        "signing report must document semantic git check-ignore coverage",
     )
     require(
         expected_sha256 in text,

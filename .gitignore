@@ -1,8 +1,8 @@
 .gradle/
 .kotlin/
 build/
-local.properties
-keystore.properties
+[lL][oO][cC][aA][lL].[pP][rR][oO][pP][eE][rR][tT][iI][eE][sS]
+[kK][eE][yY][sS][tT][oO][rR][eE].[pP][rR][oO][pP][eE][rR][tT][iI][eE][sS]
 *.[jJ][kK][sS]
 *.[kK][eE][yY][sS][tT][oO][rR][eE]
 *.[pP]12
