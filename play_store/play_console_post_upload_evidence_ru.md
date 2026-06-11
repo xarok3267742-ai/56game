@@ -72,6 +72,8 @@ The install/launch line must explicitly say the Play-generated APK was `installe
 - Play policy warnings: not yet available locally.
 - Store listing preview checked for damaging image crops: not yet available locally.
 
+After store-listing preview review, the preview-crop line must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and `no damaging crops`; do not use a bare `yes`.
+
 ## Stop-Release Notes
 
 Stop production rollout and return to local rebuild/recheck if any external evidence contradicts:

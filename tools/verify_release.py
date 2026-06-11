@@ -2921,6 +2921,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "./tools/create_store_asset_review_sheet.py --write",
             "Closed testing required for this account.",
             "Store listing preview checked for damaging image crops.",
+            "Store listing preview evidence must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and no damaging crops.",
             "publication_readiness_production_ready_owner_confirmed",
         ],
     )
@@ -4483,6 +4484,8 @@ def check_publication_readiness_helper() -> None:
             "(\"16 KB\", \"16384\", \"uncompressed\", \"ZIP-aligned\", \"extractNativeLibs=false\")",
             "\"Play-generated APK installed and launched on at least one Android device or emulator\"",
             "must mention an Android device or emulator",
+            "\"Store listing preview checked for damaging image crops\"",
+            "must explicitly say there are no damaging crops",
             "must explicitly mention at least two secure copies",
             "must explicitly say recovery was tested without exposing secrets",
             "must not be pending, unknown or negative evidence",
@@ -4619,6 +4622,17 @@ def check_publication_readiness_helper() -> None:
             "installed and launched",
             "missing",
         ),
+        ("Store listing preview checked for damaging image crops", "yes", "missing"),
+        (
+            "Store listing preview checked for damaging image crops",
+            "icon, feature graphic, screenshots, no damaging crops",
+            "missing",
+        ),
+        (
+            "Store listing preview checked for damaging image crops",
+            "icon, feature graphic, phone screenshots, tablet screenshots",
+            "no damaging crops",
+        ),
     ]
     for label, value, expected_message in negative_post_upload_cases:
         try:
@@ -4715,7 +4729,7 @@ def check_publication_readiness_helper() -> None:
             "Pre-launch report result": "passed",
             "Reproducible crashes in pre-launch report": "none",
             "Play policy warnings": "none",
-            "Store listing preview checked for damaging image crops": "yes",
+            "Store listing preview checked for damaging image crops": "icon, feature graphic, phone screenshots and tablet screenshots reviewed; no damaging crops",
         },
     )
     completed_post_unresolved = module.collect_evidence_status(
@@ -5581,6 +5595,7 @@ def check_post_upload_evidence_handoff() -> None:
             "Reproducible crashes in pre-launch report: not yet available locally.",
             "Play policy warnings: not yet available locally.",
             "Store listing preview checked for damaging image crops: not yet available locally.",
+            "After store-listing preview review, the preview-crop line must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and `no damaging crops`",
             "Stop production rollout and return to local rebuild/recheck",
             "package `com.qgrid.mobile`",
             "versionCode `1` and versionName `1.0.0`",

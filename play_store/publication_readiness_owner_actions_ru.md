@@ -199,7 +199,7 @@ Required posture:
 - Upload first through internal testing.
 - If the publisher account requires closed testing, complete the required tester/time gate before production.
 - Pre-launch report must have no blocking issues, no reproducible crashes and no unresolved policy warnings.
-- Store listing preview must not crop the icon, feature graphic or screenshots in a damaging way.
+- Store listing preview evidence must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and no damaging crops.
 
 ## Final Production Gate
 

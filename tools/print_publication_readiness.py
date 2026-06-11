@@ -454,7 +454,6 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         "Target audience completed as non-child-directed 13+ posture unless publisher intentionally chose a child-directed path",
         "AI disclosure completed as no in-app generative AI features",
         "Internal testing upload completed",
-        "Store listing preview checked for damaging image crops",
     }:
         validate_yes(label, value, file_label)
     elif label == "Signing backup evidence file":
@@ -525,6 +524,14 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
     elif label == "Play policy warnings":
         normalized = lower_value(value)
         require(normalized in {"none", "no", "no warnings", "resolved"}, f"{file_label} value for {label} must be none/no/resolved: {value}")
+    elif label == "Store listing preview checked for damaging image crops":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("icon", "feature graphic", "phone", "tablet", "screenshots"))
+        lowered = value.lower()
+        require(
+            "no damaging crop" in lowered or "no damaging crops" in lowered or "not damagingly cropped" in lowered,
+            f"{file_label} value for {label} must explicitly say there are no damaging crops: {value}",
+        )
     else:
         validate_non_empty(label, value, file_label)
 
