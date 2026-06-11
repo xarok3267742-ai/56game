@@ -1,10 +1,12 @@
 # Google Play Sources
 
-Checked on 6 June 2026 against official Google Play / Android Developers sources.
+Checked on 11 June 2026 against official Google Play / Android Developers sources.
 
 Latest source spot-check on 6 June 2026 after the ImageGen icon replacement and final local continuation audit: target API, Android App Bundle upload format, personal-account closed testing, preview assets, Google Play icon design specifications, Data Safety, User Data/privacy policy, content rating and target audience pages were rechecked against the local release candidate.
 
 Continuation source spot-check on 6 June 2026: official Google Play / Android Developers pages were rechecked again for target API 35+ submission posture, Android App Bundle upload/use in Play Console, public non-PDF privacy-policy URL requirements, Data Safety disclosure requirements and the personal-account closed-testing owner gate. No local release-candidate change was required because this project already targets SDK 36, builds a signed AAB, documents no-data/no-ads/no-permission posture and keeps privacy URL, Play Console forms and testing tracks as owner-controlled external gates.
+
+Latest source spot-check on 11 June 2026: official Google Play / Android Developers pages were rechecked for target API 35+ submission posture, Android App Bundle upload/use in Play Console, preview asset dimensions/format, Google Play icon requirements, Data Safety, User Data/privacy policy, content rating, target audience and personal-account closed-testing owner gates. The Google Play policy announcement page was also checked for the 15 April 2026 update set; no local product change was required because this project has no Contacts data access, no Location data access, no Health apps scope, no prediction market feature and no News app scope.
 
 - Target API level requirements: https://support.google.com/googleplay/android-developer/answer/11926878?hl=en
 - Target API policy summary: https://support.google.com/googleplay/android-developer/answer/11917020?hl=en
@@ -21,6 +23,7 @@ Continuation source spot-check on 6 June 2026: official Google Play / Android De
 - User Data policy detail: https://support.google.com/googleplay/android-developer/answer/10144311?hl=en
 - Content Ratings: https://support.google.com/googleplay/android-developer/answer/9898843?hl=en
 - Target audience and app content settings: https://support.google.com/googleplay/android-developer/answer/9867159?hl=en
+- Google Play policy announcements: https://support.google.com/googleplay/android-developer/answer/16926792?hl=en
 
 Current official requirements used for the release-candidate audit:
 

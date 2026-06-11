@@ -25,6 +25,7 @@
 - `minSdk`: 24
 - `compileSdk`: 36
 - `targetSdk`: 36, above the current Android 15/API 35 submission requirement documented in `docs/google_play_sources.md`
+- Official source audit: rechecked on 11 June 2026 in `docs/google_play_sources.md`; no local product change was required.
 - Format: Android App Bundle
 - Signed AAB path: `app/build/outputs/bundle/release/app-release.aab`
 - Upload manifest: `play_store/upload_manifest.md`

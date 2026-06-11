@@ -725,8 +725,10 @@ def check_google_play_sources() -> None:
     require_text_markers(
         "docs/google_play_sources.md",
         [
-            "Checked on 6 June 2026",
+            "Checked on 11 June 2026",
             "Latest source spot-check on 6 June 2026 after the ImageGen icon replacement",
+            "Latest source spot-check on 11 June 2026",
+            "https://support.google.com/googleplay/android-developer/answer/16926792?hl=en",
             "https://support.google.com/googleplay/android-developer/answer/11926878?hl=en",
             "https://developer.android.com/guide/app-bundle/app-bundle-format",
             "https://support.google.com/googleplay/android-developer/answer/14151465?hl=en",
@@ -747,6 +749,7 @@ def check_google_play_sources() -> None:
             "Google Play dynamically applies its own rounded mask and shadow",
             "apps that do not access personal and sensitive user data still must submit a privacy policy",
             "at least 12 opted-in testers for 14 continuous days",
+            "no Contacts data access, no Location data access, no Health apps scope, no prediction market feature and no News app scope",
         ],
     )
 
@@ -767,6 +770,7 @@ def check_google_play_checklist_handoff() -> None:
             "`applicationId`: `com.qgrid.mobile`",
             "Debug package: `com.qgrid.mobile.debug`",
             "`targetSdk`: 36",
+            "Official source audit: rechecked on 11 June 2026 in `docs/google_play_sources.md`",
             "Format: Android App Bundle",
             "Signed AAB path: `app/build/outputs/bundle/release/app-release.aab`",
             "Current local upload keystore: `private/signing/qgrid-upload.p12`",
@@ -1145,6 +1149,8 @@ def check_release_report_handoff() -> None:
             "Release phone and large/tablet screenshots captured from the real release app.",
             "Official Google Play source refresh",
             "Latest Google Play source spot-check on 6 June 2026",
+            "Latest official source spot-check on 11 June 2026",
+            "Latest final local gate after 11 June source audit",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Current API 36 connected check",
@@ -1307,6 +1313,8 @@ def check_completion_audit_handoff() -> None:
             "Secret hygiene is verifier-checked",
             "Google Play official source check documented: `docs/google_play_sources.md`.",
             "Latest Google Play source spot-check on 6 June 2026",
+            "Latest Google Play source spot-check on 11 June 2026",
+            "Latest final local gate after 11 June source audit",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Requirements traceability matrix created and verifier-gated",
