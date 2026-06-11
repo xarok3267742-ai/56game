@@ -447,7 +447,6 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         "Support/contact mechanism matches `play_store/privacy_policy_ru.html`",
         "Active upload keystore backed up before AAB upload",
         "Play-generated version code/name match this release candidate",
-        "Play-generated APK installed and launched on at least one Android device or emulator",
         "App access completed as no restricted access/login/account",
         "Ads declaration completed as no ads",
         "Data Safety completed as no user data collected or shared",
@@ -497,6 +496,14 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
     elif label == "Play-generated native libraries support 16 KB page sizes":
         validate_no_negative_markers(label, value, file_label)
         validate_contains_all(label, value, file_label, ("16 KB", "16384", "uncompressed", "ZIP-aligned", "extractNativeLibs=false"))
+    elif label == "Play-generated APK installed and launched on at least one Android device or emulator":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("installed", "launched", "Android"))
+        lowered = value.lower()
+        require(
+            "device" in lowered or "emulator" in lowered,
+            f"{file_label} value for {label} must mention an Android device or emulator: {value}",
+        )
     elif label == "Closed testing required for this account":
         normalized = lower_value(value)
         require(normalized in {"yes", "no"}, f"{file_label} value for {label} must be yes or no: {value}")

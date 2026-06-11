@@ -2911,6 +2911,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "native 16 KB page-size posture",
             "`extractNativeLibs=true`, compressed native libraries, native ZIP data offsets below 16 KB alignment",
             "native `.so` files below 16 KB ELF `PT_LOAD` alignment",
+            "Install/launch evidence must explicitly say the downloaded Play-generated APK was installed and launched on an Android device or Android emulator.",
             "Play Console Forms",
             "play_store/app_content_answers_ru.md",
             "play_store/data_safety_ru.md",
@@ -4480,6 +4481,8 @@ def check_publication_readiness_helper() -> None:
             "\"Play-generated manifest privacy review shows `allowBackup=false` and no debuggable release manifest\"",
             "(\"allowBackup=false\", \"no debuggable\")",
             "(\"16 KB\", \"16384\", \"uncompressed\", \"ZIP-aligned\", \"extractNativeLibs=false\")",
+            "\"Play-generated APK installed and launched on at least one Android device or emulator\"",
+            "must mention an Android device or emulator",
             "must explicitly mention at least two secure copies",
             "must explicitly say recovery was tested without exposing secrets",
             "must not be pending, unknown or negative evidence",
@@ -4610,6 +4613,12 @@ def check_publication_readiness_helper() -> None:
             "16 KB page sizes, PT_LOAD alignment 16384 bytes",
             "missing",
         ),
+        ("Play-generated APK installed and launched on at least one Android device or emulator", "yes", "missing"),
+        (
+            "Play-generated APK installed and launched on at least one Android device or emulator",
+            "installed and launched",
+            "missing",
+        ),
     ]
     for label, value, expected_message in negative_post_upload_cases:
         try:
@@ -4693,7 +4702,7 @@ def check_publication_readiness_helper() -> None:
             "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions": "no INTERNET, no ACCESS_NETWORK_STATE, no dangerous runtime permissions",
             "Play-generated manifest privacy review shows `allowBackup=false` and no debuggable release manifest": "allowBackup=false, no debuggable release manifest",
             "Play-generated native libraries support 16 KB page sizes": "16 KB page sizes, minimum PT_LOAD alignment 16384 bytes, uncompressed, ZIP-aligned 16384 bytes, extractNativeLibs=false",
-            "Play-generated APK installed and launched on at least one Android device or emulator": "yes",
+            "Play-generated APK installed and launched on at least one Android device or emulator": "installed and launched on Android emulator",
             "App access completed as no restricted access/login/account": "yes",
             "Ads declaration completed as no ads": "yes",
             "Data Safety completed as no user data collected or shared": "yes",
@@ -5558,6 +5567,7 @@ def check_post_upload_evidence_handoff() -> None:
             "After Play-generated artifact review, the permissions line must explicitly include `no INTERNET`, `no ACCESS_NETWORK_STATE` and `no dangerous runtime permissions`.",
             "The manifest privacy line must explicitly include `allowBackup=false` and `no debuggable`",
             "The native-library line must explicitly include `16 KB`, `16384`, `uncompressed`, `ZIP-aligned` and `extractNativeLibs=false`",
+            "The install/launch line must explicitly say the Play-generated APK was `installed` and `launched` on an Android device or Android emulator",
             "App access completed as no restricted access/login/account: not yet available locally.",
             "Ads declaration completed as no ads: not yet available locally.",
             "Data Safety completed as no user data collected or shared: not yet available locally.",
