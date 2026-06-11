@@ -109,6 +109,7 @@ POST_UPLOAD_LABELS = (
     "Active upload keystore backed up before AAB upload",
     "Owner-controlled backup evidence recorded without secrets",
     "Play-generated APK package is `com.qgrid.mobile`",
+    "Play-generated APK signature verifies and certificate SHA-256 recorded",
     "Play-generated app label is `Линия 56`",
     "Play-generated icon matches `play_store/icon/play_icon_512.png`",
     "Play-generated version code/name match this release candidate",
@@ -205,11 +206,12 @@ OWNER_ACTION_GROUPS = (
     ),
     (
         "Play-generated artifact review",
-        "Download or inspect Play-generated artifacts and prove package, label, version, icon, permission, manifest privacy and native 16 KB page-size posture.",
+        "Download or inspect Play-generated artifacts and prove package, signature, label, version, icon, permission, manifest privacy and native 16 KB page-size posture.",
         ("play_store/play_console_post_upload_evidence_ru.md",),
         ("./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>",),
         (
             "Play-generated APK package is `com.qgrid.mobile`",
+            "Play-generated APK signature verifies and certificate SHA-256 recorded",
             "Play-generated app label is `Линия 56`",
             "Play-generated icon matches `play_store/icon/play_icon_512.png`",
             "Play-generated version code/name match this release candidate",
@@ -473,6 +475,14 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         )
     elif label == "Play-generated APK package is `com.qgrid.mobile`":
         validate_exact(label, value, file_label, "com.qgrid.mobile")
+    elif label == "Play-generated APK signature verifies and certificate SHA-256 recorded":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("verified", "SHA-256"))
+        require(
+            re.search(r"\b[0-9a-fA-F]{64}\b", value.replace(":", "")) is not None,
+            f"{file_label} value for {label} must include a certificate SHA-256 fingerprint: {value}",
+        )
+        require("android debug" not in value.lower(), f"{file_label} value for {label} must not be an Android Debug certificate: {value}")
     elif label == "Play-generated app label is `Линия 56`":
         validate_exact(label, value, file_label, "Линия 56")
     elif label == "Play-generated icon matches `play_store/icon/play_icon_512.png`":

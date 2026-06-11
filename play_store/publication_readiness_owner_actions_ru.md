@@ -112,7 +112,7 @@ Required posture:
 
 ## 4. Play-Generated Artifact Review
 
-Action: download or inspect Play-generated artifacts and prove package, label, version, icon, permission, manifest privacy and native 16 KB page-size posture.
+Action: download or inspect Play-generated artifacts and prove package, signature, label, version, icon, permission, manifest privacy and native 16 KB page-size posture.
 
 Evidence file: `play_store/play_console_post_upload_evidence_ru.md`.
 
@@ -126,6 +126,7 @@ Commands:
 Fields to resolve:
 
 - Play-generated APK package is `com.qgrid.mobile`.
+- Play-generated APK signature verifies and certificate SHA-256 recorded.
 - Play-generated app label is `Линия 56`.
 - Play-generated icon matches `play_store/icon/play_icon_512.png`.
 - Play-generated version code/name match this release candidate.
@@ -136,7 +137,7 @@ Fields to resolve:
 
 Required posture:
 
-- Generated artifacts must not contain debug package ids, androidTest/JUnit/Espresso/test leakage, forbidden permissions, `allowBackup=true`, `debuggable=true`, `extractNativeLibs=true`, compressed native libraries, native ZIP data offsets below 16 KB alignment, icon pixels that differ from `play_store/icon/play_icon_512.png`, application/round icon references that are not linked to that matching PNG, or native `.so` files below 16 KB ELF `PT_LOAD` alignment.
+- Generated artifacts must not contain debug package ids, Android Debug signing certificates, missing/invalid APK signatures, androidTest/JUnit/Espresso/test leakage, forbidden permissions, `allowBackup=true`, `debuggable=true`, `extractNativeLibs=true`, compressed native libraries, native ZIP data offsets below 16 KB alignment, icon pixels that differ from `play_store/icon/play_icon_512.png`, application/round icon references that are not linked to that matching PNG, or native `.so` files below 16 KB ELF `PT_LOAD` alignment.
 - Stop rollout if package, label, version, icon, permissions, manifest privacy or native 16 KB page-size posture differ from the local release candidate.
 
 ## 5. Play Console Forms

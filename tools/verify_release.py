@@ -640,7 +640,7 @@ def check_agents_handoff() -> None:
             "groups unresolved owner actions by evidence file and required command",
             "publication_readiness_local_ready_external_pending",
             "`./tools/verify_play_generated_apk.py` is the owner helper for Play-generated APK review after upload.",
-            "with `--apk <path>` it verifies the APK package, version, label, SDK levels, no forbidden permissions, `allowBackup=false`, no debuggable release manifest, `extractNativeLibs=false`, native `.so` `PT_LOAD` alignment, uncompressed 16 KB ZIP-aligned native libraries, no debug/test leakage, a 512x512 icon candidate whose pixels match `play_store/icon/play_icon_512.png`, an application icon reference linked to that matching PNG and a round icon reference linked to that same PNG.",
+            "with `--apk <path>` it verifies the APK package, version, label, SDK levels, APK signature, signer certificate SHA-256, no Android Debug certificate, no forbidden permissions, `allowBackup=false`, no debuggable release manifest, `extractNativeLibs=false`, native `.so` `PT_LOAD` alignment, uncompressed 16 KB ZIP-aligned native libraries, no debug/test leakage, a 512x512 icon candidate whose pixels match `play_store/icon/play_icon_512.png`, an application icon reference linked to that matching PNG and a round icon reference linked to that same PNG.",
             "`./tools/check_privacy_policy_url.py --local` validates the local ready-to-host privacy HTML.",
             "`./tools/check_privacy_policy_url.py --url <https-url>` before entering the URL in Play Console.",
             "`./tools/check_signing_backup_inputs.py` validates the ignored local signing inputs before backup without printing password values.",
@@ -907,7 +907,7 @@ def check_google_play_checklist_handoff() -> None:
             "Run `./tools/create_store_asset_review_sheet.py --dry-run` and review `play_store/store_asset_review_sheet.png` before upload",
             "Run `./tools/print_play_console_packet.py` and require `play_console_packet_ok` before filling Play Console listing/App content forms.",
             "Use `play_store/publication_readiness_owner_actions_ru.md` to resolve the external owner-action groups before production rollout.",
-            "After Play Console creates downloadable APK artifacts from the uploaded AAB, run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`, `store icon pixel matches: ...`, `application icon linked store icon: ...`, `round icon linked store icon: ...`, `allowBackup: false` and `debuggable: absent` or `debuggable: false`.",
+            "After Play Console creates downloadable APK artifacts from the uploaded AAB, run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`, `signer certificate SHA-256: ...`, `store icon pixel matches: ...`, `application icon linked store icon: ...`, `round icon linked store icon: ...`, `allowBackup: false` and `debuggable: absent` or `debuggable: false`.",
             "Run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok` before backing up signing files and uploading the AAB.",
             "After pushing the release handoff to GitHub, run `./tools/verify_remote_release.py --tag <release-tag>` and require `remote_release_ok`",
             "annotated remote release tag",
@@ -2902,6 +2902,9 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "Play-Generated Artifact Review",
             "./tools/verify_play_generated_apk.py --dry-run",
             "./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>",
+            "Play-generated APK signature verifies and certificate SHA-256 recorded.",
+            "Android Debug signing certificates",
+            "missing/invalid APK signatures",
             "no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions",
             "icon pixels that differ from `play_store/icon/play_icon_512.png`",
             "application/round icon references that are not linked to that matching PNG",
@@ -3009,7 +3012,7 @@ def check_upload_runbook_handoff() -> None:
             "groups unresolved owner actions by evidence file and required command",
             "сверить действия с `play_store/publication_readiness_owner_actions_ru.md`",
             "`./tools/verify_play_generated_apk.py --dry-run` возвращает `play_generated_apk_verify_dry_run_ok`",
-            "`./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok` plus the `store icon pixel matches: ...`, `application icon linked store icon: ...`, `round icon linked store icon: ...`, `allowBackup: false` and `debuggable: absent` or `debuggable: false` lines.",
+            "`./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok` plus the `signer certificate SHA-256: ...`, `store icon pixel matches: ...`, `application icon linked store icon: ...`, `round icon linked store icon: ...`, `allowBackup: false` and `debuggable: absent` or `debuggable: false` lines.",
             "`./tools/verify_release.py` проверяет 16 KB page-size posture для native `.so` в signed AAB",
             "--require-production-ready",
             "`./tools/check_privacy_policy_url.py --local` возвращает `privacy_policy_local_ok` and prints the canonical privacy text SHA-256 for owner comparison.",
@@ -3070,7 +3073,7 @@ def check_upload_runbook_handoff() -> None:
             "The only binary upload artifact for Google Play is the signed AAB.",
             "Release Track Order",
             "Upload the signed AAB to internal testing.",
-            "Inspect Play-generated APKs for package, app name, version, store-icon pixel match, application/round icon linkage, permissions, `allowBackup=false`, no debuggable release manifest and native 16 KB page-size posture.",
+            "Inspect Play-generated APKs for package, app name, version, APK signature, signer certificate SHA-256, store-icon pixel match, application/round icon linkage, permissions, `allowBackup=false`, no debuggable release manifest and native 16 KB page-size posture.",
             "Run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.",
             "Promote to production only after owner gates, testing tracks and review warnings are complete.",
             "Stop Conditions",
@@ -4086,6 +4089,7 @@ def check_play_generated_apk_helper() -> None:
         "tools/verify_play_generated_apk.py",
         [
             "Verify a Play-generated APK or local release APK against the release identity.",
+            "signature,",
             "manifest-privacy regressions before rollout",
             "page-size ELF and APK packaging alignment",
             "EXPECTED_PACKAGE = \"com.qgrid.mobile\"",
@@ -4106,10 +4110,13 @@ def check_play_generated_apk_helper() -> None:
             "\"junit\"",
             "def find_aapt(",
             "def find_aapt2(",
+            "def find_apksigner(",
             "def run_aapt_badging(",
+            "def run_apksigner_verify(",
             "def run_aapt_xmltree(",
             "def run_aapt2_resources(",
             "def permissions_from_badging(",
+            "def apk_signature_summary(",
             "def png_rgba_from_bytes(",
             "def store_icon_rgba(",
             "def elf_load_alignments(",
@@ -4131,6 +4138,9 @@ def check_play_generated_apk_helper() -> None:
             "def icon_candidates(",
             "APK requests unexpected permissions",
             "APK requests forbidden permissions",
+            "APK signature verification found no signers.",
+            "APK is signed with an Android Debug certificate",
+            "APK signature must verify with APK Signature Scheme v2, v3 or v3.1.",
             "APK manifest is missing explicit android:allowBackup=false.",
             "APK manifest android:allowBackup must be false.",
             "APK manifest android:debuggable must be absent or false.",
@@ -4162,6 +4172,7 @@ def check_play_generated_apk_helper() -> None:
         "expected versionName: 1.0.0",
         "expected label: Линия 56",
         "no INTERNET, no ACCESS_NETWORK_STATE and no dangerous runtime permissions",
+        "required signature posture: APK signature verifies, certificate SHA-256 is printed and Android Debug certificates are rejected",
         "required manifest privacy posture: allowBackup=false and no debuggable release manifest",
         "required icon posture: a 512x512 PNG candidate must pixel-match play_store/icon/play_icon_512.png",
         "required app icon posture: application icon reference must link to the store-icon pixel match",
@@ -4186,6 +4197,9 @@ def check_play_generated_apk_helper() -> None:
         "versionName: 1.0.0",
         "label: Линия 56",
         "minSdk/targetSdk: 24/36",
+        "signer certificate DN: CN=QuietGrid Upload, OU=QuietGrid, O=QuietGrid, L=Local, ST=Local, C=US",
+        "signer certificate SHA-256: dd971e778a0a87e79e1a44181d453b83807fb306ff48deacbafd4811368372f1",
+        "signature schemes: v1=false, v2=true, v3=false, v3.1=false, v4=false",
         "permissions: com.qgrid.mobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
         "allowBackup: false",
         "debuggable: absent",
@@ -4225,6 +4239,11 @@ def check_play_generated_apk_helper() -> None:
     require(release_result["versionCode"] == "1", "Play-generated APK helper module returned wrong release versionCode")
     require(release_result["versionName"] == "1.0.0", "Play-generated APK helper module returned wrong release versionName")
     require(release_result["label"] == "Линия 56", "Play-generated APK helper module returned wrong release label")
+    require(
+        release_result["signature"]["certificateSha256"] == "dd971e778a0a87e79e1a44181d453b83807fb306ff48deacbafd4811368372f1",
+        "Play-generated APK helper module returned wrong local release signer certificate SHA-256",
+    )
+    require(release_result["signature"]["signatureSchemes"].get("v2") is True, "Play-generated APK helper module did not verify v2 APK signing")
     require(release_result["allowBackup"] is False, "Play-generated APK helper module returned wrong allowBackup posture")
     require(release_result["debuggable"] in {"absent", "false"}, "Play-generated APK helper module returned wrong debuggable posture")
     require(release_result["extractNativeLibs"] is False, "Play-generated APK helper module returned wrong extractNativeLibs posture")
@@ -4252,6 +4271,47 @@ def check_play_generated_apk_helper() -> None:
             raise CheckFailure("Play-generated APK helper must reject native libraries below 16 KB alignment")
     finally:
         module.native_library_alignment_summary = original_alignment_summary
+
+    original_apksigner_verify = module.run_apksigner_verify
+    for bad_output, expected_message in [
+        ("Verifies\nNumber of signers: 0\n", "found no signers"),
+        (
+            "Verifies\n"
+            "Verified using v1 scheme (JAR signing): true\n"
+            "Verified using v2 scheme (APK Signature Scheme v2): false\n"
+            "Verified using v3 scheme (APK Signature Scheme v3): false\n"
+            "Verified using v3.1 scheme (APK Signature Scheme v3.1): false\n"
+            "Number of signers: 1\n"
+            "Signer #1 certificate DN: CN=Release\n"
+            "Signer #1 certificate SHA-256 digest: " + "a" * 64 + "\n",
+            "APK Signature Scheme v2, v3 or v3.1",
+        ),
+        (
+            "Verifies\n"
+            "Verified using v2 scheme (APK Signature Scheme v2): true\n"
+            "Number of signers: 1\n"
+            "Signer #1 certificate DN: C=US, O=Android, CN=Android Debug\n"
+            "Signer #1 certificate SHA-256 digest: " + "b" * 64 + "\n",
+            "Android Debug certificate",
+        ),
+    ]:
+        try:
+            module.run_apksigner_verify = lambda _apk, output=bad_output: output
+            try:
+                module.apk_signature_summary(release_apk)
+            except module.ApkReviewError as exc:
+                require(expected_message in str(exc), f"Play-generated APK helper rejected bad signature output with unexpected message: {exc}")
+            else:
+                raise CheckFailure("Play-generated APK helper must reject bad APK signature posture")
+        finally:
+            module.run_apksigner_verify = original_apksigner_verify
+
+    try:
+        module.apk_signature_summary(debug_apk)
+    except module.ApkReviewError as exc:
+        require("Android Debug certificate" in str(exc), f"Play-generated APK helper rejected debug certificate with unexpected message: {exc}")
+    else:
+        raise CheckFailure("Play-generated APK helper must reject Android Debug signing certificates")
 
     original_zip_packaging_summary = module.native_library_zip_packaging_summary
     for bad_summary, expected_message in [
@@ -4347,12 +4407,17 @@ def check_play_generated_apk_helper() -> None:
                 if info.filename == matching_icon:
                     data = solid_png(512, 512, b"\xff\x00\x00\xff")
                 target.writestr(info, data)
+        original_signature_summary = module.apk_signature_summary
         try:
-            module.verify_apk(tampered_apk)
-        except module.ApkReviewError as exc:
-            require("pixel-for-pixel" in str(exc), f"Play-generated APK helper rejected icon mismatch with unexpected message: {exc}")
-        else:
-            raise CheckFailure("Play-generated APK helper must reject 512x512 icons that do not match the store icon")
+            module.apk_signature_summary = lambda _apk: release_result["signature"]
+            try:
+                module.verify_apk(tampered_apk)
+            except module.ApkReviewError as exc:
+                require("pixel-for-pixel" in str(exc), f"Play-generated APK helper rejected icon mismatch with unexpected message: {exc}")
+            else:
+                raise CheckFailure("Play-generated APK helper must reject 512x512 icons that do not match the store icon")
+        finally:
+            module.apk_signature_summary = original_signature_summary
 
     try:
         module.verify_apk(debug_apk)
@@ -4407,6 +4472,9 @@ def check_publication_readiness_helper() -> None:
             "must not include query parameters",
             "must be a positive confirmation without negative status markers",
             "must explicitly say evidence was recorded without secrets",
+            "\"Play-generated APK signature verifies and certificate SHA-256 recorded\"",
+            "must include a certificate SHA-256 fingerprint",
+            "must not be an Android Debug certificate",
             "\"Play-generated icon matches `play_store/icon/play_icon_512.png`\"",
             "(\"application icon\", \"round icon\", \"store icon\", \"pixel\")",
             "\"Play-generated manifest privacy review shows `allowBackup=false` and no debuggable release manifest\"",
@@ -4480,7 +4548,7 @@ def check_publication_readiness_helper() -> None:
         "Signing backup: 9 unresolved field(s).",
         "evidence: play_store/play_console_post_upload_evidence_ru.md, play_store/signing_backup_evidence_ru.md",
         "command: ./tools/check_signing_backup_inputs.py",
-        "Play-generated artifact review: 8 unresolved field(s).",
+        "Play-generated artifact review: 9 unresolved field(s).",
         "Testing track and final review: 7 unresolved field(s).",
         "publication_readiness_local_ready_external_pending",
     ]:
@@ -4516,6 +4584,12 @@ def check_publication_readiness_helper() -> None:
         ("Play Console support/contact field populated", "none", "unexpected value"),
         ("Play Console support/contact field populated", "yes, but not completed", "positive confirmation without negative status markers"),
         ("Owner-controlled backup evidence recorded without secrets", "yes", "without secrets"),
+        ("Play-generated APK signature verifies and certificate SHA-256 recorded", "verified SHA-256", "certificate SHA-256 fingerprint"),
+        (
+            "Play-generated APK signature verifies and certificate SHA-256 recorded",
+            "verified SHA-256 aa26d9564ed889380da8132dadbc4b255312deb463bf21e58f5b0709abf92b3e Android Debug",
+            "Android Debug certificate",
+        ),
         ("Play-generated icon matches `play_store/icon/play_icon_512.png`", "yes, application icon linked store icon pixel matches helper output", "missing"),
         ("Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions", "looks fine", "missing"),
         (
@@ -4611,6 +4685,7 @@ def check_publication_readiness_helper() -> None:
             "Active upload keystore backed up before AAB upload": "yes",
             "Owner-controlled backup evidence recorded without secrets": "yes, recorded without secrets",
             "Play-generated APK package is `com.qgrid.mobile`": "com.qgrid.mobile",
+            "Play-generated APK signature verifies and certificate SHA-256 recorded": "verified, SHA-256 dd971e778a0a87e79e1a44181d453b83807fb306ff48deacbafd4811368372f1",
             "Play-generated app label is `Линия 56`": "Линия 56",
             "Play-generated icon matches `play_store/icon/play_icon_512.png`": "yes, application icon linked store icon pixel matches and round icon linked store icon pixel matches helper output",
             "Play-generated version code/name match this release candidate": "yes",
@@ -5372,6 +5447,7 @@ def check_owner_release_inputs() -> None:
             "Play account testing path",
             "closed testing with 12 opted-in testers for 14 continuous days if required by account type",
             "Final generated-artifact review",
+            "APK signature/certificate fingerprint",
             "manifest privacy/debug posture",
             "Upload Execution",
             "Use `play_store/upload_runbook_ru.md` as the owner-facing sequence for the upload day.",
@@ -5419,12 +5495,14 @@ def check_post_upload_evidence_handoff() -> None:
             "After the real backup is complete, keep the backup evidence line explicit and safe, for example: `yes, recorded without secrets`.",
             "Play-generated APK verification command: run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.",
             "Play-generated APK package is `com.qgrid.mobile`: not yet available locally.",
+            "Play-generated APK signature verifies and certificate SHA-256 recorded: not yet available locally.",
             "Play-generated app label is `Линия 56`: not yet available locally.",
             "Play-generated icon matches `play_store/icon/play_icon_512.png`: not yet available locally.",
             "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions: not yet available locally.",
             "Play-generated manifest privacy review shows `allowBackup=false` and no debuggable release manifest: not yet available locally.",
             "Play-generated native libraries support 16 KB page sizes: not yet available locally.",
             "After Play-generated artifact review, the icon line must be based on helper output `store icon pixel matches: ...`, `application icon linked store icon: ...` and `round icon linked store icon: ...`",
+            "The signature line must explicitly include `verified`, `SHA-256` and the signer certificate SHA-256 fingerprint",
             "The icon line must explicitly mention application-icon-linked and round-icon-linked store-icon pixel matches.",
             "After Play-generated artifact review, the permissions line must explicitly include `no INTERNET`, `no ACCESS_NETWORK_STATE` and `no dangerous runtime permissions`.",
             "The manifest privacy line must explicitly include `allowBackup=false` and `no debuggable`",

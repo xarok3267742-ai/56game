@@ -67,7 +67,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - `./tools/prepare_play_upload_archive.py --dry-run` возвращает `play_upload_archive_dry_run_ok`; `./tools/prepare_play_upload_archive.py --verify-existing` возвращает `play_upload_archive_existing_ok`; optional `./tools/prepare_play_upload_archive.py --write` создаёт generated owner handoff ZIP under `build/play_upload`, который нужно распаковать, а не загружать целиком в Play Console.
 - `./tools/print_play_console_packet.py` возвращает `play_console_packet_ok`.
 - `./tools/print_publication_readiness.py` возвращает `publication_readiness_local_ready_external_pending` до закрытия внешних owner gates and groups unresolved owner actions by evidence file and required command; сверить действия с `play_store/publication_readiness_owner_actions_ru.md`. Production rollout не начинать, пока `--require-production-ready` не проходит после записи внешних evidence.
-- `./tools/verify_play_generated_apk.py --dry-run` возвращает `play_generated_apk_verify_dry_run_ok`; после Play-generated artifact download запустить `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok` plus the `store icon pixel matches: ...`, `application icon linked store icon: ...`, `round icon linked store icon: ...`, `allowBackup: false` and `debuggable: absent` or `debuggable: false` lines.
+- `./tools/verify_play_generated_apk.py --dry-run` возвращает `play_generated_apk_verify_dry_run_ok`; после Play-generated artifact download запустить `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok` plus the `signer certificate SHA-256: ...`, `store icon pixel matches: ...`, `application icon linked store icon: ...`, `round icon linked store icon: ...`, `allowBackup: false` and `debuggable: absent` or `debuggable: false` lines.
 - `./tools/verify_release.py` проверяет 16 KB page-size posture для native `.so` в signed AAB; post-upload APK helper проверяет тот же `PT_LOAD` alignment на Play-generated APK plus uncompressed native-library packaging, 16 KB ZIP data alignment and `extractNativeLibs=false`.
 - `./tools/check_privacy_policy_url.py --local` возвращает `privacy_policy_local_ok` and prints the canonical privacy text SHA-256 for owner comparison.
 - `./tools/check_signing_backup_inputs.py` возвращает `signing_backup_input_ok`.
@@ -186,7 +186,7 @@ The only binary upload artifact for Google Play is the signed AAB.
 Recommended order:
 
 1. Upload the signed AAB to internal testing.
-2. Inspect Play-generated APKs for package, app name, version, store-icon pixel match, application/round icon linkage, permissions, `allowBackup=false`, no debuggable release manifest and native 16 KB page-size posture.
+2. Inspect Play-generated APKs for package, app name, version, APK signature, signer certificate SHA-256, store-icon pixel match, application/round icon linkage, permissions, `allowBackup=false`, no debuggable release manifest and native 16 KB page-size posture.
 3. Run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.
 4. Install generated APKs on at least one Android device or emulator.
 5. Repeat first-launch, home, game, win, settings, restart and no-internet smoke flows.
@@ -201,7 +201,7 @@ Stop and return to local rebuild/recheck if any of these happen:
 - Play Console package is not `com.qgrid.mobile`.
 - Version code or version name differs from this runbook.
 - Play shows privacy, data-safety, permissions, target-audience or content-rating warnings that contradict local docs.
-- Play-generated APK has a wrong icon, label, package, backup/debug manifest posture or debuggable release manifest.
+- Play-generated APK has a wrong icon, label, package, invalid signature, Android Debug certificate, backup/debug manifest posture or debuggable release manifest.
 - Pre-launch report shows a reproducible app crash.
 - Store screenshots or feature graphic are rejected or visually cropped in a damaging way.
 - Any owner wants to change package id, version, privacy posture, target audience, store copy claims, icon, feature graphic or screenshots.

@@ -36,6 +36,7 @@ After the real backup is complete, keep the backup evidence line explicit and sa
 
 - Play-generated APK verification command: run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.
 - Play-generated APK package is `com.qgrid.mobile`: not yet available locally.
+- Play-generated APK signature verifies and certificate SHA-256 recorded: not yet available locally.
 - Play-generated app label is `Линия 56`: not yet available locally.
 - Play-generated icon matches `play_store/icon/play_icon_512.png`: not yet available locally.
 - Play-generated version code/name match this release candidate: not yet available locally.
@@ -45,6 +46,7 @@ After the real backup is complete, keep the backup evidence line explicit and sa
 - Play-generated APK installed and launched on at least one Android device or emulator: not yet available locally.
 
 After Play-generated artifact review, the icon line must be based on helper output `store icon pixel matches: ...`, `application icon linked store icon: ...` and `round icon linked store icon: ...`, not only a visual/manual size check.
+The signature line must explicitly include `verified`, `SHA-256` and the signer certificate SHA-256 fingerprint from helper output `signer certificate SHA-256: ...`; do not record signing passwords or keystore contents.
 The icon line must explicitly mention application-icon-linked and round-icon-linked store-icon pixel matches.
 After Play-generated artifact review, the permissions line must explicitly include `no INTERNET`, `no ACCESS_NETWORK_STATE` and `no dangerous runtime permissions`.
 The manifest privacy line must explicitly include `allowBackup=false` and `no debuggable`, based on helper output `allowBackup: false` and `debuggable: absent` or `debuggable: false`.

@@ -4,9 +4,9 @@
 Use this after Play Console creates downloadable APK artifacts from the uploaded
 AAB, or locally against `app/build/outputs/apk/release/app-release.apk` as a
 pre-upload sanity check. This does not replace installing and launching the
-Play-generated APK on a device; it catches package, version, permission and
-manifest-privacy regressions before rollout, including native-library 16 KB
-page-size ELF and APK packaging alignment.
+Play-generated APK on a device; it catches package, version, signature,
+permission and manifest-privacy regressions before rollout, including
+native-library 16 KB page-size ELF and APK packaging alignment.
 """
 
 from __future__ import annotations
@@ -118,6 +118,16 @@ def find_aapt2() -> Path:
     return candidates[-1]
 
 
+def find_apksigner() -> Path:
+    build_tools = sdk_dir() / "build-tools"
+    if not build_tools.is_dir():
+        raise ApkReviewError(f"Android build-tools directory not found: {build_tools}")
+    candidates = sorted(build_tools.glob("*/apksigner"), key=lambda item: item.parent.name)
+    if not candidates:
+        raise ApkReviewError(f"apksigner not found under {build_tools}")
+    return candidates[-1]
+
+
 def run_aapt_badging(apk: Path) -> str:
     completed = subprocess.run(
         [str(find_aapt()), "dump", "badging", str(apk)],
@@ -129,6 +139,20 @@ def run_aapt_badging(apk: Path) -> str:
     )
     if completed.returncode != 0:
         raise ApkReviewError(f"aapt dump badging failed: {completed.stderr.strip()}")
+    return completed.stdout
+
+
+def run_apksigner_verify(apk: Path) -> str:
+    completed = subprocess.run(
+        [str(find_apksigner()), "verify", "--verbose", "--print-certs", str(apk)],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise ApkReviewError(f"apksigner verify failed: {(completed.stderr or completed.stdout).strip()}")
     return completed.stdout
 
 
@@ -176,6 +200,39 @@ def permissions_from_badging(badging: str) -> list[str]:
         if match:
             permissions.append(match.group(1))
     return permissions
+
+
+def apk_signature_summary(apk: Path) -> dict[str, object]:
+    output = run_apksigner_verify(apk)
+    if "Verifies" not in output.splitlines()[:2]:
+        raise ApkReviewError("APK signature verification did not report Verifies.")
+
+    signer_count_match = re.search(r"Number of signers:\s*(\d+)", output)
+    if signer_count_match is None or int(signer_count_match.group(1)) < 1:
+        raise ApkReviewError("APK signature verification found no signers.")
+
+    certificate_dn = regex_value(r"Signer #1 certificate DN:\s*(.+)", output, "signer certificate DN")
+    certificate_sha256 = regex_value(
+        r"Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]{64})",
+        output,
+        "signer certificate SHA-256 digest",
+    ).lower()
+    if "android debug" in certificate_dn.lower():
+        raise ApkReviewError(f"APK is signed with an Android Debug certificate: {certificate_dn}")
+
+    signature_schemes: dict[str, bool] = {}
+    for version in ("v1", "v2", "v3", "v3.1", "v4"):
+        match = re.search(rf"Verified using {re.escape(version)} scheme .*:\s*(true|false)", output)
+        if match:
+            signature_schemes[version] = match.group(1) == "true"
+    if not any(signature_schemes.get(version, False) for version in ("v2", "v3", "v3.1")):
+        raise ApkReviewError("APK signature must verify with APK Signature Scheme v2, v3 or v3.1.")
+
+    return {
+        "certificateDn": certificate_dn,
+        "certificateSha256": certificate_sha256,
+        "signatureSchemes": signature_schemes,
+    }
 
 
 def png_rgba_from_bytes(data: bytes, label: str) -> Image.Image:
@@ -520,6 +577,8 @@ def verify_apk(apk: Path) -> dict[str, object]:
     if not icon_reference:
         raise ApkReviewError("APK has no application icon reference.")
 
+    signature = apk_signature_summary(apk)
+
     permissions = permissions_from_badging(badging)
     allowed_dynamic_permission = f"{EXPECTED_PACKAGE}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
     unexpected_permissions = [
@@ -569,6 +628,7 @@ def verify_apk(apk: Path) -> dict[str, object]:
         "minSdk": min_sdk,
         "targetSdk": target_sdk,
         "label": label,
+        "signature": signature,
         "permissions": permissions,
         "allowBackup": allow_backup,
         "debuggable": debuggable,
@@ -609,6 +669,7 @@ def main() -> int:
             print(f"- expected label: {EXPECTED_LABEL}")
             print(f"- expected minSdk/targetSdk: {EXPECTED_MIN_SDK}/{EXPECTED_TARGET_SDK}")
             print("- required permissions posture: no INTERNET, no ACCESS_NETWORK_STATE and no dangerous runtime permissions")
+            print("- required signature posture: APK signature verifies, certificate SHA-256 is printed and Android Debug certificates are rejected")
             print("- required manifest privacy posture: allowBackup=false and no debuggable release manifest")
             print("- required icon posture: a 512x512 PNG candidate must pixel-match play_store/icon/play_icon_512.png")
             print("- required app icon posture: application icon reference must link to the store-icon pixel match")
@@ -630,6 +691,12 @@ def main() -> int:
         print(f"- versionName: {result['versionName']}")
         print(f"- label: {result['label']}")
         print(f"- minSdk/targetSdk: {result['minSdk']}/{result['targetSdk']}")
+        signature = result["signature"]
+        schemes = signature["signatureSchemes"]
+        scheme_text = ", ".join(f"{name}={str(enabled).lower()}" for name, enabled in schemes.items())
+        print(f"- signer certificate DN: {signature['certificateDn']}")
+        print(f"- signer certificate SHA-256: {signature['certificateSha256']}")
+        print(f"- signature schemes: {scheme_text}")
         permissions = result["permissions"]
         print(f"- permissions: {', '.join(permissions) if permissions else 'none'}")
         print(f"- allowBackup: {str(result['allowBackup']).lower()}")
