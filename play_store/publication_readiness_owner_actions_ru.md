@@ -135,7 +135,7 @@ Fields to resolve:
 
 Required posture:
 
-- Generated artifacts must not contain debug package ids, androidTest/JUnit/Espresso/test leakage, forbidden permissions, icon pixels that differ from `play_store/icon/play_icon_512.png` or native `.so` files below 16 KB page-size alignment.
+- Generated artifacts must not contain debug package ids, androidTest/JUnit/Espresso/test leakage, forbidden permissions, icon pixels that differ from `play_store/icon/play_icon_512.png`, an application icon reference that is not linked to that matching PNG, or native `.so` files below 16 KB page-size alignment.
 - Stop rollout if package, label, version, icon, permissions or native 16 KB page-size posture differ from the local release candidate.
 
 ## 5. Play Console Forms

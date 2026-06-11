@@ -107,6 +107,16 @@ def find_aapt() -> Path:
     return candidates[-1]
 
 
+def find_aapt2() -> Path:
+    build_tools = sdk_dir() / "build-tools"
+    if not build_tools.is_dir():
+        raise ApkReviewError(f"Android build-tools directory not found: {build_tools}")
+    candidates = sorted(build_tools.glob("*/aapt2"), key=lambda item: item.parent.name)
+    if not candidates:
+        raise ApkReviewError(f"aapt2 not found under {build_tools}")
+    return candidates[-1]
+
+
 def run_aapt_badging(apk: Path) -> str:
     completed = subprocess.run(
         [str(find_aapt()), "dump", "badging", str(apk)],
@@ -118,6 +128,34 @@ def run_aapt_badging(apk: Path) -> str:
     )
     if completed.returncode != 0:
         raise ApkReviewError(f"aapt dump badging failed: {completed.stderr.strip()}")
+    return completed.stdout
+
+
+def run_aapt_xmltree(apk: Path, entry_name: str) -> str:
+    completed = subprocess.run(
+        [str(find_aapt()), "dump", "xmltree", str(apk), entry_name],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise ApkReviewError(f"aapt dump xmltree failed for {entry_name}: {completed.stderr.strip()}")
+    return completed.stdout
+
+
+def run_aapt2_resources(apk: Path) -> str:
+    completed = subprocess.run(
+        [str(find_aapt2()), "dump", "resources", str(apk)],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise ApkReviewError(f"aapt2 dump resources failed: {completed.stderr.strip()}")
     return completed.stdout
 
 
@@ -232,6 +270,63 @@ def verify_native_library_alignment(apk: Path) -> tuple[list[str], int | None]:
     return native_libraries, minimum_native_alignment
 
 
+def resource_file_map(apk: Path) -> dict[str, list[str]]:
+    mapping: dict[str, list[str]] = {}
+    current_resource_id: str | None = None
+    for line in run_aapt2_resources(apk).splitlines():
+        resource_match = re.search(r"\bresource (0x[0-9a-fA-F]+)\b", line)
+        if resource_match:
+            current_resource_id = resource_match.group(1).lower()
+            mapping.setdefault(current_resource_id, [])
+            continue
+        if current_resource_id is None:
+            continue
+        file_match = re.search(r"\(file\) (res/[^ ]+) type=", line)
+        if file_match:
+            mapping[current_resource_id].append(file_match.group(1))
+    return mapping
+
+
+def application_icon_resource_ids(apk: Path, icon_reference: str) -> list[str]:
+    if not icon_reference.lower().endswith(".xml"):
+        return []
+
+    lines = run_aapt_xmltree(apk, icon_reference).splitlines()
+    foreground_ids: list[str] = []
+    all_ids: list[str] = []
+    in_foreground = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("E: "):
+            in_foreground = stripped.startswith("E: foreground ")
+            continue
+        if not stripped.startswith("A: "):
+            continue
+        for resource_id in re.findall(r"@0x[0-9a-fA-F]+", stripped):
+            normalized = resource_id[1:].lower()
+            all_ids.append(normalized)
+            if in_foreground:
+                foreground_ids.append(normalized)
+    return foreground_ids or all_ids
+
+
+def application_icon_matching_candidates(
+    apk: Path,
+    icon_reference: str,
+    matching_candidates: list[str],
+) -> list[str]:
+    if icon_reference.lower().endswith(".png"):
+        return [icon_reference] if icon_reference in matching_candidates else []
+    if not icon_reference.lower().endswith(".xml"):
+        return []
+
+    mapping = resource_file_map(apk)
+    linked_files: list[str] = []
+    for resource_id in application_icon_resource_ids(apk, icon_reference):
+        linked_files.extend(mapping.get(resource_id, []))
+    return [candidate for candidate in matching_candidates if candidate in linked_files]
+
+
 def icon_candidates(apk: Path) -> tuple[list[str], list[str]]:
     candidates: list[str] = []
     matching_candidates: list[str] = []
@@ -305,6 +400,12 @@ def verify_apk(apk: Path) -> dict[str, object]:
             "APK 512x512 PNG icon candidates do not match play_store/icon/play_icon_512.png pixel-for-pixel: "
             + ", ".join(icons)
         )
+    linked_matching_icons = application_icon_matching_candidates(apk, icon_reference, matching_icons)
+    if not linked_matching_icons:
+        raise ApkReviewError(
+            f"APK application icon reference {icon_reference} does not link to a store-icon pixel match: "
+            + ", ".join(matching_icons)
+        )
 
     native_libraries, minimum_native_alignment = verify_native_library_alignment(apk)
 
@@ -319,6 +420,7 @@ def verify_apk(apk: Path) -> dict[str, object]:
         "iconReference": icon_reference,
         "iconCandidates": icons,
         "matchingIconCandidates": matching_icons,
+        "linkedIconCandidates": linked_matching_icons,
         "nativeLibraries": native_libraries,
         "minimumNativeLoadAlignment": minimum_native_alignment,
     }
@@ -349,6 +451,7 @@ def main() -> int:
             print(f"- expected minSdk/targetSdk: {EXPECTED_MIN_SDK}/{EXPECTED_TARGET_SDK}")
             print("- required permissions posture: no INTERNET, no ACCESS_NETWORK_STATE and no dangerous runtime permissions")
             print("- required icon posture: a 512x512 PNG candidate must pixel-match play_store/icon/play_icon_512.png")
+            print("- required app icon posture: application icon reference must link to the store-icon pixel match")
             print("- required artifact posture: no debug package, no androidTest/JUnit/Espresso/test leakage")
             print("- required native posture: native libraries, when present, have PT_LOAD alignment >= 16384 bytes for 16 KB page sizes")
             print()
@@ -370,6 +473,7 @@ def main() -> int:
         print(f"- application icon reference: {result['iconReference']}")
         print(f"- 512x512 icon candidates: {', '.join(result['iconCandidates'])}")
         print(f"- store icon pixel matches: {', '.join(result['matchingIconCandidates'])}")
+        print(f"- application icon linked store icon: {', '.join(result['linkedIconCandidates'])}")
         native_libraries = result["nativeLibraries"]
         minimum_native_alignment = result["minimumNativeLoadAlignment"]
         if native_libraries:
