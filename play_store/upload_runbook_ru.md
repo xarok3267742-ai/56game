@@ -74,7 +74,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - Signed AAB существует: `app/build/outputs/bundle/release/app-release.aab`.
 - AAB SHA-256 совпадает с `play_store/upload_checksums.md`.
 - Store icon, feature graphic, phone screenshots and large/tablet screenshots совпадают с `play_store/upload_manifest.md`.
-- `keystore.properties`, `local.properties`, `private/signing/*.p12`, common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) and APK/AAB/APKS/IDSIG files case-insensitively игнорируются `.gitignore`, проверяются через `git check-ignore` in `tools/verify_release.py` and не добавляются в публичные материалы.
+- `keystore.properties`, `local.properties`, `private/signing/*.p12`, common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) and APK/AAB/APKS/IDSIG files case-insensitively игнорируются `.gitignore`, проверяются через `git check-ignore` in `tools/verify_release.py`, fail release verification if tracked in Git and не добавляются в публичные материалы.
 
 ## 2. Owner Inputs До Создания Релиза
 

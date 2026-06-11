@@ -778,6 +778,7 @@ def check_google_play_checklist_handoff() -> None:
             "Current local upload keystore: `private/signing/qgrid-upload.p12`",
             "common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) and Android upload/install artifact extensions (`*.apk`, `*.aab`, `*.apks`, `*.idsig`) are intentionally ignored case-insensitively",
             "`tools/verify_release.py` verifies these `.gitignore` patterns with `git check-ignore`",
+            "fails if forbidden sensitive/install paths are tracked in Git",
             "Before Play upload, run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok`.",
             "Before Play upload, back up the keystore and credentials in secure owner-controlled storage, keep at least two owner-controlled secure copies, test recovery without exposing secrets and record only safe evidence in `play_store/signing_backup_evidence_ru.md`.",
             "./tools/run_final_local_gate.py",
@@ -1162,6 +1163,7 @@ def check_release_report_handoff() -> None:
             "Latest case-insensitive signing-artifact hygiene hardening",
             "Latest local install-artifact ignore case hardening",
             "Latest semantic git-ignore verification hardening",
+            "Latest local tracked forbidden-path hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Current API 36 connected check",
@@ -1332,6 +1334,7 @@ def check_completion_audit_handoff() -> None:
             "Latest case-insensitive signing-artifact hygiene hardening",
             "Latest local install-artifact ignore case hardening",
             "Latest semantic git-ignore verification hardening",
+            "Latest local tracked forbidden-path hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Requirements traceability matrix created and verifier-gated",
@@ -1523,6 +1526,26 @@ def check_sensitive_files_ignored() -> None:
             check=False,
         )
         require(ignored.returncode == 0, f".gitignore must ignore sensitive path case: {ignored_path}")
+
+    tracked_output = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT)
+    tracked_paths = [path for path in tracked_output.decode("utf-8").split("\0") if path]
+    allowed_tracked_aab = "app/build/outputs/bundle/release/app-release.aab"
+    forbidden_tracked_paths: list[str] = []
+    for tracked_path in tracked_paths:
+        lowered = tracked_path.lower()
+        suffix = Path(lowered).suffix
+        if lowered in {"local.properties", "keystore.properties"}:
+            forbidden_tracked_paths.append(tracked_path)
+        elif lowered.startswith("private/"):
+            forbidden_tracked_paths.append(tracked_path)
+        elif suffix in {".jks", ".keystore", ".p12", ".pem", ".pk8", ".key", ".apk", ".apks", ".idsig"}:
+            forbidden_tracked_paths.append(tracked_path)
+        elif suffix == ".aab" and tracked_path != allowed_tracked_aab:
+            forbidden_tracked_paths.append(tracked_path)
+    require(
+        not forbidden_tracked_paths,
+        f"git index contains forbidden sensitive/install paths: {forbidden_tracked_paths}",
+    )
 
     sensitive_local_paths = [ROOT / "local.properties", ROOT / "keystore.properties"]
     sensitive_signing_suffixes = {".jks", ".keystore", ".p12", ".pem", ".pk8", ".key"}
@@ -2888,7 +2911,7 @@ def check_upload_runbook_handoff() -> None:
             "`app/build/outputs/bundle/release/app-release.aab`",
             "AAB SHA-256 совпадает с `play_store/upload_checksums.md`.",
             "Store icon, feature graphic, phone screenshots and large/tablet screenshots совпадают с `play_store/upload_manifest.md`.",
-            "`keystore.properties`, `local.properties`, `private/signing/*.p12`, common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) and APK/AAB/APKS/IDSIG files case-insensitively игнорируются `.gitignore`, проверяются через `git check-ignore` in `tools/verify_release.py` and не добавляются в публичные материалы.",
+            "`keystore.properties`, `local.properties`, `private/signing/*.p12`, common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) and APK/AAB/APKS/IDSIG files case-insensitively игнорируются `.gitignore`, проверяются через `git check-ignore` in `tools/verify_release.py`, fail release verification if tracked in Git and не добавляются в публичные материалы.",
             "Owner Inputs До Создания Релиза",
             "Play Console support/contact fields",
             "Public privacy policy URL: HTTPS, без логина, не PDF, без credentials/query/fragments",
@@ -5349,6 +5372,10 @@ def check_signing_certificate_report() -> None:
     require(
         "`tools/verify_release.py` verifies representative lower/upper-case paths with `git check-ignore`" in text,
         "signing report must document semantic git check-ignore coverage",
+    )
+    require(
+        "fails if forbidden sensitive/install paths are tracked in Git" in text,
+        "signing report must document tracked forbidden-path coverage",
     )
     require(
         expected_sha256 in text,
