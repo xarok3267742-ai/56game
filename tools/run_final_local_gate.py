@@ -28,6 +28,9 @@ CONNECTED_OUTPUT_DIRS: tuple[Path, ...] = (
     ROOT / "app/build/outputs/androidTest-results/connected/debug",
     ROOT / "app/build/reports/androidTests/connected/debug",
 )
+FOCUS_BLOCKING_CONNECTED_PACKAGES: tuple[str, ...] = (
+    "com.qgrid.mobile",
+)
 STALE_CONNECTED_PACKAGES: tuple[str, ...] = (
     "com.qgrid.mobile.debug.test",
     "com.qgrid.mobile.debug",
@@ -144,7 +147,7 @@ def installed_packages(serial: str) -> set[str]:
 
 def stale_process_ids(serial: str) -> dict[str, list[str]]:
     processes: dict[str, list[str]] = {}
-    for package_name in STALE_CONNECTED_PACKAGES:
+    for package_name in (*FOCUS_BLOCKING_CONNECTED_PACKAGES, *STALE_CONNECTED_PACKAGES):
         completed = subprocess.run(
             ["adb", "-s", serial, "shell", "pidof", package_name],
             cwd=ROOT,
@@ -159,7 +162,7 @@ def stale_process_ids(serial: str) -> dict[str, list[str]]:
 
 
 def stop_stale_connected_processes(serial: str) -> None:
-    for package_name in STALE_CONNECTED_PACKAGES:
+    for package_name in (*FOCUS_BLOCKING_CONNECTED_PACKAGES, *STALE_CONNECTED_PACKAGES):
         subprocess.run(
             ["adb", "-s", serial, "shell", "am", "force-stop", package_name],
             cwd=ROOT,
@@ -217,13 +220,13 @@ def main() -> int:
         if command == CONNECTED_COMMAND:
             if args.dry_run:
                 print("- clean connected test outputs")
-                print("- uninstall stale connected debug/test packages on the selected serial")
+                print("- stop focus-blocking packages and uninstall stale connected debug/test packages on the selected serial")
             else:
                 print()
                 print("$ clean connected test outputs")
                 clean_connected_outputs()
                 print()
-                print("$ uninstall stale connected debug/test packages on the selected serial")
+                print("$ stop focus-blocking packages and uninstall stale connected debug/test packages on the selected serial")
                 try:
                     clean_stale_connected_packages(args.connected_serial)
                 except RuntimeError as exc:

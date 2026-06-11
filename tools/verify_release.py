@@ -561,6 +561,7 @@ def check_agents_handoff() -> None:
             "`./tools/run_final_local_gate.py` is the owner-facing final local gate runner.",
             "supports optional `--include-hosted-privacy` recorded hosted privacy URL validation",
             "supports optional `--include-connected --connected-serial <serial>` connected evidence refresh",
+            "force-stops/kills the current production package `com.qgrid.mobile` plus known stale local package processes",
             "uninstalls known stale local debug/test packages on the selected serial, including `com.qgrid.mobile.debug` and `com.qgrid.mobile.debug.test`, before that optional connected run",
             "prints `final_local_gate_ok` only after every command succeeds.",
             "`./tools/run_api36_connected_gate.py` is the managed API 36 connected gate helper.",
@@ -684,6 +685,7 @@ def check_readme_handoff() -> None:
             "signing backup evidence and owner template - в `play_store/signing_backup_evidence_ru.md`",
             "`./tools/run_final_local_gate.py` runs the complete final local gate and prints `final_local_gate_ok` only after build/test/verifier/handoff helpers pass.",
             "Add `--include-hosted-privacy` for a networked pre-upload run that also revalidates the recorded hosted privacy policy URL.",
+            "force-stops/kills the current production package `com.qgrid.mobile` plus known stale local package processes",
             "uninstalls known stale local debug/test packages on the selected serial, including `com.qgrid.mobile.debug` and `com.qgrid.mobile.debug.test`",
             "old instrumentation packages cannot pollute verifier evidence or steal focus",
             "When an API 36 emulator/device is available, `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` refreshes `connectedDebugAndroidTest` evidence before the verifier.",
@@ -834,6 +836,7 @@ def check_google_play_checklist_handoff() -> None:
             "Run `./tools/run_final_local_gate.py` and require `final_local_gate_ok` before starting the Play Console upload.",
             "When network is available before upload, run `./tools/run_final_local_gate.py --include-hosted-privacy` and require `final_local_gate_ok`",
             "When an API 36 emulator/device is available, prefer `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` so connected evidence is refreshed before the verifier",
+            "force-stops/kills the current production package `com.qgrid.mobile` plus known stale local package processes",
             "uninstalls known stale local debug/test packages on the selected serial, including `com.qgrid.mobile.debug` and `com.qgrid.mobile.debug.test`, before instrumentation starts",
             "To have the project manage the API 36 emulator itself, run `./tools/run_api36_connected_gate.py` and require `api36_connected_gate_ok`",
             "add `--include-hosted-privacy` when network is available before upload",
@@ -1165,6 +1168,7 @@ def check_release_report_handoff() -> None:
             "Latest semantic git-ignore verification hardening",
             "Latest local tracked forbidden-path hardening",
             "Latest current-package connected cleanup hardening",
+            "Latest production-package connected focus cleanup hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Current API 36 connected check",
@@ -1337,6 +1341,7 @@ def check_completion_audit_handoff() -> None:
             "Latest semantic git-ignore verification hardening",
             "Latest local tracked forbidden-path hardening",
             "Latest current-package connected cleanup hardening",
+            "Latest production-package connected focus cleanup hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Requirements traceability matrix created and verifier-gated",
@@ -2884,6 +2889,7 @@ def check_upload_runbook_handoff() -> None:
             "./tools/check_signing_backup_inputs.py",
             "./tools/run_final_local_gate.py --include-connected --connected-serial <serial>",
             "При доступном API 36 устройстве `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` тоже возвращает `final_local_gate_ok`",
+            "force-stops `com.qgrid.mobile`",
             "удаляет stale local debug/test packages including `com.qgrid.mobile.debug` and `com.qgrid.mobile.debug.test`",
             "./tools/run_api36_connected_gate.py",
             "./tools/run_api36_connected_gate.py --include-hosted-privacy",
@@ -3009,6 +3015,8 @@ def check_final_local_gate_runner() -> None:
             "--include-hosted-privacy",
             "CONNECTED_COMMAND: tuple[str, ...] = (\"./gradlew\", \"connectedDebugAndroidTest\")",
             "CONNECTED_OUTPUT_DIRS: tuple[Path, ...] = (",
+            "FOCUS_BLOCKING_CONNECTED_PACKAGES: tuple[str, ...] = (",
+            "com.qgrid.mobile",
             "STALE_CONNECTED_PACKAGES: tuple[str, ...] = (",
             "com.qgrid.mobile.debug.test",
             "com.qgrid.mobile.debug",
@@ -3036,7 +3044,7 @@ def check_final_local_gate_runner() -> None:
             "Stale connected packages still installed",
             "Stale connected processes still running",
             "$ clean connected test outputs",
-            "$ uninstall stale connected debug/test packages on the selected serial",
+            "$ stop focus-blocking packages and uninstall stale connected debug/test packages on the selected serial",
             "ANDROID_SERIAL",
             "final_local_gate_dry_run_ok",
             "final_local_gate_ok",
@@ -3098,13 +3106,13 @@ def check_final_local_gate_runner() -> None:
         "final local gate connected dry-run must clean generated connected outputs before connectedDebugAndroidTest",
     )
     require(
-        "uninstall stale connected debug/test packages on the selected serial" in connected_output,
-        "final local gate connected dry-run must uninstall known stale debug/test packages before connectedDebugAndroidTest",
+        "stop focus-blocking packages and uninstall stale connected debug/test packages on the selected serial" in connected_output,
+        "final local gate connected dry-run must stop focus-blocking packages and uninstall known stale debug/test packages before connectedDebugAndroidTest",
     )
     require("./tools/verify_release.py" in connected_output, "final local gate connected dry-run must still run verifier after connected tests")
     require(
         connected_output.index("clean connected test outputs") <
-        connected_output.index("uninstall stale connected debug/test packages on the selected serial") <
+        connected_output.index("stop focus-blocking packages and uninstall stale connected debug/test packages on the selected serial") <
         connected_output.index("ANDROID_SERIAL=emulator-5560 ./gradlew connectedDebugAndroidTest") <
         connected_output.index("./tools/verify_release.py"),
         "final local gate connected dry-run must clean outputs, uninstall stale packages, then run connectedDebugAndroidTest before verifier",
