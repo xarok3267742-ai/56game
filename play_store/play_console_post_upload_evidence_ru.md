@@ -48,7 +48,7 @@ After Play-generated artifact review, the icon line must be based on helper outp
 The icon line must explicitly mention application-icon-linked and round-icon-linked store-icon pixel matches.
 After Play-generated artifact review, the permissions line must explicitly include `no INTERNET`, `no ACCESS_NETWORK_STATE` and `no dangerous runtime permissions`.
 The manifest privacy line must explicitly include `allowBackup=false` and `no debuggable`, based on helper output `allowBackup: false` and `debuggable: absent` or `debuggable: false`.
-The native-library line must explicitly include `16 KB` and `16384`, for example from helper output `native libraries: 8 checked; minimum PT_LOAD alignment: 16384 bytes`.
+The native-library line must explicitly include `16 KB`, `16384`, `uncompressed`, `ZIP-aligned` and `extractNativeLibs=false`, based on helper output `native libraries: 8 checked; minimum PT_LOAD alignment: 16384 bytes`, `native APK packaging: 8 uncompressed; minimum ZIP data alignment: 16384 bytes` and `extractNativeLibs: false`.
 
 ## Policy Forms
 

@@ -486,7 +486,7 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         validate_contains_all(label, value, file_label, ("allowBackup=false", "no debuggable"))
     elif label == "Play-generated native libraries support 16 KB page sizes":
         validate_no_negative_markers(label, value, file_label)
-        validate_contains_all(label, value, file_label, ("16 KB", "16384"))
+        validate_contains_all(label, value, file_label, ("16 KB", "16384", "uncompressed", "ZIP-aligned", "extractNativeLibs=false"))
     elif label == "Closed testing required for this account":
         normalized = lower_value(value)
         require(normalized in {"yes", "no"}, f"{file_label} value for {label} must be yes or no: {value}")

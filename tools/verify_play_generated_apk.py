@@ -6,7 +6,7 @@ AAB, or locally against `app/build/outputs/apk/release/app-release.apk` as a
 pre-upload sanity check. This does not replace installing and launching the
 Play-generated APK on a device; it catches package, version, permission and
 manifest-privacy regressions before rollout, including native-library 16 KB
-page-size alignment.
+page-size ELF and APK packaging alignment.
 """
 
 from __future__ import annotations
@@ -271,6 +271,56 @@ def verify_native_library_alignment(apk: Path) -> tuple[list[str], int | None]:
     return native_libraries, minimum_native_alignment
 
 
+def zip_entry_data_offset(apk_file: object, info: zipfile.ZipInfo) -> int:
+    apk_file.seek(info.header_offset)
+    header = apk_file.read(30)
+    if len(header) != 30:
+        raise ApkReviewError(f"APK local ZIP header is truncated for {info.filename}")
+    signature = struct.unpack_from("<I", header, 0)[0]
+    if signature != 0x04034B50:
+        raise ApkReviewError(f"APK local ZIP header signature is invalid for {info.filename}")
+    filename_length, extra_length = struct.unpack_from("<HH", header, 26)
+    return info.header_offset + 30 + filename_length + extra_length
+
+
+def power_of_two_alignment(value: int) -> int:
+    if value <= 0:
+        return 0
+    return value & -value
+
+
+def native_library_zip_packaging_summary(apk: Path) -> tuple[list[str], int | None, list[str]]:
+    native_library_names: list[str] = []
+    compressed_library_names: list[str] = []
+    minimum_zip_alignment: int | None = None
+    with apk.open("rb") as apk_file, zipfile.ZipFile(apk) as archive:
+        for info in sorted(archive.infolist(), key=lambda item: item.filename):
+            if not info.filename.endswith(".so"):
+                continue
+            native_library_names.append(info.filename)
+            if info.compress_type != zipfile.ZIP_STORED:
+                compressed_library_names.append(info.filename)
+                continue
+            alignment = power_of_two_alignment(zip_entry_data_offset(apk_file, info))
+            if minimum_zip_alignment is None or alignment < minimum_zip_alignment:
+                minimum_zip_alignment = alignment
+    return native_library_names, minimum_zip_alignment, compressed_library_names
+
+
+def verify_native_library_zip_packaging(apk: Path) -> tuple[list[str], int | None]:
+    native_libraries, minimum_zip_alignment, compressed_libraries = native_library_zip_packaging_summary(apk)
+    if compressed_libraries:
+        raise ApkReviewError(
+            "APK native libraries must be stored uncompressed for 16 KB page-size direct loading: "
+            + ", ".join(compressed_libraries)
+        )
+    if minimum_zip_alignment is not None and minimum_zip_alignment < REQUIRED_NATIVE_LOAD_ALIGNMENT:
+        raise ApkReviewError(
+            f"APK native libraries must be 16 KB ZIP-aligned; minimum data offset alignment is {minimum_zip_alignment}"
+        )
+    return native_libraries, minimum_zip_alignment
+
+
 def resource_file_map(apk: Path) -> dict[str, list[str]]:
     mapping: dict[str, list[str]] = {}
     current_resource_id: str | None = None
@@ -391,6 +441,16 @@ def verify_manifest_privacy_posture(apk: Path) -> tuple[bool, str]:
     return allow_backup, "false"
 
 
+def verify_extract_native_libs_posture(apk: Path) -> bool:
+    attributes = manifest_application_attributes(apk)
+    if "extractNativeLibs" not in attributes:
+        raise ApkReviewError("APK manifest is missing explicit android:extractNativeLibs=false.")
+    extract_native_libs = manifest_boolean_value(attributes["extractNativeLibs"], "extractNativeLibs")
+    if extract_native_libs:
+        raise ApkReviewError("APK manifest android:extractNativeLibs must be false for 16 KB ZIP-aligned native loading.")
+    return extract_native_libs
+
+
 def manifest_icon_matching_candidates(
     apk: Path,
     attribute_name: str,
@@ -474,6 +534,7 @@ def verify_apk(apk: Path) -> dict[str, object]:
         raise ApkReviewError(f"APK requests forbidden permissions: {', '.join(forbidden_permissions)}")
 
     allow_backup, debuggable = verify_manifest_privacy_posture(apk)
+    extract_native_libs = verify_extract_native_libs_posture(apk)
 
     icons, matching_icons = icon_candidates(apk)
     if not icons:
@@ -497,6 +558,9 @@ def verify_apk(apk: Path) -> dict[str, object]:
         )
 
     native_libraries, minimum_native_alignment = verify_native_library_alignment(apk)
+    zip_native_libraries, minimum_native_zip_alignment = verify_native_library_zip_packaging(apk)
+    if zip_native_libraries != native_libraries:
+        raise ApkReviewError("APK native library ZIP packaging list does not match ELF alignment list.")
 
     return {
         "package": package_name,
@@ -508,6 +572,7 @@ def verify_apk(apk: Path) -> dict[str, object]:
         "permissions": permissions,
         "allowBackup": allow_backup,
         "debuggable": debuggable,
+        "extractNativeLibs": extract_native_libs,
         "iconReference": icon_reference,
         "iconCandidates": icons,
         "matchingIconCandidates": matching_icons,
@@ -516,6 +581,7 @@ def verify_apk(apk: Path) -> dict[str, object]:
         "roundLinkedIconCandidates": round_linked_matching_icons,
         "nativeLibraries": native_libraries,
         "minimumNativeLoadAlignment": minimum_native_alignment,
+        "minimumNativeZipAlignment": minimum_native_zip_alignment,
     }
 
 
@@ -549,6 +615,7 @@ def main() -> int:
             print("- required round icon posture: round icon reference must link to the store-icon pixel match")
             print("- required artifact posture: no debug package, no androidTest/JUnit/Espresso/test leakage")
             print("- required native posture: native libraries, when present, have PT_LOAD alignment >= 16384 bytes for 16 KB page sizes")
+            print("- required native APK packaging posture: native libraries must be uncompressed, 16 KB ZIP-aligned and extractNativeLibs=false")
             print()
             print("play_generated_apk_verify_dry_run_ok")
             return 0
@@ -567,6 +634,7 @@ def main() -> int:
         print(f"- permissions: {', '.join(permissions) if permissions else 'none'}")
         print(f"- allowBackup: {str(result['allowBackup']).lower()}")
         print(f"- debuggable: {result['debuggable']}")
+        print(f"- extractNativeLibs: {str(result['extractNativeLibs']).lower()}")
         print(f"- application icon reference: {result['iconReference']}")
         print(f"- 512x512 icon candidates: {', '.join(result['iconCandidates'])}")
         print(f"- store icon pixel matches: {', '.join(result['matchingIconCandidates'])}")
@@ -575,8 +643,10 @@ def main() -> int:
         print(f"- round icon linked store icon: {', '.join(result['roundLinkedIconCandidates'])}")
         native_libraries = result["nativeLibraries"]
         minimum_native_alignment = result["minimumNativeLoadAlignment"]
+        minimum_native_zip_alignment = result["minimumNativeZipAlignment"]
         if native_libraries:
             print(f"- native libraries: {len(native_libraries)} checked; minimum PT_LOAD alignment: {minimum_native_alignment} bytes")
+            print(f"- native APK packaging: {len(native_libraries)} uncompressed; minimum ZIP data alignment: {minimum_native_zip_alignment} bytes")
         else:
             print("- native libraries: none")
         print()

@@ -25,7 +25,7 @@
 - `minSdk`: 24
 - `compileSdk`: 36
 - `targetSdk`: 36, above the current Android 15/API 35 submission requirement documented in `docs/google_play_sources.md`
-- Native 16 KB page-size posture: current signed AAB has 8 packaged `.so` files and `tools/verify_release.py` verifies every ELF `PT_LOAD` alignment is at least 16,384 bytes.
+- Native 16 KB page-size posture: current signed AAB has 8 packaged `.so` files and `tools/verify_release.py` verifies every ELF `PT_LOAD` alignment is at least 16,384 bytes; `tools/verify_play_generated_apk.py` additionally checks downloaded/generated APK native libraries are uncompressed, 16 KB ZIP-aligned and paired with `extractNativeLibs=false`.
 - Official source audit: rechecked on 11 June 2026 in `docs/google_play_sources.md`; no local product change was required.
 - Format: Android App Bundle
 - Signed AAB path: `app/build/outputs/bundle/release/app-release.aab`

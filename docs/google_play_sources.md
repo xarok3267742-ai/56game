@@ -29,7 +29,7 @@ Latest source spot-check on 11 June 2026: official Google Play / Android Develop
 Current official requirements used for the release-candidate audit:
 
 - New apps and app updates must target Android 15/API 35 or higher from 31 August 2025; this project uses `targetSdk = 36`.
-- Starting 1 November 2025, new apps and updates submitted to Google Play and targeting Android 15/API 35+ devices must support 16 KB page sizes on 64-bit devices; the current signed AAB contains 8 native `.so` files and every ELF `PT_LOAD` segment has alignment `0x4000` / 16,384 bytes.
+- Starting 1 November 2025, new apps and updates submitted to Google Play and targeting Android 15/API 35+ devices must support 16 KB page sizes on 64-bit devices; the current signed AAB contains 8 native `.so` files and every ELF `PT_LOAD` segment has alignment `0x4000` / 16,384 bytes, while the local release APK packages those libraries uncompressed at 16 KB ZIP data offsets with `extractNativeLibs=false`.
 - Google Play upload format is Android App Bundle; the current release artifact is a signed `.aab`.
 - Feature graphic requirement is JPEG or 24-bit PNG without alpha at 1024x500; the current feature graphic is 1024x500 24-bit PNG without alpha.
 - Screenshot requirement is JPEG or 24-bit PNG without alpha, 320-3840 px per side, with the long side no more than 2x the short side; current upload screenshots are 24-bit PNGs without alpha and satisfy that ratio.
@@ -43,7 +43,7 @@ Current official requirements used for the release-candidate audit:
 Current project alignment:
 
 - `targetSdk = 36`, which is above the Android 15/API 35 requirement for new apps and updates.
-- Native library 16 KB page-size posture is locally verifier-gated: `tools/verify_release.py` inspects every `.so` in the signed AAB and requires `PT_LOAD` alignment at least 16,384 bytes; `tools/verify_play_generated_apk.py` performs the same check for a downloaded Play-generated APK.
+- Native library 16 KB page-size posture is locally verifier-gated: `tools/verify_release.py` inspects every `.so` in the signed AAB and requires `PT_LOAD` alignment at least 16,384 bytes; `tools/verify_play_generated_apk.py` performs the same ELF check for a downloaded Play-generated APK and also requires uncompressed native libraries, 16 KB ZIP data alignment and `extractNativeLibs=false`.
 - Release artifact is a signed `.aab`, which is the Google Play publishing format.
 - App name `Линия 56` is 8 characters, under the 30-character metadata limit.
 - Short description `Соединяйте числа и соберите сумму ровно 56.` is 43 characters, under the 80-character limit.
