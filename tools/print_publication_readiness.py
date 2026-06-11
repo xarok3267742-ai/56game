@@ -442,7 +442,6 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         "Play Console support/contact field populated",
         "Support/contact mechanism matches `play_store/privacy_policy_ru.html`",
         "Active upload keystore backed up before AAB upload",
-        "Play-generated icon matches `play_store/icon/play_icon_512.png`",
         "Play-generated version code/name match this release candidate",
         "Play-generated APK installed and launched on at least one Android device or emulator",
         "App access completed as no restricted access/login/account",
@@ -474,6 +473,9 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         validate_exact(label, value, file_label, "com.qgrid.mobile")
     elif label == "Play-generated app label is `Линия 56`":
         validate_exact(label, value, file_label, "Линия 56")
+    elif label == "Play-generated icon matches `play_store/icon/play_icon_512.png`":
+        validate_yes(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("store icon", "pixel"))
     elif label == "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions":
         validate_no_negative_markers(label, value, file_label)
         validate_contains_all(label, value, file_label, ("no INTERNET", "no ACCESS_NETWORK_STATE", "no dangerous"))

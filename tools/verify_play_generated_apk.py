@@ -11,6 +11,7 @@ regressions before rollout, including native-library 16 KB page-size alignment.
 from __future__ import annotations
 
 import argparse
+import io
 import os
 import re
 import struct
@@ -18,6 +19,11 @@ import subprocess
 import sys
 import zipfile
 from pathlib import Path
+
+try:
+    from PIL import Image, UnidentifiedImageError
+except ImportError as exc:
+    raise SystemExit("Pillow is required: python3 -m pip install Pillow") from exc
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +34,7 @@ EXPECTED_LABEL = "Линия 56"
 EXPECTED_MIN_SDK = "24"
 EXPECTED_TARGET_SDK = "36"
 EXPECTED_ICON_SIZE = (512, 512)
+EXPECTED_STORE_ICON = ROOT / "play_store/icon/play_icon_512.png"
 REQUIRED_NATIVE_LOAD_ALIGNMENT = 16 * 1024
 
 FORBIDDEN_PERMISSIONS = {
@@ -132,10 +139,29 @@ def permissions_from_badging(badging: str) -> list[str]:
     return permissions
 
 
-def png_dimensions(data: bytes) -> tuple[int, int] | None:
-    if not data.startswith(b"\x89PNG\r\n\x1a\n") or len(data) < 24:
-        return None
-    return struct.unpack(">II", data[16:24])
+def png_rgba_from_bytes(data: bytes, label: str) -> Image.Image:
+    try:
+        with Image.open(io.BytesIO(data)) as image:
+            if image.format != "PNG":
+                raise ApkReviewError(f"Image is not a PNG file: {label}")
+            return image.convert("RGBA")
+    except UnidentifiedImageError as exc:
+        raise ApkReviewError(f"Could not decode PNG image: {label}") from exc
+
+
+def store_icon_rgba() -> Image.Image:
+    if not EXPECTED_STORE_ICON.is_file():
+        raise ApkReviewError(f"Expected store icon is missing: {EXPECTED_STORE_ICON.relative_to(ROOT)}")
+    try:
+        with Image.open(EXPECTED_STORE_ICON) as image:
+            if image.format != "PNG":
+                raise ApkReviewError(f"Expected store icon is not a PNG file: {EXPECTED_STORE_ICON.relative_to(ROOT)}")
+            icon = image.convert("RGBA")
+    except UnidentifiedImageError as exc:
+        raise ApkReviewError(f"Could not decode expected store icon: {EXPECTED_STORE_ICON.relative_to(ROOT)}") from exc
+    if icon.size != EXPECTED_ICON_SIZE:
+        raise ApkReviewError(f"Expected store icon size mismatch: {icon.size} != {EXPECTED_ICON_SIZE}")
+    return icon
 
 
 def elf_load_alignments(entry_name: str, data: bytes) -> list[int]:
@@ -206,8 +232,10 @@ def verify_native_library_alignment(apk: Path) -> tuple[list[str], int | None]:
     return native_libraries, minimum_native_alignment
 
 
-def icon_candidates(apk: Path) -> list[str]:
+def icon_candidates(apk: Path) -> tuple[list[str], list[str]]:
     candidates: list[str] = []
+    matching_candidates: list[str] = []
+    expected_icon_pixels = store_icon_rgba().tobytes()
     with zipfile.ZipFile(apk) as archive:
         for info in archive.infolist():
             lowered = info.filename.lower()
@@ -216,10 +244,12 @@ def icon_candidates(apk: Path) -> list[str]:
                     raise ApkReviewError(f"APK contains forbidden debug/test marker: {info.filename}")
             if not lowered.endswith(".png"):
                 continue
-            dimensions = png_dimensions(archive.read(info.filename))
-            if dimensions == EXPECTED_ICON_SIZE:
+            image = png_rgba_from_bytes(archive.read(info.filename), info.filename)
+            if image.size == EXPECTED_ICON_SIZE:
                 candidates.append(info.filename)
-    return candidates
+                if image.tobytes() == expected_icon_pixels:
+                    matching_candidates.append(info.filename)
+    return candidates, matching_candidates
 
 
 def verify_apk(apk: Path) -> dict[str, object]:
@@ -267,9 +297,14 @@ def verify_apk(apk: Path) -> dict[str, object]:
     if forbidden_permissions:
         raise ApkReviewError(f"APK requests forbidden permissions: {', '.join(forbidden_permissions)}")
 
-    icons = icon_candidates(apk)
+    icons, matching_icons = icon_candidates(apk)
     if not icons:
         raise ApkReviewError("APK does not contain a 512x512 PNG icon candidate.")
+    if not matching_icons:
+        raise ApkReviewError(
+            "APK 512x512 PNG icon candidates do not match play_store/icon/play_icon_512.png pixel-for-pixel: "
+            + ", ".join(icons)
+        )
 
     native_libraries, minimum_native_alignment = verify_native_library_alignment(apk)
 
@@ -283,6 +318,7 @@ def verify_apk(apk: Path) -> dict[str, object]:
         "permissions": permissions,
         "iconReference": icon_reference,
         "iconCandidates": icons,
+        "matchingIconCandidates": matching_icons,
         "nativeLibraries": native_libraries,
         "minimumNativeLoadAlignment": minimum_native_alignment,
     }
@@ -312,6 +348,7 @@ def main() -> int:
             print(f"- expected label: {EXPECTED_LABEL}")
             print(f"- expected minSdk/targetSdk: {EXPECTED_MIN_SDK}/{EXPECTED_TARGET_SDK}")
             print("- required permissions posture: no INTERNET, no ACCESS_NETWORK_STATE and no dangerous runtime permissions")
+            print("- required icon posture: a 512x512 PNG candidate must pixel-match play_store/icon/play_icon_512.png")
             print("- required artifact posture: no debug package, no androidTest/JUnit/Espresso/test leakage")
             print("- required native posture: native libraries, when present, have PT_LOAD alignment >= 16384 bytes for 16 KB page sizes")
             print()
@@ -332,6 +369,7 @@ def main() -> int:
         print(f"- permissions: {', '.join(permissions) if permissions else 'none'}")
         print(f"- application icon reference: {result['iconReference']}")
         print(f"- 512x512 icon candidates: {', '.join(result['iconCandidates'])}")
+        print(f"- store icon pixel matches: {', '.join(result['matchingIconCandidates'])}")
         native_libraries = result["nativeLibraries"]
         minimum_native_alignment = result["minimumNativeLoadAlignment"]
         if native_libraries:
