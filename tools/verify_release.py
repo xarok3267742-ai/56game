@@ -776,6 +776,7 @@ def check_google_play_checklist_handoff() -> None:
             "Format: Android App Bundle",
             "Signed AAB path: `app/build/outputs/bundle/release/app-release.aab`",
             "Current local upload keystore: `private/signing/qgrid-upload.p12`",
+            "common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) are intentionally ignored",
             "Before Play upload, run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok`.",
             "Before Play upload, back up the keystore and credentials in secure owner-controlled storage, keep at least two owner-controlled secure copies, test recovery without exposing secrets and record only safe evidence in `play_store/signing_backup_evidence_ru.md`.",
             "./tools/run_final_local_gate.py",
@@ -1156,6 +1157,7 @@ def check_release_report_handoff() -> None:
             "Latest final local gate after 11 June source audit",
             "Latest annotated remote tag handoff hardening",
             "Latest remote signing-artifact extension hardening",
+            "Latest local signing-ignore extension hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Current API 36 connected check",
@@ -1322,6 +1324,7 @@ def check_completion_audit_handoff() -> None:
             "Latest final local gate after 11 June source audit",
             "Latest annotated remote tag handoff hardening",
             "Latest remote signing-artifact extension hardening",
+            "Latest local signing-ignore extension hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Requirements traceability matrix created and verifier-gated",
@@ -1467,6 +1470,9 @@ def check_sensitive_files_ignored() -> None:
         "*.jks",
         "*.keystore",
         "*.p12",
+        "*.pem",
+        "*.pk8",
+        "*.key",
         "*.apk",
         "*.aab",
         "*.apks",
@@ -2833,7 +2839,7 @@ def check_upload_runbook_handoff() -> None:
             "`app/build/outputs/bundle/release/app-release.aab`",
             "AAB SHA-256 совпадает с `play_store/upload_checksums.md`.",
             "Store icon, feature graphic, phone screenshots and large/tablet screenshots совпадают с `play_store/upload_manifest.md`.",
-            "`keystore.properties`, `local.properties`, `private/signing/*.p12`, APK, AAB, APKS and IDSIG files не добавляются в публичные материалы.",
+            "`keystore.properties`, `local.properties`, `private/signing/*.p12`, common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`), APK, AAB, APKS and IDSIG files не добавляются в публичные материалы.",
             "Owner Inputs До Создания Релиза",
             "Play Console support/contact fields",
             "Public privacy policy URL: HTTPS, без логина, не PDF, без credentials/query/fragments",
@@ -5275,6 +5281,10 @@ def check_signing_certificate_report() -> None:
     require("Checked on 6 June 2026" in text, "signing report must show the latest 6 June 2026 check")
     require("qgrid_upload" in text, "signing report must include upload key alias")
     require("QuietGrid Upload" in text, "signing report must include QuietGrid certificate owner")
+    require(
+        "common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) are ignored by `.gitignore`" in text,
+        "signing report must document local ignore coverage for common signing-key extensions",
+    )
     require(
         expected_sha256 in text,
         "signing report must include the upload certificate SHA-256 fingerprint",

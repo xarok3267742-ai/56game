@@ -39,7 +39,7 @@ jarsigner -verify -verbose -certs app/build/outputs/bundle/release/app-release.a
 - This report contains public certificate metadata only.
 - The keystore file remains `private/signing/qgrid-upload.p12`.
 - The local credential file remains `keystore.properties`.
-- Local `local.properties`, `keystore.properties` and `private/signing/*.p12` files are ignored by `.gitignore` and currently have owner-only filesystem permissions.
+- Local `local.properties`, `keystore.properties`, `private/signing/*.p12` and common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) are ignored by `.gitignore`; the active local signing files currently have owner-only filesystem permissions.
 - `tools/verify_release.py` compares this report with `keytool -printcert -jarfile app/build/outputs/bundle/release/app-release.aab` so the documented certificate cannot drift from the signed AAB.
 - `tools/verify_release.py` also checks local `local.properties`, `keystore.properties` and `private/signing/*.p12` permissions, and checks `keystore.properties`, when present, for `private/signing/qgrid-upload.p12` and `keyAlias=qgrid_upload`.
 - Back up the keystore and credentials in an owner-controlled secure location before Play Console upload.

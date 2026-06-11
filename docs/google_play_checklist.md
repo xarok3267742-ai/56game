@@ -39,7 +39,7 @@
 - Release signing is configured through ignored `keystore.properties` or `QGRID_*` environment variables.
 - Current local upload keystore: `private/signing/qgrid-upload.p12`
 - Current local credentials file: `keystore.properties`
-- Local `local.properties`, `keystore.properties` and `private/signing/*.p12` files are intentionally ignored and verified by `tools/verify_release.py` for owner-only filesystem permissions; the verifier also checks that local `keystore.properties`, when present, points to `private/signing/qgrid-upload.p12` and `keyAlias=qgrid_upload`.
+- Local `local.properties`, `keystore.properties`, `private/signing/*.p12` and common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) are intentionally ignored; `tools/verify_release.py` verifies owner-only filesystem permissions for the active local signing inputs and checks that local `keystore.properties`, when present, points to `private/signing/qgrid-upload.p12` and `keyAlias=qgrid_upload`.
 - Release-facing text files are scanned by `tools/verify_release.py` for common API keys/tokens/private-key blocks/dev URLs; current gate passes with no committed secret values.
 - Before Play upload, run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok`.
 - Before Play upload, back up the keystore and credentials in secure owner-controlled storage, keep at least two owner-controlled secure copies, test recovery without exposing secrets and record only safe evidence in `play_store/signing_backup_evidence_ru.md`.
