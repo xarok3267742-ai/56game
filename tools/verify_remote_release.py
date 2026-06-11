@@ -4,7 +4,8 @@
 This helper is intentionally networked and post-push oriented. It fetches the
 configured remote, proves the remote release branch matches local HEAD, can
 verify an explicit annotated remote release tag, verifies the remote AAB
-checksum from `play_store/upload_checksums.md`, scans remote trees for
+checksum from `play_store/upload_checksums.md`, rejects unexpected extra
+`.aab` files on the remote release branch, scans remote trees for
 signing/install artifacts case-insensitively, and reuses the hosted
 privacy-policy URL checker.
 """
@@ -181,6 +182,11 @@ def verify_forbidden_paths(ref_label: str, paths: list[str], patterns: tuple[re.
     require(not forbidden, f"{ref_label} contains forbidden signing/install paths: {forbidden}")
 
 
+def verify_expected_aab_paths(ref_label: str, paths: list[str]) -> None:
+    aab_paths = [path for path in paths if path.lower().endswith(".aab")]
+    require(aab_paths == [AAB_PATH], f"{ref_label} contains unexpected AAB paths: {aab_paths}")
+
+
 def validate_privacy_url(url: str) -> None:
     output = run_text([str(PRIVACY_URL_CHECK), "--url", url], timeout=60)
     require("privacy_policy_url_ok" in output, "privacy policy URL check did not return privacy_policy_url_ok")
@@ -205,6 +211,7 @@ def main() -> int:
             print(f"- require {args.remote} tag {args.tag} is annotated and peels to local HEAD")
         print(f"- verify remote `{AAB_PATH}` bytes and SHA-256 from `play_store/upload_checksums.md`")
         print("- scan remote release branch for signing/install artifacts")
+        print(f"- require remote release branch contains no extra AAB files beyond `{AAB_PATH}`")
         print("- scan remote pages branch for signing/install/binary artifacts")
         if args.skip_privacy_url:
             print("- skip hosted privacy URL validation")
@@ -224,6 +231,7 @@ def main() -> int:
         release_ref = remote_ref(args.remote, args.branch)
         release_paths = tree_paths(release_ref)
         verify_forbidden_paths(f"{args.remote}/{args.branch}", release_paths, MAIN_FORBIDDEN_PATTERNS)
+        verify_expected_aab_paths(f"{args.remote}/{args.branch}", release_paths)
 
         pages_ref = remote_ref(args.remote, args.pages_branch)
         pages_paths = tree_paths(pages_ref)
@@ -239,6 +247,7 @@ def main() -> int:
             print(f"- remote tag {args.tag}: annotated {tag_object}, commit {tag_commit}")
         print(f"- remote AAB: {aab_size} bytes, sha256 {aab_sha}")
         print(f"- remote release branch forbidden-path scan: ok")
+        print(f"- remote release branch AAB path scan: ok")
         print(f"- remote pages branch forbidden-path scan: ok")
         if args.skip_privacy_url:
             print("- hosted privacy URL check: skipped")

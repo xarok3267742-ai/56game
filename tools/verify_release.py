@@ -591,6 +591,7 @@ def check_agents_handoff() -> None:
             "requires the remote release branch to match local `HEAD`",
             "can verify an explicit `--tag <release-tag>` is an annotated tag and peels to local `HEAD`",
             "verifies the remote signed AAB bytes/SHA-256 from `play_store/upload_checksums.md`",
+            "rejects any extra remote `.aab` files outside `app/build/outputs/bundle/release/app-release.aab`",
             "scans remote trees case-insensitively for signing/install artifacts including `.p12`, `.jks`, `.keystore`, `.pem`, `.pk8`, `.key`, APK/APKS/IDSIG and private directories",
             "When changing release-facing behavior, update the verifier if the new invariant can be checked locally.",
             "Core loop works and all 36 levels are independently solver-verified.",
@@ -705,7 +706,7 @@ def check_readme_handoff() -> None:
             "`./tools/verify_play_generated_apk.py --dry-run` documents the Play-generated APK review posture",
             "run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` before rollout",
             "`./tools/check_signing_backup_inputs.py` verifies the active ignored signing inputs without printing password values.",
-            "After pushing, `./tools/verify_remote_release.py --tag <release-tag>` verifies `origin/main`, the annotated remote release tag, the remote signed AAB checksum, case-insensitive remote signing/install artifact hygiene, `origin/gh-pages` privacy-policy presence and the recorded hosted privacy URL.",
+            "After pushing, `./tools/verify_remote_release.py --tag <release-tag>` verifies `origin/main`, the annotated remote release tag, the remote signed AAB checksum, rejects extra remote `.aab` files outside `app/build/outputs/bundle/release/app-release.aab`, checks case-insensitive remote signing/install artifact hygiene, verifies `origin/gh-pages` privacy-policy presence and validates the recorded hosted privacy URL.",
             "10/10 тестов",
             "replay результата через `Повторить`",
             "Medium_Phone_API_36(AVD) - 16",
@@ -848,6 +849,8 @@ def check_google_play_checklist_handoff() -> None:
             "Run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok` before backing up signing files and uploading the AAB.",
             "After pushing the release handoff to GitHub, run `./tools/verify_remote_release.py --tag <release-tag>` and require `remote_release_ok`",
             "annotated remote release tag",
+            "rejects extra remote `.aab` files outside `app/build/outputs/bundle/release/app-release.aab`",
+            "validates the recorded hosted privacy URL",
             "Record safe signing-backup evidence in `play_store/signing_backup_evidence_ru.md`.",
             "Record safe post-upload evidence in `play_store/play_console_post_upload_evidence_ru.md`.",
             "Promote to production only after manual gates are complete.",
@@ -1162,6 +1165,7 @@ def check_release_report_handoff() -> None:
             "Latest final local gate after 11 June source audit",
             "Latest annotated remote tag handoff hardening",
             "Latest remote signing-artifact extension hardening",
+            "Latest remote unexpected-AAB hardening",
             "Latest local signing-ignore extension hardening",
             "Latest case-insensitive signing-artifact hygiene hardening",
             "Latest local install-artifact ignore case hardening",
@@ -1335,6 +1339,7 @@ def check_completion_audit_handoff() -> None:
             "Latest final local gate after 11 June source audit",
             "Latest annotated remote tag handoff hardening",
             "Latest remote signing-artifact extension hardening",
+            "Latest remote unexpected-AAB hardening",
             "Latest local signing-ignore extension hardening",
             "Latest case-insensitive signing-artifact hygiene hardening",
             "Latest local install-artifact ignore case hardening",
@@ -2916,6 +2921,7 @@ def check_upload_runbook_handoff() -> None:
             "`./tools/verify_remote_release.py --tag <release-tag>` возвращает `remote_release_ok`",
             "annotated remote release tag",
             "remote AAB checksum",
+            "отсутствие extra remote `.aab` outside `app/build/outputs/bundle/release/app-release.aab`",
             "case-insensitive отсутствие signing/install artifacts",
             "`app/build/outputs/bundle/release/app-release.aab`",
             "AAB SHA-256 совпадает с `play_store/upload_checksums.md`.",
@@ -4603,6 +4609,7 @@ def check_remote_release_helper() -> None:
             "Verify the pushed GitHub release handoff after local gates pass.",
             "networked and post-push oriented",
             "verify an explicit annotated remote release tag",
+            "rejects unexpected extra",
             "CHECKSUMS_PATH = ROOT / \"play_store/upload_checksums.md\"",
             "POST_UPLOAD_EVIDENCE_PATH = ROOT / \"play_store/play_console_post_upload_evidence_ru.md\"",
             "PRIVACY_URL_CHECK = ROOT / \"tools/check_privacy_policy_url.py\"",
@@ -4634,7 +4641,10 @@ def check_remote_release_helper() -> None:
             "def require_remote_tag_matches(",
             "def verify_remote_aab(",
             "def verify_forbidden_paths(",
+            "def verify_expected_aab_paths(",
             "def validate_privacy_url(",
+            "verify_expected_aab_paths(f\"{args.remote}/{args.branch}\", release_paths)",
+            "remote release branch AAB path scan: ok",
             "remote_release_dry_run_ok",
             "remote_release_ok",
             "remote_release_error",
@@ -4655,6 +4665,7 @@ def check_remote_release_helper() -> None:
         "- require origin/main matches local HEAD",
         "- verify remote `app/build/outputs/bundle/release/app-release.aab` bytes and SHA-256 from `play_store/upload_checksums.md`",
         "- scan remote release branch for signing/install artifacts",
+        "- require remote release branch contains no extra AAB files beyond `app/build/outputs/bundle/release/app-release.aab`",
         "- scan remote pages branch for signing/install/binary artifacts",
         "- validate hosted privacy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html",
         "remote_release_dry_run_ok",
@@ -4740,6 +4751,16 @@ def check_remote_release_helper() -> None:
         module.run_text = original_run_text
 
     module.verify_forbidden_paths("verifier good remote tree", ["app/build/outputs/bundle/release/app-release.aab"], module.MAIN_FORBIDDEN_PATTERNS)
+    module.verify_expected_aab_paths("verifier good remote tree", ["app/build/outputs/bundle/release/app-release.aab"])
+    try:
+        module.verify_expected_aab_paths(
+            "verifier bad remote tree",
+            ["app/build/outputs/bundle/release/app-release.aab", "release/extra.aab"],
+        )
+    except module.RemoteReleaseError as exc:
+        require("unexpected AAB paths" in str(exc), "remote release helper rejected extra AAB with unexpected message")
+    else:
+        raise CheckFailure("remote release helper must reject unexpected remote AAB paths")
     forbidden_remote_path_cases = [
         "private/signing/qgrid-upload.p12",
         "PRIVATE/signing/QGRID-UPLOAD.P12",
