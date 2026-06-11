@@ -648,7 +648,7 @@ def check_agents_handoff() -> None:
             "`./tools/verify_remote_release.py` is the networked post-push GitHub release helper.",
             "requires the remote release branch to match local `HEAD`",
             "can verify an explicit `--tag <release-tag>` is an annotated tag and peels to local `HEAD`",
-            "verifies the remote signed AAB bytes/SHA-256 from `play_store/upload_checksums.md`",
+            "verifies every remote upload asset bytes/SHA-256 from `play_store/upload_checksums.md`",
             "rejects any extra remote `.aab` files outside `app/build/outputs/bundle/release/app-release.aab`",
             "scans remote trees case-insensitively for signing/install artifacts including `.p12`, `.jks`, `.keystore`, `.pem`, `.pk8`, `.key`, APK/APKS/IDSIG and private directories",
             "When changing release-facing behavior, update the verifier if the new invariant can be checked locally.",
@@ -764,7 +764,7 @@ def check_readme_handoff() -> None:
             "`./tools/verify_play_generated_apk.py --dry-run` documents the Play-generated APK review posture",
             "run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` before rollout",
             "`./tools/check_signing_backup_inputs.py` verifies the active ignored signing inputs without printing password values.",
-            "After pushing, `./tools/verify_remote_release.py --tag <release-tag>` verifies `origin/main`, the annotated remote release tag, the remote signed AAB checksum, rejects extra remote `.aab` files outside `app/build/outputs/bundle/release/app-release.aab`, checks case-insensitive remote signing/install artifact hygiene, verifies `origin/gh-pages` privacy-policy presence and validates the recorded hosted privacy URL.",
+            "After pushing, `./tools/verify_remote_release.py --tag <release-tag>` verifies `origin/main`, the annotated remote release tag, every remote upload asset checksum from `play_store/upload_checksums.md`, rejects extra remote `.aab` files outside `app/build/outputs/bundle/release/app-release.aab`, checks case-insensitive remote signing/install artifact hygiene, verifies `origin/gh-pages` privacy-policy presence and validates the recorded hosted privacy URL.",
             "10/10 тестов",
             "replay результата через `Повторить`",
             "Medium_Phone_API_36(AVD) - 16",
@@ -3019,7 +3019,7 @@ def check_upload_runbook_handoff() -> None:
             "`./tools/check_signing_backup_inputs.py` возвращает `signing_backup_input_ok`.",
             "`./tools/verify_remote_release.py --tag <release-tag>` возвращает `remote_release_ok`",
             "annotated remote release tag",
-            "remote AAB checksum",
+            "every remote upload asset checksum from `play_store/upload_checksums.md`",
             "отсутствие extra remote `.aab` outside `app/build/outputs/bundle/release/app-release.aab`",
             "case-insensitive отсутствие signing/install artifacts",
             "`app/build/outputs/bundle/release/app-release.aab`",
@@ -4982,6 +4982,7 @@ def check_remote_release_helper() -> None:
             "Verify the pushed GitHub release handoff after local gates pass.",
             "networked and post-push oriented",
             "verify an explicit annotated remote release tag",
+            "verifies every remote upload",
             "rejects unexpected extra",
             "CHECKSUMS_PATH = ROOT / \"play_store/upload_checksums.md\"",
             "POST_UPLOAD_EVIDENCE_PATH = ROOT / \"play_store/play_console_post_upload_evidence_ru.md\"",
@@ -5006,6 +5007,8 @@ def check_remote_release_helper() -> None:
             "--allow-dirty",
             "--dry-run",
             "def expected_aab(",
+            "def require_safe_checksum_path(",
+            "def parse_upload_checksum_rows(",
             "def recorded_privacy_url(",
             "def require_clean_worktree(",
             "def fetch_remote(",
@@ -5013,6 +5016,7 @@ def check_remote_release_helper() -> None:
             "def require_remote_head_matches(",
             "def require_remote_tag_matches(",
             "def verify_remote_aab(",
+            "def verify_remote_upload_assets(",
             "def verify_forbidden_paths(",
             "def verify_expected_aab_paths(",
             "def validate_privacy_url(",
@@ -5036,7 +5040,7 @@ def check_remote_release_helper() -> None:
         "Pages branch: gh-pages",
         "- fetch origin main and gh-pages",
         "- require origin/main matches local HEAD",
-        "- verify remote `app/build/outputs/bundle/release/app-release.aab` bytes and SHA-256 from `play_store/upload_checksums.md`",
+        "- verify every remote upload asset bytes and SHA-256 from `play_store/upload_checksums.md`",
         "- scan remote release branch for signing/install artifacts",
         "- require remote release branch contains no extra AAB files beyond `app/build/outputs/bundle/release/app-release.aab`",
         "- scan remote pages branch for signing/install/binary artifacts",
@@ -5062,6 +5066,12 @@ def check_remote_release_helper() -> None:
     require(spec is not None and spec.loader is not None, "remote release helper could not be loaded for regression checks")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    checksum_rows = module.parse_upload_checksum_rows()
+    require(len(checksum_rows) == 13, "remote release helper parsed unexpected upload asset row count")
+    require(
+        checksum_rows[1][0] == "play_store/icon/play_icon_512.png",
+        "remote release helper parsed unexpected upload asset order",
+    )
     expected_size, expected_sha = module.expected_aab()
     require(expected_size == 2930928, "remote release helper parsed unexpected AAB size")
     require(expected_sha == "3affd5cc6de7735d7cb9cc4f381e114caa0b20d6bfa933621d596d24dc2e3043", "remote release helper parsed unexpected AAB SHA")
@@ -5073,6 +5083,46 @@ def check_remote_release_helper() -> None:
         module.remote_tag_ref("origin", "v1.0.0-rc5") == "refs/remotes/origin/tags/v1.0.0-rc5",
         "remote release helper produced unexpected remote tag ref",
     )
+    try:
+        module.require_safe_checksum_path("../private/signing/qgrid-upload.p12")
+    except module.RemoteReleaseError as exc:
+        require("unsafe upload checksum path" in str(exc), "remote release helper rejected unsafe checksum path with unexpected message")
+    else:
+        raise CheckFailure("remote release helper must reject unsafe upload checksum paths")
+
+    original_run_bytes = module.run_bytes
+
+    def local_upload_asset_bytes(args: list[str], *, timeout: int = 60) -> bytes:
+        path = args[-1].split(":", 1)[1]
+        return (ROOT / path).read_bytes()
+
+    try:
+        module.run_bytes = local_upload_asset_bytes
+        remote_assets = module.verify_remote_upload_assets("origin", "main")
+        require(len(remote_assets) == 13, "remote release helper verified unexpected remote upload asset count")
+        require(
+            remote_assets[0][0] == "app/build/outputs/bundle/release/app-release.aab",
+            "remote release helper returned unexpected first remote upload asset",
+        )
+
+        def mismatched_upload_asset_bytes(args: list[str], *, timeout: int = 60) -> bytes:
+            path = args[-1].split(":", 1)[1]
+            if path == "play_store/icon/play_icon_512.png":
+                return b"not the remote icon"
+            return (ROOT / path).read_bytes()
+
+        module.run_bytes = mismatched_upload_asset_bytes
+        try:
+            module.verify_remote_upload_assets("origin", "main")
+        except module.RemoteReleaseError as exc:
+            require(
+                "remote upload asset size mismatch for play_store/icon/play_icon_512.png" in str(exc),
+                "remote release helper rejected remote upload asset mismatch with unexpected message",
+            )
+        else:
+            raise CheckFailure("remote release helper must reject remote upload asset byte mismatches")
+    finally:
+        module.run_bytes = original_run_bytes
 
     original_run_text = module.run_text
 

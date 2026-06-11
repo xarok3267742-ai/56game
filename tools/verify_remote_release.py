@@ -3,8 +3,8 @@
 
 This helper is intentionally networked and post-push oriented. It fetches the
 configured remote, proves the remote release branch matches local HEAD, can
-verify an explicit annotated remote release tag, verifies the remote AAB
-checksum from `play_store/upload_checksums.md`, rejects unexpected extra
+verify an explicit annotated remote release tag, verifies every remote upload
+asset checksum from `play_store/upload_checksums.md`, rejects unexpected extra
 `.aab` files on the remote release branch, scans remote trees for
 signing/install artifacts case-insensitively, and reuses the hosted
 privacy-policy URL checker.
@@ -100,13 +100,39 @@ def parse_args() -> argparse.Namespace:
 
 
 def expected_aab() -> tuple[int, str]:
+    rows = parse_upload_checksum_rows()
+    for path, byte_count, checksum in rows:
+        if path == AAB_PATH:
+            return byte_count, checksum
+    raise RemoteReleaseError(f"upload checksums missing {AAB_PATH} row")
+
+
+def require_safe_checksum_path(path: str) -> None:
+    require(bool(path) and "\\" not in path, f"unsafe upload checksum path: {path}")
+    parsed = Path(path)
+    require(not parsed.is_absolute() and ".." not in parsed.parts, f"unsafe upload checksum path: {path}")
+
+
+def parse_upload_checksum_rows() -> list[tuple[str, int, str]]:
     text = CHECKSUMS_PATH.read_text(encoding="utf-8")
-    match = re.search(
-        rf"\| `{re.escape(AAB_PATH)}` \| (?P<bytes>\d+) \| `(?P<sha>[0-9a-f]{{64}})` \|",
-        text,
-    )
-    require(match is not None, f"upload checksums missing {AAB_PATH} row")
-    return int(match.group("bytes")), match.group("sha")
+    rows: list[tuple[str, int, str]] = []
+    seen: set[str] = set()
+    for line in text.splitlines():
+        if not line.startswith("| `"):
+            continue
+        parts = [part.strip() for part in line.strip("|").split("|")]
+        require(len(parts) == 3, f"bad upload checksum row: {line}")
+        path = parts[0].strip("`")
+        require_safe_checksum_path(path)
+        require(path not in seen, f"duplicate upload checksum row: {path}")
+        seen.add(path)
+        byte_text = parts[1]
+        checksum = parts[2].strip("`")
+        require(byte_text.isdigit(), f"bad upload checksum byte count: {byte_text} in row: {line}")
+        require(re.fullmatch(r"[0-9a-f]{64}", checksum) is not None, f"bad upload checksum SHA-256: {checksum} in row: {line}")
+        rows.append((path, int(byte_text), checksum))
+    require(rows, "no upload checksum rows found")
+    return rows
 
 
 def recorded_privacy_url() -> str:
@@ -172,6 +198,18 @@ def verify_remote_aab(remote: str, branch: str) -> tuple[int, str]:
     return actual_size, actual_sha
 
 
+def verify_remote_upload_assets(remote: str, branch: str) -> list[tuple[str, int, str]]:
+    verified: list[tuple[str, int, str]] = []
+    for path, expected_size, expected_sha in parse_upload_checksum_rows():
+        data = run_bytes(["git", "show", f"{remote_ref(remote, branch)}:{path}"], timeout=120)
+        actual_size = len(data)
+        actual_sha = hashlib.sha256(data).hexdigest()
+        require(actual_size == expected_size, f"remote upload asset size mismatch for {path}: {actual_size} != {expected_size}")
+        require(actual_sha == expected_sha, f"remote upload asset SHA-256 mismatch for {path}: {actual_sha} != {expected_sha}")
+        verified.append((path, actual_size, actual_sha))
+    return verified
+
+
 def tree_paths(ref: str) -> list[str]:
     output = run_text(["git", "ls-tree", "-r", "--name-only", ref], timeout=60)
     return [line for line in output.splitlines() if line.strip()]
@@ -209,7 +247,7 @@ def main() -> int:
         print(f"- require {args.remote}/{args.branch} matches local HEAD")
         if args.tag:
             print(f"- require {args.remote} tag {args.tag} is annotated and peels to local HEAD")
-        print(f"- verify remote `{AAB_PATH}` bytes and SHA-256 from `play_store/upload_checksums.md`")
+        print("- verify every remote upload asset bytes and SHA-256 from `play_store/upload_checksums.md`")
         print("- scan remote release branch for signing/install artifacts")
         print(f"- require remote release branch contains no extra AAB files beyond `{AAB_PATH}`")
         print("- scan remote pages branch for signing/install/binary artifacts")
@@ -226,7 +264,10 @@ def main() -> int:
         fetch_remote(args.remote, args.branch, args.pages_branch, args.tag)
         local_head, _remote_head = require_remote_head_matches(args.remote, args.branch)
         tag_result = require_remote_tag_matches(args.remote, args.tag, local_head) if args.tag else None
-        aab_size, aab_sha = verify_remote_aab(args.remote, args.branch)
+        upload_asset_results = verify_remote_upload_assets(args.remote, args.branch)
+        aab_result = next((result for result in upload_asset_results if result[0] == AAB_PATH), None)
+        require(aab_result is not None, f"remote upload asset verification did not include {AAB_PATH}")
+        _aab_path, aab_size, aab_sha = aab_result
 
         release_ref = remote_ref(args.remote, args.branch)
         release_paths = tree_paths(release_ref)
@@ -246,6 +287,7 @@ def main() -> int:
             tag_object, tag_commit = tag_result
             print(f"- remote tag {args.tag}: annotated {tag_object}, commit {tag_commit}")
         print(f"- remote AAB: {aab_size} bytes, sha256 {aab_sha}")
+        print(f"- remote upload assets: {len(upload_asset_results)} files verified from play_store/upload_checksums.md")
         print(f"- remote release branch forbidden-path scan: ok")
         print(f"- remote release branch AAB path scan: ok")
         print(f"- remote pages branch forbidden-path scan: ok")
