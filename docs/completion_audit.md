@@ -25,7 +25,7 @@ Checked on 6 June 2026 against the original instruction and the current local re
 - Lint passes with no issues: `./gradlew lint`.
 - Signed release AAB builds: `./gradlew bundleRelease`.
 - Production AAB cleanliness is checked by `tools/verify_release.py`: no project `.debug` package id, androidTest, JUnit, Espresso or Compose UI-test markers are present in the release artifact.
-- Artifact and Play asset size budgets are checked by `tools/verify_release.py`; current release AAB is 2,931,068 bytes and current debug APK is 20,050,164 bytes.
+- Artifact and Play asset size budgets are checked by `tools/verify_release.py`; current release AAB is 2,931,129 bytes and current debug APK is 20,050,164 bytes.
 - Debug APK and release AAB freshness are checked by `tools/verify_release.py`; stale artifacts after app source, Gradle, ProGuard or signing-input changes fail the release gate.
 - Emulator smoke tests pass: `./gradlew connectedDebugAndroidTest`; latest connected run finished 10 tests covering product name, accessible game board/controls, hint repair feedback, settings options, About/privacy policy text, level completion, three-level progression, highest-level result fallback, result replay, game-back routing, progress persistence and Activity recreation.
 - Release APK installed on API 35 emulator: `./gradlew installRelease`.
@@ -173,7 +173,7 @@ Checked on 6 June 2026 against the original instruction and the current local re
 - Latest Play upload archive negative-regression gate: `tools/verify_release.py` now imports `tools/prepare_play_upload_archive.py` and proves the helper rejects unsafe upload/handoff paths, forbidden signing/debug source paths, rows missing from `play_store/upload_manifest.md`, wrong byte counts, wrong SHA-256 values, missing handoff files, duplicate archive entries and forbidden archive entry names.
 - Latest Play upload archive completeness hardening: `tools/prepare_play_upload_archive.py` now requires the same exact ordered upload path set as the owner upload-packet helper before dry-run/write can succeed. `tools/verify_release.py` proves the archive helper rejects missing required archive paths, unexpected archive paths and wrong archive-path order.
 - Latest generated upload archive freshness gate: `tools/verify_release.py` now validates the existing `build/play_upload/line56_v1_google_play_upload_packet.zip` when present: exact entry set, current upload-file bytes and SHA-256 values, current safe handoff-file bytes, forbidden path markers, ZIP size budget, README warnings and regeneration freshness after archive helper/upload/handoff changes.
-- Latest Play upload archive generation: `./tools/prepare_play_upload_archive.py --write` created `build/play_upload/line56_v1_google_play_upload_packet.zip`, 4,343,554 bytes, SHA-256 `e3c09006e35a684f2562401aefb0b55b36bef3c09ff7d1f2fbb6d5a094fe0d58`; ZIP inspection found 30 entries and no forbidden signing/debug/test/source-asset path markers.
+- Latest Play upload archive generation: `./tools/prepare_play_upload_archive.py --write` created `build/play_upload/line56_v1_google_play_upload_packet.zip`, 4,343,814 bytes, SHA-256 `cd11fd9c6159938c44707b03957d562b3e66ace5922c99428ab9c708586b4b97`; ZIP inspection found 30 entries and no forbidden signing/debug/test/source-asset path markers.
 - Latest signing handoff archive inclusion: generated owner ZIP now includes safe `_owner_handoff/signing_backup_evidence_ru.md` and `_owner_handoff/signing_certificate_report.md` alongside upload/runbook/privacy/policy notes, so the upload-day packet contains the signing-backup template and public certificate fingerprints without including signing secrets.
 - Latest generated upload archive existing-verification hardening: `tools/prepare_play_upload_archive.py --verify-existing` now verifies the generated owner ZIP itself against current upload assets, current handoff notes, expected entries, deterministic timestamps/modes, README text and forbidden entry markers; `tools/run_final_local_gate.py` includes this check after the archive dry run.
 - Latest Play Console packet helper hardening: `tools/print_play_console_packet.py` now verifies listing/App content/Data Safety/content-rating/owner-gate handoff consistency and prints a safe copy-ready Play Console form packet. `tools/verify_release.py` gates the helper and output markers.
@@ -226,7 +226,7 @@ Checked on 6 June 2026 against the original instruction and the current local re
 
 ## Not Yet Fully Proven Final
 
-- Privacy policy text and HTML are ready as local source and no longer contain a contact-replacement placeholder, but final publication still needs public HTTPS hosting and populated Play Console support/contact fields.
+- Privacy policy text and HTML are hosted at `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` and passed `privacy_policy_url_ok`, but final publication still needs that URL entered in Play Console plus populated Play Console support/contact fields.
 - Play Console forms are not completed because they require account access.
 - Closed testing cannot be completed locally; account type and testers are external.
 - Owner release inputs in `play_store/owner_release_inputs.md` require real owner decisions before upload.

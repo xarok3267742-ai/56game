@@ -71,7 +71,7 @@ Use `play_store/upload_runbook_ru.md` for the final manual upload sequence, incl
 
 - App access: no restricted sections, no login, no account.
 - Ads: no.
-- Privacy policy: required. Host `play_store/privacy_policy_ru.html` on a public HTTPS URL after filling the Play Console support/contact fields used by the policy inquiry mechanism.
+- Privacy policy: required. Enter `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` after filling the Play Console support/contact fields used by the policy inquiry mechanism and rechecking the URL with `./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html`.
 - Data collection: no collected user data.
 - Data sharing: no shared user data.
 - Analytics: none.

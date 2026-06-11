@@ -1,5 +1,5 @@
 Release relaunch smoke evidence
-checked_on=2026-06-08
+checked_on=2026-06-11
 serial=emulator-5560
 avd_name=Medium_Phone_API_36
 expected_api=36
@@ -13,8 +13,8 @@ first_launch_result=Starting: Intent { cmp=com.qgrid.mobile/.MainActivity }
 Status: ok
 LaunchState: COLD
 Activity: com.qgrid.mobile/.MainActivity
-TotalTime: 1932
-WaitTime: 1935
+TotalTime: 1801
+WaitTime: 1805
 Complete
 background_return_command=input keyevent HOME then am start -W
 background_return_result=Starting: Intent { cmp=com.qgrid.mobile/.MainActivity }
@@ -22,15 +22,15 @@ Warning: Activity not started, its current task has been brought to the front
 Status: ok
 LaunchState: UNKNOWN (0)
 Activity: com.qgrid.mobile/.MainActivity
-WaitTime: 434
+WaitTime: 253
 Complete
 force_stop_relaunch_command=am force-stop com.qgrid.mobile then am start -W
 force_stop_relaunch_result=Starting: Intent { cmp=com.qgrid.mobile/.MainActivity }
 Status: ok
 LaunchState: COLD
 Activity: com.qgrid.mobile/.MainActivity
-TotalTime: 855
-WaitTime: 930
+TotalTime: 1297
+WaitTime: 1350
 Complete
 home_progress_visible_after_relaunch=true
 home_start_action_visible_after_relaunch=true

@@ -112,8 +112,9 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Ready-to-host HTML: `play_store/privacy_policy_ru.html`
 - Hosting checklist: `play_store/privacy_policy_hosting_checklist.md`
 - Manual gate: populate the Play Console support/contact fields because the policy uses the Google Play listing support contact as its privacy inquiry mechanism.
-- Manual gate: host the final policy on a clean public HTTPS URL without credentials/query/fragments and enter that URL in Play Console.
-- Current status: policy source text is ready, but publication is not complete until Play Console support/contact fields and the public HTTPS URL exist.
+- Hosted public HTTPS URL: `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html`.
+- Manual gate: enter the hosted URL in Play Console and keep the Play Console support/contact fields populated with a real support contact.
+- Current status: policy source text is hosted and verified, but publication is not complete until Play Console support/contact fields and the Play Console privacy-policy field are populated.
 
 ## Data Safety Notes
 
@@ -199,8 +200,8 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - After Play Console creates downloadable APK artifacts from the uploaded AAB, run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`.
 - Run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok` before backing up signing files and uploading the AAB.
 - Record safe signing-backup evidence in `play_store/signing_backup_evidence_ru.md`.
-- Add public privacy policy URL.
-- Before entering the URL, run `./tools/check_privacy_policy_url.py --url <https-url>` and require `privacy_policy_url_ok`; the hosted policy must be public HTTPS, no credentials/query/fragments, non-PDF, valid UTF-8, free of script/tracker/widget markers and text-identical to the current local `play_store/privacy_policy_ru.html` after whitespace normalization.
+- Add public privacy policy URL `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html`.
+- Before entering the URL, run `./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` and require `privacy_policy_url_ok`; the hosted policy must be public HTTPS, no credentials/query/fragments, non-PDF, valid UTF-8, free of script/tracker/widget markers and text-identical to the current local `play_store/privacy_policy_ru.html` after whitespace normalization.
 - Complete Data Safety using `play_store/data_safety_ru.md`.
 - Complete content rating using `play_store/content_rating_notes.md`.
 - Complete target audience and app content declarations using `play_store/app_content_answers_ru.md`.
@@ -211,4 +212,4 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 
 ## Release Build Status
 
-Signed release AAB exists and verifies locally. Store icon, feature graphic, phone screenshots, large/tablet screenshots, listing copy, data-safety notes, content-rating notes, privacy-policy HTML, upload manifest, Play Console field handoff, signing-backup evidence and owner template, and release report are present. Publication is still gated by owner-controlled public privacy URL, Play Console support/contact fields, signing-key backup and Play Console actions.
+Signed release AAB exists and verifies locally. Store icon, feature graphic, phone screenshots, large/tablet screenshots, listing copy, data-safety notes, content-rating notes, hosted privacy-policy HTML, upload manifest, Play Console field handoff, signing-backup evidence and owner template, and release report are present. Publication is still gated by entering the privacy URL in Play Console, populated Play Console support/contact fields, signing-key backup and Play Console actions.

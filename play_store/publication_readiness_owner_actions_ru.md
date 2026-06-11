@@ -47,7 +47,7 @@ Required posture:
 
 ## 2. Privacy Policy And Play Contact
 
-Action: host the privacy policy, validate the public URL and populate Play Console support/contact fields.
+Action: validate the hosted privacy policy URL, enter it in Play Console and populate Play Console support/contact fields.
 
 Evidence file: `play_store/play_console_post_upload_evidence_ru.md`.
 

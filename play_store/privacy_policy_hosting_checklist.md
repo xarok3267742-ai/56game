@@ -42,4 +42,4 @@ Local source preflight:
 
 ## Current Status
 
-Policy source text is ready to host and no longer contains a contact-replacement placeholder. Public HTTPS hosting and populated Play Console support/contact fields remain manual release blockers because they are external to the local codebase.
+Policy source text is hosted at `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` and passed `./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` on 2026-06-11. Populated Play Console support/contact fields remain a manual release blocker because they are external to the local codebase.

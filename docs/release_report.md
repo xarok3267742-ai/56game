@@ -135,7 +135,7 @@
 - Signing handoff hardening: public upload-certificate report added with SHA-1/SHA-256 fingerprints and verifier coverage; no signing credentials are included.
 - Release AAB cleanliness hardening: `tools/verify_release.py` now scans the production AAB entries and payload for project `.debug` package ids and androidTest/JUnit/Espresso/UI-test markers. Current gate passes without debug/test leakage.
 - Required documentation gate: `tools/verify_release.py` now checks the required RTF-aligned docs and Play handoff files are present and non-empty, including `AGENTS.md`, product/tech/QA/privacy/accessibility/performance/asset/release docs and Play Console handoff files.
-- Performance/size budget hardening: `tools/verify_release.py` now enforces release AAB, debug APK, feature graphic, screenshots, source background and `play_store` directory size budgets. Current rebuilt release AAB is 2,931,068 bytes and current debug APK is 20,050,164 bytes.
+- Performance/size budget hardening: `tools/verify_release.py` now enforces release AAB, debug APK, feature graphic, screenshots, source background and `play_store` directory size budgets. Current rebuilt release AAB is 2,931,129 bytes and current debug APK is 20,050,164 bytes.
 - Build artifact freshness hardening: `tools/verify_release.py` now fails if `app-debug.apk` is older than app source/build inputs or the local SDK input (`local.properties` when present), or if `app-release.aab` is older than app source/build, local SDK, ProGuard or local signing inputs. This keeps checksum verification from accepting stale build artifacts.
 - Artifact-ignore hygiene hardening: `.gitignore` and `tools/verify_release.py` now cover copied Android upload/install artifacts (`*.apk`, `*.aab`, `*.apks`, `*.idsig`) in addition to generated build directories, signing files and local property files.
 - Store metadata verifier hardening: `tools/verify_release.py` now checks app name, short description, full description and release notes length budgets, blocks placeholder markers in release-facing metadata and requires exact sync between `play_store/listing_ru.md` and `play_store/play_console_submission_ru.md`.
@@ -224,7 +224,7 @@
 - Latest Play upload archive negative-regression gate: `tools/verify_release.py` now imports `tools/prepare_play_upload_archive.py` and proves the helper rejects unsafe upload/handoff paths, forbidden signing/debug source paths, rows missing from `play_store/upload_manifest.md`, wrong byte counts, wrong SHA-256 values, missing handoff files, duplicate archive entries and forbidden archive entry names.
 - Latest Play upload archive completeness hardening: `tools/prepare_play_upload_archive.py` now requires the same exact ordered upload path set as the owner upload-packet helper before dry-run/write can succeed. `tools/verify_release.py` proves the archive helper rejects missing required archive paths, unexpected archive paths and wrong archive-path order.
 - Latest generated upload archive freshness gate: `tools/verify_release.py` now validates the existing `build/play_upload/line56_v1_google_play_upload_packet.zip` when present: exact entry set, current upload-file bytes and SHA-256 values, current safe handoff-file bytes, forbidden path markers, ZIP size budget, README warnings and regeneration freshness after archive helper/upload/handoff changes.
-- Latest Play upload archive generation: `./tools/prepare_play_upload_archive.py --write` created `build/play_upload/line56_v1_google_play_upload_packet.zip`, 4,343,554 bytes, SHA-256 `e3c09006e35a684f2562401aefb0b55b36bef3c09ff7d1f2fbb6d5a094fe0d58`; local ZIP inspection found 30 entries and no forbidden signing/debug/test/source-asset path markers.
+- Latest Play upload archive generation: `./tools/prepare_play_upload_archive.py --write` created `build/play_upload/line56_v1_google_play_upload_packet.zip`, 4,343,814 bytes, SHA-256 `cd11fd9c6159938c44707b03957d562b3e66ace5922c99428ab9c708586b4b97`; local ZIP inspection found 30 entries and no forbidden signing/debug/test/source-asset path markers.
 - Latest signing handoff archive inclusion: generated owner ZIP now includes safe `_owner_handoff/signing_backup_evidence_ru.md` and `_owner_handoff/signing_certificate_report.md` alongside upload/runbook/privacy/policy notes, so the upload-day packet contains the signing-backup template and public certificate fingerprints without including signing secrets.
 - Latest generated upload archive existing-verification hardening: `tools/prepare_play_upload_archive.py --verify-existing` now verifies the generated owner ZIP itself against current upload assets, current handoff notes, expected entries, deterministic timestamps/modes, README text and forbidden entry markers; `tools/run_final_local_gate.py` includes this check after the archive dry run.
 - Latest Play Console packet helper hardening: `tools/print_play_console_packet.py` now verifies the local listing, Play Console submission, App content, Data Safety, content-rating and owner-gate handoff, then prints a copy-ready Play Console packet without secrets. `tools/verify_release.py` gates the helper and its output.
@@ -283,7 +283,7 @@
 ## Build Artifacts
 
 - Debug APK: `app/build/outputs/apk/debug/app-debug.apk`, package `com.qgrid.mobile.debug`, 20,050,164 bytes.
-- Signed Release AAB: `app/build/outputs/bundle/release/app-release.aab`, 2,931,068 bytes.
+- Signed Release AAB: `app/build/outputs/bundle/release/app-release.aab`, 2,931,129 bytes.
 - Upload keystore: `private/signing/qgrid-upload.p12` with credentials in ignored `keystore.properties`.
 - Store icon: `play_store/icon/play_icon_512.png`, about 268KB.
 - Feature graphic: `play_store/feature_graphic.png`, about 401KB.
@@ -300,7 +300,7 @@
 - Post-upload evidence template: `play_store/play_console_post_upload_evidence_ru.md`.
 - Signing backup evidence and owner template: `play_store/signing_backup_evidence_ru.md`.
 - Upload checksums: `play_store/upload_checksums.md`.
-- Generated owner handoff archive: `build/play_upload/line56_v1_google_play_upload_packet.zip`, 4,343,554 bytes, SHA-256 `e3c09006e35a684f2562401aefb0b55b36bef3c09ff7d1f2fbb6d5a094fe0d58`; unpack for upload day, do not upload the ZIP itself.
+- Generated owner handoff archive: `build/play_upload/line56_v1_google_play_upload_packet.zip`, 4,343,814 bytes, SHA-256 `cd11fd9c6159938c44707b03957d562b3e66ace5922c99428ab9c708586b4b97`; unpack for upload day, do not upload the ZIP itself.
 - Play Console field handoff: `play_store/play_console_submission_ru.md`.
 - App content answer sheet: `play_store/app_content_answers_ru.md`.
 - Owner release inputs: `play_store/owner_release_inputs.md`.
@@ -326,8 +326,8 @@ Release AAB generated and signed with a locally generated upload keystore. `./to
 
 ## Остаточные риски
 
-- Need manual Play Console forms, owner inputs, public privacy policy URL and populated Play Console support/contact fields.
+- Need manual Play Console forms, owner inputs, entering the verified privacy policy URL in Play Console and populated Play Console support/contact fields.
 
 ## Готовность
 
-Кодовый MVP, signed AAB, store icon, feature graphic, screenshots, privacy/data-safety notes, Play Console field handoff, owner-input checklist and Android build pipeline are ready as a stronger release candidate. Публикация в Google Play still requires hosted privacy policy URL, populated Play Console support/contact fields, keystore backup and Play Console forms.
+Кодовый MVP, signed AAB, store icon, feature graphic, screenshots, hosted privacy policy, privacy/data-safety notes, Play Console field handoff, owner-input checklist and Android build pipeline are ready as a stronger release candidate. Публикация в Google Play still requires entering the verified privacy URL in Play Console, populated Play Console support/contact fields, keystore backup and Play Console forms.

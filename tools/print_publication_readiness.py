@@ -168,7 +168,7 @@ OWNER_ACTION_GROUPS = (
     ),
     (
         "Privacy policy and Play contact",
-        "Host the privacy policy, validate the public URL and populate Play Console support/contact fields.",
+        "Validate the hosted privacy policy URL, enter it in Play Console and populate Play Console support/contact fields.",
         ("play_store/play_console_post_upload_evidence_ru.md",),
         ("./tools/check_privacy_policy_url.py --url <https-url>",),
         (
@@ -735,7 +735,7 @@ def print_status(
     print_owner_action_breakdown(unresolved)
     print("Required owner actions before production")
     print("----------------------------------------")
-    print("- Host `play_store/privacy_policy_ru.html` at a public HTTPS URL.")
+    print("- Enter the verified hosted privacy policy URL in Play Console.")
     print("- Populate Play Console support/contact fields used by the policy inquiry mechanism.")
     print("- Back up `private/signing/qgrid-upload.p12` and `keystore.properties` in secure owner-controlled storage.")
     print("- Complete Play Console App content, Data Safety, content rating, target audience and AI disclosure forms.")

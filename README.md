@@ -71,7 +71,7 @@ Production package остаётся нейтральным: `com.qgrid.mobile`; 
 
 Version identity for this upload candidate: `versionCode = 1`, `versionName = 1.0.0`.
 
-Текущий release AAB: `2,931,068` bytes, SHA-256 `41b2789d25d94a93e1bc2510d296e331fe7e63393b63ea2da0024a2595bdc6dc`.
+Текущий release AAB: `2,931,129` bytes, SHA-256 `221c73d11513f9926da6f6fd3cc9d6771cb4f6ab422dc361945bbc5f66919d8a`.
 
 For Google Play, the signed AAB is the only binary upload artifact. Generated release APK outputs under `app/build/outputs/apk/release` are install/testing artifacts only and must not be uploaded to Play.
 

@@ -53,4 +53,4 @@ Run `./gradlew connectedDebugAndroidTest` again when an emulator or device is av
 
 ## Current Publication Status
 
-The local release candidate is prepared and verifier-approved, but publication is still blocked externally until the owner populates real Play Console support/contact fields, hosts the privacy policy at a public HTTPS URL, backs up signing material securely and completes Play Console forms/testing tracks.
+The local release candidate is prepared and verifier-approved, and the privacy policy is hosted at `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html`. The publication is still blocked externally until the owner enters that URL in Play Console, populates real Play Console support/contact fields, backs up signing material securely and completes Play Console forms/testing tracks.

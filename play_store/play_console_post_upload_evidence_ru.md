@@ -15,11 +15,11 @@
 
 ## Privacy And Contact
 
-- Public privacy policy URL: not yet available locally.
-- Privacy policy URL check command returned `privacy_policy_url_ok`: not yet available locally.
-- Privacy policy URL is HTTPS: not yet available locally.
-- Privacy policy URL is accessible without login: not yet available locally.
-- Privacy policy URL is not PDF: not yet available locally.
+- Public privacy policy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html.
+- Privacy policy URL check command returned `privacy_policy_url_ok`: privacy_policy_url_ok.
+- Privacy policy URL is HTTPS: yes.
+- Privacy policy URL is accessible without login: yes.
+- Privacy policy URL is not PDF: yes.
 - Play Console support/contact field populated: not yet available locally.
 - Support/contact mechanism matches `play_store/privacy_policy_ru.html`: not yet available locally.
 
