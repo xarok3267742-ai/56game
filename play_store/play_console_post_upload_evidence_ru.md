@@ -43,8 +43,8 @@ After the real backup is complete, keep the backup evidence line explicit and sa
 - Play-generated native libraries support 16 KB page sizes: not yet available locally.
 - Play-generated APK installed and launched on at least one Android device or emulator: not yet available locally.
 
-After Play-generated artifact review, the icon line must be based on helper output `store icon pixel matches: ...` and `application icon linked store icon: ...`, not only a visual/manual size check.
-The icon line must explicitly mention an application-icon-linked store-icon pixel match.
+After Play-generated artifact review, the icon line must be based on helper output `store icon pixel matches: ...`, `application icon linked store icon: ...` and `round icon linked store icon: ...`, not only a visual/manual size check.
+The icon line must explicitly mention application-icon-linked and round-icon-linked store-icon pixel matches.
 After Play-generated artifact review, the permissions line must explicitly include `no INTERNET`, `no ACCESS_NETWORK_STATE` and `no dangerous runtime permissions`.
 The native-library line must explicitly include `16 KB` and `16384`, for example from helper output `native libraries: 8 checked; minimum PT_LOAD alignment: 16384 bytes`.
 

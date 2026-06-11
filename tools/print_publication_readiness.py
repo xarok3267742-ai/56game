@@ -475,7 +475,7 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         validate_exact(label, value, file_label, "Линия 56")
     elif label == "Play-generated icon matches `play_store/icon/play_icon_512.png`":
         validate_yes(label, value, file_label)
-        validate_contains_all(label, value, file_label, ("application icon", "store icon", "pixel"))
+        validate_contains_all(label, value, file_label, ("application icon", "round icon", "store icon", "pixel"))
     elif label == "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions":
         validate_no_negative_markers(label, value, file_label)
         validate_contains_all(label, value, file_label, ("no INTERNET", "no ACCESS_NETWORK_STATE", "no dangerous"))

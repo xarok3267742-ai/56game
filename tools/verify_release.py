@@ -640,7 +640,7 @@ def check_agents_handoff() -> None:
             "groups unresolved owner actions by evidence file and required command",
             "publication_readiness_local_ready_external_pending",
             "`./tools/verify_play_generated_apk.py` is the owner helper for Play-generated APK review after upload.",
-            "with `--apk <path>` it verifies the APK package, version, label, SDK levels, no forbidden permissions, no debug/test leakage, a 512x512 icon candidate whose pixels match `play_store/icon/play_icon_512.png` and an application icon reference linked to that matching PNG.",
+            "with `--apk <path>` it verifies the APK package, version, label, SDK levels, no forbidden permissions, no debug/test leakage, a 512x512 icon candidate whose pixels match `play_store/icon/play_icon_512.png`, an application icon reference linked to that matching PNG and a round icon reference linked to that same PNG.",
             "`./tools/check_privacy_policy_url.py --local` validates the local ready-to-host privacy HTML.",
             "`./tools/check_privacy_policy_url.py --url <https-url>` before entering the URL in Play Console.",
             "`./tools/check_signing_backup_inputs.py` validates the ignored local signing inputs before backup without printing password values.",
@@ -907,7 +907,7 @@ def check_google_play_checklist_handoff() -> None:
             "Run `./tools/create_store_asset_review_sheet.py --dry-run` and review `play_store/store_asset_review_sheet.png` before upload",
             "Run `./tools/print_play_console_packet.py` and require `play_console_packet_ok` before filling Play Console listing/App content forms.",
             "Use `play_store/publication_readiness_owner_actions_ru.md` to resolve the external owner-action groups before production rollout.",
-            "After Play Console creates downloadable APK artifacts from the uploaded AAB, run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`, `store icon pixel matches: ...` and `application icon linked store icon: ...`.",
+            "After Play Console creates downloadable APK artifacts from the uploaded AAB, run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`, `store icon pixel matches: ...`, `application icon linked store icon: ...` and `round icon linked store icon: ...`.",
             "Run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok` before backing up signing files and uploading the AAB.",
             "After pushing the release handoff to GitHub, run `./tools/verify_remote_release.py --tag <release-tag>` and require `remote_release_ok`",
             "annotated remote release tag",
@@ -2904,7 +2904,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>",
             "no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions",
             "icon pixels that differ from `play_store/icon/play_icon_512.png`",
-            "application icon reference that is not linked to that matching PNG",
+            "application/round icon references that are not linked to that matching PNG",
             "native 16 KB page-size posture",
             "native `.so` files below 16 KB page-size alignment",
             "Play Console Forms",
@@ -3008,7 +3008,7 @@ def check_upload_runbook_handoff() -> None:
             "groups unresolved owner actions by evidence file and required command",
             "сверить действия с `play_store/publication_readiness_owner_actions_ru.md`",
             "`./tools/verify_play_generated_apk.py --dry-run` возвращает `play_generated_apk_verify_dry_run_ok`",
-            "`./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok` plus the `store icon pixel matches: ...` and `application icon linked store icon: ...` lines.",
+            "`./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok` plus the `store icon pixel matches: ...`, `application icon linked store icon: ...` and `round icon linked store icon: ...` lines.",
             "`./tools/verify_release.py` проверяет 16 KB page-size posture для native `.so` в signed AAB",
             "--require-production-ready",
             "`./tools/check_privacy_policy_url.py --local` возвращает `privacy_policy_local_ok` and prints the canonical privacy text SHA-256 for owner comparison.",
@@ -3069,7 +3069,7 @@ def check_upload_runbook_handoff() -> None:
             "The only binary upload artifact for Google Play is the signed AAB.",
             "Release Track Order",
             "Upload the signed AAB to internal testing.",
-            "Inspect Play-generated APKs for package, app name, version, store-icon pixel match, application icon linkage, permissions and native 16 KB page-size posture.",
+            "Inspect Play-generated APKs for package, app name, version, store-icon pixel match, application/round icon linkage, permissions and native 16 KB page-size posture.",
             "Run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.",
             "Promote to production only after owner gates, testing tracks and review warnings are complete.",
             "Stop Conditions",
@@ -4115,6 +4115,8 @@ def check_play_generated_apk_helper() -> None:
             "def resource_file_map(",
             "def application_icon_resource_ids(",
             "def application_icon_matching_candidates(",
+            "def manifest_application_resource_id(",
+            "def manifest_icon_matching_candidates(",
             "def icon_candidates(",
             "APK requests unexpected permissions",
             "APK requests forbidden permissions",
@@ -4144,6 +4146,7 @@ def check_play_generated_apk_helper() -> None:
         "no INTERNET, no ACCESS_NETWORK_STATE and no dangerous runtime permissions",
         "required icon posture: a 512x512 PNG candidate must pixel-match play_store/icon/play_icon_512.png",
         "required app icon posture: application icon reference must link to the store-icon pixel match",
+        "required round icon posture: round icon reference must link to the store-icon pixel match",
         "required native posture: native libraries, when present, have PT_LOAD alignment >= 16384 bytes for 16 KB page sizes",
         "play_generated_apk_verify_dry_run_ok",
     ]:
@@ -4167,6 +4170,8 @@ def check_play_generated_apk_helper() -> None:
         "512x512 icon candidates:",
         "store icon pixel matches:",
         "application icon linked store icon:",
+        "round icon reference:",
+        "round icon linked store icon:",
         "native libraries: 8 checked; minimum PT_LOAD alignment: 16384 bytes",
         "play_generated_apk_verify_ok",
     ]:
@@ -4198,6 +4203,8 @@ def check_play_generated_apk_helper() -> None:
     require(release_result["label"] == "Линия 56", "Play-generated APK helper module returned wrong release label")
     require(release_result["matchingIconCandidates"], "Play-generated APK helper module did not find a store-icon pixel match")
     require(release_result["linkedIconCandidates"], "Play-generated APK helper module did not link application icon to store-icon match")
+    require(release_result["roundIconReferences"], "Play-generated APK helper module did not find a round icon reference")
+    require(release_result["roundLinkedIconCandidates"], "Play-generated APK helper module did not link round icon to store-icon match")
     require(len(release_result["nativeLibraries"]) == 8, "Play-generated APK helper module returned wrong native library count")
     require(
         release_result["minimumNativeLoadAlignment"] == 16384,
@@ -4226,6 +4233,18 @@ def check_play_generated_apk_helper() -> None:
             raise CheckFailure("Play-generated APK helper must reject app icons that do not link to the store-icon pixel match")
     finally:
         module.application_icon_matching_candidates = original_icon_link_checker
+
+    original_manifest_icon_link_checker = module.manifest_icon_matching_candidates
+    try:
+        module.manifest_icon_matching_candidates = lambda _apk, _attribute_name, _matching_candidates: (["res/round.xml"], [])
+        try:
+            module.verify_apk(release_apk)
+        except module.ApkReviewError as exc:
+            require("round icon reference does not link to a store-icon pixel match" in str(exc), f"Play-generated APK helper rejected unlinked round icon with unexpected message: {exc}")
+        else:
+            raise CheckFailure("Play-generated APK helper must reject round icons that do not link to the store-icon pixel match")
+    finally:
+        module.manifest_icon_matching_candidates = original_manifest_icon_link_checker
 
     def solid_png(width: int, height: int, rgba: bytes) -> bytes:
         def chunk(name: bytes, payload: bytes) -> bytes:
@@ -4314,7 +4333,7 @@ def check_publication_readiness_helper() -> None:
             "must be a positive confirmation without negative status markers",
             "must explicitly say evidence was recorded without secrets",
             "\"Play-generated icon matches `play_store/icon/play_icon_512.png`\"",
-            "(\"application icon\", \"store icon\", \"pixel\")",
+            "(\"application icon\", \"round icon\", \"store icon\", \"pixel\")",
             "must explicitly mention at least two secure copies",
             "must explicitly say recovery was tested without exposing secrets",
             "must not be pending, unknown or negative evidence",
@@ -4418,7 +4437,7 @@ def check_publication_readiness_helper() -> None:
         ("Play Console support/contact field populated", "none", "unexpected value"),
         ("Play Console support/contact field populated", "yes, but not completed", "positive confirmation without negative status markers"),
         ("Owner-controlled backup evidence recorded without secrets", "yes", "without secrets"),
-        ("Play-generated icon matches `play_store/icon/play_icon_512.png`", "yes, store icon pixel matches helper output", "missing"),
+        ("Play-generated icon matches `play_store/icon/play_icon_512.png`", "yes, application icon linked store icon pixel matches helper output", "missing"),
         ("Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions", "looks fine", "missing"),
         (
             "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions",
@@ -4508,7 +4527,7 @@ def check_publication_readiness_helper() -> None:
             "Owner-controlled backup evidence recorded without secrets": "yes, recorded without secrets",
             "Play-generated APK package is `com.qgrid.mobile`": "com.qgrid.mobile",
             "Play-generated app label is `Линия 56`": "Линия 56",
-            "Play-generated icon matches `play_store/icon/play_icon_512.png`": "yes, application icon linked store icon pixel matches helper output",
+            "Play-generated icon matches `play_store/icon/play_icon_512.png`": "yes, application icon linked store icon pixel matches and round icon linked store icon pixel matches helper output",
             "Play-generated version code/name match this release candidate": "yes",
             "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions": "no INTERNET, no ACCESS_NETWORK_STATE, no dangerous runtime permissions",
             "Play-generated native libraries support 16 KB page sizes": "16 KB page sizes, minimum PT_LOAD alignment 16384 bytes",
@@ -5317,8 +5336,8 @@ def check_post_upload_evidence_handoff() -> None:
             "Play-generated icon matches `play_store/icon/play_icon_512.png`: not yet available locally.",
             "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions: not yet available locally.",
             "Play-generated native libraries support 16 KB page sizes: not yet available locally.",
-            "After Play-generated artifact review, the icon line must be based on helper output `store icon pixel matches: ...` and `application icon linked store icon: ...`",
-            "The icon line must explicitly mention an application-icon-linked store-icon pixel match.",
+            "After Play-generated artifact review, the icon line must be based on helper output `store icon pixel matches: ...`, `application icon linked store icon: ...` and `round icon linked store icon: ...`",
+            "The icon line must explicitly mention application-icon-linked and round-icon-linked store-icon pixel matches.",
             "After Play-generated artifact review, the permissions line must explicitly include `no INTERNET`, `no ACCESS_NETWORK_STATE` and `no dangerous runtime permissions`.",
             "The native-library line must explicitly include `16 KB` and `16384`",
             "App access completed as no restricted access/login/account: not yet available locally.",

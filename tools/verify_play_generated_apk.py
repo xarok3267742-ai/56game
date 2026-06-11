@@ -327,6 +327,40 @@ def application_icon_matching_candidates(
     return [candidate for candidate in matching_candidates if candidate in linked_files]
 
 
+def manifest_application_resource_id(apk: Path, attribute_name: str) -> str:
+    in_application = False
+    for line in run_aapt_xmltree(apk, "AndroidManifest.xml").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("E: application "):
+            in_application = True
+            continue
+        if stripped.startswith("E: ") and not stripped.startswith("E: application "):
+            in_application = False
+        if not in_application or f"android:{attribute_name}" not in stripped:
+            continue
+        match = re.search(r"=@(0x[0-9a-fA-F]+)", stripped)
+        if match:
+            return match.group(1).lower()
+    raise ApkReviewError(f"APK manifest is missing application android:{attribute_name} resource.")
+
+
+def manifest_icon_matching_candidates(
+    apk: Path,
+    attribute_name: str,
+    matching_candidates: list[str],
+) -> tuple[list[str], list[str]]:
+    mapping = resource_file_map(apk)
+    resource_id = manifest_application_resource_id(apk, attribute_name)
+    references = mapping.get(resource_id, [])
+    if not references:
+        raise ApkReviewError(f"APK manifest android:{attribute_name} resource {resource_id} has no packaged files.")
+
+    linked: list[str] = []
+    for reference in references:
+        linked.extend(application_icon_matching_candidates(apk, reference, matching_candidates))
+    return references, sorted(set(linked))
+
+
 def icon_candidates(apk: Path) -> tuple[list[str], list[str]]:
     candidates: list[str] = []
     matching_candidates: list[str] = []
@@ -406,6 +440,12 @@ def verify_apk(apk: Path) -> dict[str, object]:
             f"APK application icon reference {icon_reference} does not link to a store-icon pixel match: "
             + ", ".join(matching_icons)
         )
+    round_icon_references, round_linked_matching_icons = manifest_icon_matching_candidates(apk, "roundIcon", matching_icons)
+    if not round_linked_matching_icons:
+        raise ApkReviewError(
+            "APK round icon reference does not link to a store-icon pixel match: "
+            + ", ".join(round_icon_references)
+        )
 
     native_libraries, minimum_native_alignment = verify_native_library_alignment(apk)
 
@@ -421,6 +461,8 @@ def verify_apk(apk: Path) -> dict[str, object]:
         "iconCandidates": icons,
         "matchingIconCandidates": matching_icons,
         "linkedIconCandidates": linked_matching_icons,
+        "roundIconReferences": round_icon_references,
+        "roundLinkedIconCandidates": round_linked_matching_icons,
         "nativeLibraries": native_libraries,
         "minimumNativeLoadAlignment": minimum_native_alignment,
     }
@@ -452,6 +494,7 @@ def main() -> int:
             print("- required permissions posture: no INTERNET, no ACCESS_NETWORK_STATE and no dangerous runtime permissions")
             print("- required icon posture: a 512x512 PNG candidate must pixel-match play_store/icon/play_icon_512.png")
             print("- required app icon posture: application icon reference must link to the store-icon pixel match")
+            print("- required round icon posture: round icon reference must link to the store-icon pixel match")
             print("- required artifact posture: no debug package, no androidTest/JUnit/Espresso/test leakage")
             print("- required native posture: native libraries, when present, have PT_LOAD alignment >= 16384 bytes for 16 KB page sizes")
             print()
@@ -474,6 +517,8 @@ def main() -> int:
         print(f"- 512x512 icon candidates: {', '.join(result['iconCandidates'])}")
         print(f"- store icon pixel matches: {', '.join(result['matchingIconCandidates'])}")
         print(f"- application icon linked store icon: {', '.join(result['linkedIconCandidates'])}")
+        print(f"- round icon reference: {', '.join(result['roundIconReferences'])}")
+        print(f"- round icon linked store icon: {', '.join(result['roundLinkedIconCandidates'])}")
         native_libraries = result["nativeLibraries"]
         minimum_native_alignment = result["minimumNativeLoadAlignment"]
         if native_libraries:
