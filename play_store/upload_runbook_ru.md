@@ -70,11 +70,11 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - `./tools/verify_play_generated_apk.py --dry-run` возвращает `play_generated_apk_verify_dry_run_ok`; после Play-generated artifact download запустить `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`.
 - `./tools/check_privacy_policy_url.py --local` возвращает `privacy_policy_local_ok` and prints the canonical privacy text SHA-256 for owner comparison.
 - `./tools/check_signing_backup_inputs.py` возвращает `signing_backup_input_ok`.
-- После push в GitHub `./tools/verify_remote_release.py --tag <release-tag>` возвращает `remote_release_ok`, подтверждая `origin/main`, annotated remote release tag, remote AAB checksum, отсутствие signing/install artifacts в remote tree, наличие privacy HTML на `origin/gh-pages` and recorded hosted privacy URL validity.
+- После push в GitHub `./tools/verify_remote_release.py --tag <release-tag>` возвращает `remote_release_ok`, подтверждая `origin/main`, annotated remote release tag, remote AAB checksum, case-insensitive отсутствие signing/install artifacts в remote tree, наличие privacy HTML на `origin/gh-pages` and recorded hosted privacy URL validity.
 - Signed AAB существует: `app/build/outputs/bundle/release/app-release.aab`.
 - AAB SHA-256 совпадает с `play_store/upload_checksums.md`.
 - Store icon, feature graphic, phone screenshots and large/tablet screenshots совпадают с `play_store/upload_manifest.md`.
-- `keystore.properties`, `local.properties`, `private/signing/*.p12`, common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`), APK, AAB, APKS and IDSIG files не добавляются в публичные материалы.
+- `keystore.properties`, `local.properties`, `private/signing/*.p12`, case-insensitive common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`), APK, AAB, APKS and IDSIG files не добавляются в публичные материалы.
 
 ## 2. Owner Inputs До Создания Релиза
 

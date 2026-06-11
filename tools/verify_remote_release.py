@@ -5,7 +5,8 @@ This helper is intentionally networked and post-push oriented. It fetches the
 configured remote, proves the remote release branch matches local HEAD, can
 verify an explicit annotated remote release tag, verifies the remote AAB
 checksum from `play_store/upload_checksums.md`, scans remote trees for
-signing/install artifacts, and reuses the hosted privacy-policy URL checker.
+signing/install artifacts case-insensitively, and reuses the hosted
+privacy-policy URL checker.
 """
 
 from __future__ import annotations
@@ -24,20 +25,25 @@ POST_UPLOAD_EVIDENCE_PATH = ROOT / "play_store/play_console_post_upload_evidence
 PRIVACY_URL_CHECK = ROOT / "tools/check_privacy_policy_url.py"
 AAB_PATH = "app/build/outputs/bundle/release/app-release.aab"
 
+
+def forbidden_path_pattern(pattern: str) -> re.Pattern[str]:
+    return re.compile(pattern, re.IGNORECASE)
+
+
 MAIN_FORBIDDEN_PATTERNS = (
-    re.compile(r"(^|/)(keystore\.properties|local\.properties)$"),
-    re.compile(r"(^|/)private/"),
-    re.compile(r"\.jks$"),
-    re.compile(r"\.keystore$"),
-    re.compile(r"\.p12$"),
-    re.compile(r"\.pem$"),
-    re.compile(r"\.pk8$"),
-    re.compile(r"\.key$"),
-    re.compile(r"\.apk$"),
-    re.compile(r"\.apks$"),
-    re.compile(r"\.idsig$"),
+    forbidden_path_pattern(r"(^|/)(keystore\.properties|local\.properties)$"),
+    forbidden_path_pattern(r"(^|/)private/"),
+    forbidden_path_pattern(r"\.jks$"),
+    forbidden_path_pattern(r"\.keystore$"),
+    forbidden_path_pattern(r"\.p12$"),
+    forbidden_path_pattern(r"\.pem$"),
+    forbidden_path_pattern(r"\.pk8$"),
+    forbidden_path_pattern(r"\.key$"),
+    forbidden_path_pattern(r"\.apk$"),
+    forbidden_path_pattern(r"\.apks$"),
+    forbidden_path_pattern(r"\.idsig$"),
 )
-PAGES_FORBIDDEN_PATTERNS = (*MAIN_FORBIDDEN_PATTERNS, re.compile(r"\.aab$"))
+PAGES_FORBIDDEN_PATTERNS = (*MAIN_FORBIDDEN_PATTERNS, forbidden_path_pattern(r"\.aab$"))
 
 
 class RemoteReleaseError(RuntimeError):

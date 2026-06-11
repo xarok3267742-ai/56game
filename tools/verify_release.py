@@ -590,7 +590,7 @@ def check_agents_handoff() -> None:
             "requires the remote release branch to match local `HEAD`",
             "can verify an explicit `--tag <release-tag>` is an annotated tag and peels to local `HEAD`",
             "verifies the remote signed AAB bytes/SHA-256 from `play_store/upload_checksums.md`",
-            "scans remote trees for signing/install artifacts including `.p12`, `.jks`, `.keystore`, `.pem`, `.pk8`, `.key`, APK/APKS/IDSIG and private directories",
+            "scans remote trees case-insensitively for signing/install artifacts including `.p12`, `.jks`, `.keystore`, `.pem`, `.pk8`, `.key`, APK/APKS/IDSIG and private directories",
             "When changing release-facing behavior, update the verifier if the new invariant can be checked locally.",
             "Core loop works and all 36 levels are independently solver-verified.",
             "UI looks like a finished mobile product, not a prototype.",
@@ -703,7 +703,7 @@ def check_readme_handoff() -> None:
             "`./tools/verify_play_generated_apk.py --dry-run` documents the Play-generated APK review posture",
             "run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` before rollout",
             "`./tools/check_signing_backup_inputs.py` verifies the active ignored signing inputs without printing password values.",
-            "After pushing, `./tools/verify_remote_release.py --tag <release-tag>` verifies `origin/main`, the annotated remote release tag, the remote signed AAB checksum, remote signing/install artifact hygiene, `origin/gh-pages` privacy-policy presence and the recorded hosted privacy URL.",
+            "After pushing, `./tools/verify_remote_release.py --tag <release-tag>` verifies `origin/main`, the annotated remote release tag, the remote signed AAB checksum, case-insensitive remote signing/install artifact hygiene, `origin/gh-pages` privacy-policy presence and the recorded hosted privacy URL.",
             "10/10 тестов",
             "replay результата через `Повторить`",
             "Medium_Phone_API_36(AVD) - 16",
@@ -776,7 +776,7 @@ def check_google_play_checklist_handoff() -> None:
             "Format: Android App Bundle",
             "Signed AAB path: `app/build/outputs/bundle/release/app-release.aab`",
             "Current local upload keystore: `private/signing/qgrid-upload.p12`",
-            "common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) are intentionally ignored",
+            "case-insensitive common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) are intentionally ignored",
             "Before Play upload, run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok`.",
             "Before Play upload, back up the keystore and credentials in secure owner-controlled storage, keep at least two owner-controlled secure copies, test recovery without exposing secrets and record only safe evidence in `play_store/signing_backup_evidence_ru.md`.",
             "./tools/run_final_local_gate.py",
@@ -1158,6 +1158,7 @@ def check_release_report_handoff() -> None:
             "Latest annotated remote tag handoff hardening",
             "Latest remote signing-artifact extension hardening",
             "Latest local signing-ignore extension hardening",
+            "Latest case-insensitive signing-artifact hygiene hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Current API 36 connected check",
@@ -1325,6 +1326,7 @@ def check_completion_audit_handoff() -> None:
             "Latest annotated remote tag handoff hardening",
             "Latest remote signing-artifact extension hardening",
             "Latest local signing-ignore extension hardening",
+            "Latest case-insensitive signing-artifact hygiene hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Requirements traceability matrix created and verifier-gated",
@@ -1467,12 +1469,12 @@ def check_sensitive_files_ignored() -> None:
     required_entries = {
         "local.properties",
         "keystore.properties",
-        "*.jks",
-        "*.keystore",
-        "*.p12",
-        "*.pem",
-        "*.pk8",
-        "*.key",
+        "*.[jJ][kK][sS]",
+        "*.[kK][eE][yY][sS][tT][oO][rR][eE]",
+        "*.[pP]12",
+        "*.[pP][eE][mM]",
+        "*.[pP][kK]8",
+        "*.[kK][eE][yY]",
         "*.apk",
         "*.aab",
         "*.apks",
@@ -1484,9 +1486,16 @@ def check_sensitive_files_ignored() -> None:
         require(entry in entries, f".gitignore must ignore {entry}")
 
     sensitive_local_paths = [ROOT / "local.properties", ROOT / "keystore.properties"]
+    sensitive_signing_suffixes = {".jks", ".keystore", ".p12", ".pem", ".pk8", ".key"}
     signing_dir = ROOT / "private/signing"
     if signing_dir.exists():
-        sensitive_local_paths.extend(sorted(signing_dir.glob("*.p12")))
+        sensitive_local_paths.extend(
+            sorted(
+                path
+                for path in signing_dir.iterdir()
+                if path.is_file() and path.suffix.lower() in sensitive_signing_suffixes
+            )
+        )
 
     for file_path in sensitive_local_paths:
         path = file_path.relative_to(ROOT).as_posix()
@@ -2836,10 +2845,11 @@ def check_upload_runbook_handoff() -> None:
             "`./tools/verify_remote_release.py --tag <release-tag>` возвращает `remote_release_ok`",
             "annotated remote release tag",
             "remote AAB checksum",
+            "case-insensitive отсутствие signing/install artifacts",
             "`app/build/outputs/bundle/release/app-release.aab`",
             "AAB SHA-256 совпадает с `play_store/upload_checksums.md`.",
             "Store icon, feature graphic, phone screenshots and large/tablet screenshots совпадают с `play_store/upload_manifest.md`.",
-            "`keystore.properties`, `local.properties`, `private/signing/*.p12`, common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`), APK, AAB, APKS and IDSIG files не добавляются в публичные материалы.",
+            "`keystore.properties`, `local.properties`, `private/signing/*.p12`, case-insensitive common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`), APK, AAB, APKS and IDSIG files не добавляются в публичные материалы.",
             "Owner Inputs До Создания Релиза",
             "Play Console support/contact fields",
             "Public privacy policy URL: HTTPS, без логина, не PDF, без credentials/query/fragments",
@@ -4523,11 +4533,14 @@ def check_remote_release_helper() -> None:
             "PRIVACY_URL_CHECK = ROOT / \"tools/check_privacy_policy_url.py\"",
             "AAB_PATH = \"app/build/outputs/bundle/release/app-release.aab\"",
             "MAIN_FORBIDDEN_PATTERNS",
-            "re.compile(r\"\\.jks$\")",
-            "re.compile(r\"\\.keystore$\")",
-            "re.compile(r\"\\.pem$\")",
-            "re.compile(r\"\\.pk8$\")",
-            "re.compile(r\"\\.key$\")",
+            "case-insensitively",
+            "def forbidden_path_pattern(",
+            "re.IGNORECASE",
+            "forbidden_path_pattern(r\"\\.jks$\")",
+            "forbidden_path_pattern(r\"\\.keystore$\")",
+            "forbidden_path_pattern(r\"\\.pem$\")",
+            "forbidden_path_pattern(r\"\\.pk8$\")",
+            "forbidden_path_pattern(r\"\\.key$\")",
             "PAGES_FORBIDDEN_PATTERNS",
             "--remote",
             "--branch",
@@ -4654,14 +4667,23 @@ def check_remote_release_helper() -> None:
     module.verify_forbidden_paths("verifier good remote tree", ["app/build/outputs/bundle/release/app-release.aab"], module.MAIN_FORBIDDEN_PATTERNS)
     forbidden_remote_path_cases = [
         "private/signing/qgrid-upload.p12",
+        "PRIVATE/signing/QGRID-UPLOAD.P12",
         "release/upload.jks",
+        "release/UPLOAD.JKS",
         "release/upload.keystore",
+        "release/UPLOAD.KEYSTORE",
         "release/upload.pem",
+        "release/UPLOAD.PEM",
         "release/upload.pk8",
+        "release/UPLOAD.PK8",
         "release/upload.key",
+        "release/UPLOAD.KEY",
         "app-release.apk",
+        "APP-RELEASE.APK",
         "bundle.apks",
+        "BUNDLE.APKS",
         "artifact.idsig",
+        "ARTIFACT.IDSIG",
     ]
     for forbidden_path in forbidden_remote_path_cases:
         try:
@@ -5282,7 +5304,7 @@ def check_signing_certificate_report() -> None:
     require("qgrid_upload" in text, "signing report must include upload key alias")
     require("QuietGrid Upload" in text, "signing report must include QuietGrid certificate owner")
     require(
-        "common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) are ignored by `.gitignore`" in text,
+        "case-insensitive common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) are ignored by `.gitignore`" in text,
         "signing report must document local ignore coverage for common signing-key extensions",
     )
     require(
