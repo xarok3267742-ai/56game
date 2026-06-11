@@ -44,7 +44,7 @@ Required posture:
 - versionCode must be `1`.
 - versionName must be `1.0.0`.
 - AAB SHA-256 must match `play_store/upload_checksums.md`.
-- First track must be internal testing or closed testing, not direct production.
+- First track must be internal testing; record closed testing separately if the publisher account requires it.
 
 ## 2. Privacy Policy And Play Contact
 

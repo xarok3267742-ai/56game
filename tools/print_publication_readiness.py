@@ -430,8 +430,8 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
     elif label == "First release track used":
         normalized = lower_value(value)
         require(
-            normalized in {"internal testing", "closed testing"},
-            f"{file_label} value for {label} must be internal testing or closed testing, never direct production: {value}",
+            normalized == "internal testing",
+            f"{file_label} value for {label} must be internal testing first; record closed testing separately if required: {value}",
         )
     elif label == "Upload date/time":
         validate_date_like(label, value, file_label)
