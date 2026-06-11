@@ -588,7 +588,7 @@ def check_agents_handoff() -> None:
             "Use `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup evidence.",
             "`./tools/verify_remote_release.py` is the networked post-push GitHub release helper.",
             "requires the remote release branch to match local `HEAD`",
-            "can verify an explicit `--tag <release-tag>` peels to local `HEAD`",
+            "can verify an explicit `--tag <release-tag>` is an annotated tag and peels to local `HEAD`",
             "verifies the remote signed AAB bytes/SHA-256 from `play_store/upload_checksums.md`",
             "When changing release-facing behavior, update the verifier if the new invariant can be checked locally.",
             "Core loop works and all 36 levels are independently solver-verified.",
@@ -702,7 +702,7 @@ def check_readme_handoff() -> None:
             "`./tools/verify_play_generated_apk.py --dry-run` documents the Play-generated APK review posture",
             "run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` before rollout",
             "`./tools/check_signing_backup_inputs.py` verifies the active ignored signing inputs without printing password values.",
-            "After pushing, `./tools/verify_remote_release.py --tag <release-tag>` verifies `origin/main`, the remote release tag, the remote signed AAB checksum, remote signing/install artifact hygiene, `origin/gh-pages` privacy-policy presence and the recorded hosted privacy URL.",
+            "After pushing, `./tools/verify_remote_release.py --tag <release-tag>` verifies `origin/main`, the annotated remote release tag, the remote signed AAB checksum, remote signing/install artifact hygiene, `origin/gh-pages` privacy-policy presence and the recorded hosted privacy URL.",
             "10/10 тестов",
             "replay результата через `Повторить`",
             "Medium_Phone_API_36(AVD) - 16",
@@ -840,6 +840,7 @@ def check_google_play_checklist_handoff() -> None:
             "After Play Console creates downloadable APK artifacts from the uploaded AAB, run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`.",
             "Run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok` before backing up signing files and uploading the AAB.",
             "After pushing the release handoff to GitHub, run `./tools/verify_remote_release.py --tag <release-tag>` and require `remote_release_ok`",
+            "annotated remote release tag",
             "Record safe signing-backup evidence in `play_store/signing_backup_evidence_ru.md`.",
             "Record safe post-upload evidence in `play_store/play_console_post_upload_evidence_ru.md`.",
             "Promote to production only after manual gates are complete.",
@@ -1152,7 +1153,7 @@ def check_release_report_handoff() -> None:
             "Latest Google Play source spot-check on 6 June 2026",
             "Latest official source spot-check on 11 June 2026",
             "Latest final local gate after 11 June source audit",
-            "Latest remote tag handoff hardening",
+            "Latest annotated remote tag handoff hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Current API 36 connected check",
@@ -1317,7 +1318,7 @@ def check_completion_audit_handoff() -> None:
             "Latest Google Play source spot-check on 6 June 2026",
             "Latest Google Play source spot-check on 11 June 2026",
             "Latest final local gate after 11 June source audit",
-            "Latest remote tag handoff hardening",
+            "Latest annotated remote tag handoff hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Requirements traceability matrix created and verifier-gated",
@@ -2824,7 +2825,7 @@ def check_upload_runbook_handoff() -> None:
             "`./tools/check_privacy_policy_url.py --local` возвращает `privacy_policy_local_ok` and prints the canonical privacy text SHA-256 for owner comparison.",
             "`./tools/check_signing_backup_inputs.py` возвращает `signing_backup_input_ok`.",
             "`./tools/verify_remote_release.py --tag <release-tag>` возвращает `remote_release_ok`",
-            "remote release tag",
+            "annotated remote release tag",
             "remote AAB checksum",
             "`app/build/outputs/bundle/release/app-release.aab`",
             "AAB SHA-256 совпадает с `play_store/upload_checksums.md`.",
@@ -4507,6 +4508,7 @@ def check_remote_release_helper() -> None:
         [
             "Verify the pushed GitHub release handoff after local gates pass.",
             "networked and post-push oriented",
+            "verify an explicit annotated remote release tag",
             "CHECKSUMS_PATH = ROOT / \"play_store/upload_checksums.md\"",
             "POST_UPLOAD_EVIDENCE_PATH = ROOT / \"play_store/play_console_post_upload_evidence_ru.md\"",
             "PRIVACY_URL_CHECK = ROOT / \"tools/check_privacy_policy_url.py\"",
@@ -4565,7 +4567,7 @@ def check_remote_release_helper() -> None:
     )
     for marker in [
         "Tag: v1.0.0-rc5",
-        "- require origin tag v1.0.0-rc5 peels to local HEAD",
+        "- require origin tag v1.0.0-rc5 is annotated and peels to local HEAD",
         "remote_release_dry_run_ok",
     ]:
         require(marker in tagged_output, f"remote release tagged dry-run missing marker: {marker}")
@@ -4585,6 +4587,56 @@ def check_remote_release_helper() -> None:
         module.remote_tag_ref("origin", "v1.0.0-rc5") == "refs/remotes/origin/tags/v1.0.0-rc5",
         "remote release helper produced unexpected remote tag ref",
     )
+
+    original_run_text = module.run_text
+
+    def fake_tag_run_text(args: list[str], *, timeout: int = 60) -> str:
+        if args == ["git", "cat-file", "-t", "refs/remotes/origin/tags/v-test"]:
+            return "tag"
+        if args == ["git", "rev-parse", "refs/remotes/origin/tags/v-test"]:
+            return "tag-object"
+        if args == ["git", "rev-parse", "refs/remotes/origin/tags/v-test^{}"]:
+            return "commit-object"
+        raise AssertionError(f"unexpected fake tag command: {args}")
+
+    try:
+        module.run_text = fake_tag_run_text
+        tag_object, tag_commit = module.require_remote_tag_matches("origin", "v-test", "commit-object")
+        require(tag_object == "tag-object", "remote release helper returned unexpected tag object")
+        require(tag_commit == "commit-object", "remote release helper returned unexpected peeled commit")
+
+        def fake_lightweight_run_text(args: list[str], *, timeout: int = 60) -> str:
+            if args == ["git", "cat-file", "-t", "refs/remotes/origin/tags/v-test"]:
+                return "commit"
+            raise AssertionError(f"unexpected fake lightweight command: {args}")
+
+        module.run_text = fake_lightweight_run_text
+        try:
+            module.require_remote_tag_matches("origin", "v-test", "commit-object")
+        except module.RemoteReleaseError as exc:
+            require("must be an annotated tag" in str(exc), "remote release helper rejected lightweight tag with unexpected message")
+        else:
+            raise CheckFailure("remote release helper must reject lightweight release tags")
+
+        def fake_wrong_commit_run_text(args: list[str], *, timeout: int = 60) -> str:
+            if args == ["git", "cat-file", "-t", "refs/remotes/origin/tags/v-test"]:
+                return "tag"
+            if args == ["git", "rev-parse", "refs/remotes/origin/tags/v-test"]:
+                return "tag-object"
+            if args == ["git", "rev-parse", "refs/remotes/origin/tags/v-test^{}"]:
+                return "other-commit"
+            raise AssertionError(f"unexpected fake wrong-commit command: {args}")
+
+        module.run_text = fake_wrong_commit_run_text
+        try:
+            module.require_remote_tag_matches("origin", "v-test", "commit-object")
+        except module.RemoteReleaseError as exc:
+            require("does not peel to local HEAD" in str(exc), "remote release helper rejected wrong tag commit with unexpected message")
+        else:
+            raise CheckFailure("remote release helper must reject tags that do not peel to local HEAD")
+    finally:
+        module.run_text = original_run_text
+
     module.verify_forbidden_paths("verifier good remote tree", ["app/build/outputs/bundle/release/app-release.aab"], module.MAIN_FORBIDDEN_PATTERNS)
     try:
         module.verify_forbidden_paths("verifier bad remote tree", ["private/signing/qgrid-upload.p12"], module.MAIN_FORBIDDEN_PATTERNS)

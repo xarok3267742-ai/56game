@@ -3,9 +3,9 @@
 
 This helper is intentionally networked and post-push oriented. It fetches the
 configured remote, proves the remote release branch matches local HEAD, can
-verify an explicit remote release tag, verifies the remote AAB checksum from
-`play_store/upload_checksums.md`, scans remote trees for signing/install
-artifacts, and reuses the hosted privacy-policy URL checker.
+verify an explicit annotated remote release tag, verifies the remote AAB
+checksum from `play_store/upload_checksums.md`, scans remote trees for
+signing/install artifacts, and reuses the hosted privacy-policy URL checker.
 """
 
 from __future__ import annotations
@@ -79,7 +79,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--remote", default="origin", help="Git remote to fetch and verify. Default: origin.")
     parser.add_argument("--branch", default="main", help="Release branch to verify. Default: main.")
     parser.add_argument("--pages-branch", default="gh-pages", help="Privacy-policy hosting branch. Default: gh-pages.")
-    parser.add_argument("--tag", help="Optional release tag that must exist on the remote and peel to local HEAD.")
+    parser.add_argument("--tag", help="Optional annotated release tag that must exist on the remote and peel to local HEAD.")
     parser.add_argument("--privacy-url", help="Hosted privacy-policy URL to validate. Defaults to recorded evidence URL.")
     parser.add_argument("--skip-privacy-url", action="store_true", help="Skip hosted privacy URL validation for diagnostics.")
     parser.add_argument("--allow-dirty", action="store_true", help="Do not require a clean local worktree before comparison.")
@@ -137,13 +137,17 @@ def require_remote_head_matches(remote: str, branch: str) -> tuple[str, str]:
     return local_head, remote_head
 
 
-def require_remote_tag_matches(remote: str, tag: str, expected_commit: str) -> str:
-    tag_commit = run_text(["git", "rev-parse", f"{remote_tag_ref(remote, tag)}^{{}}"], timeout=30)
+def require_remote_tag_matches(remote: str, tag: str, expected_commit: str) -> tuple[str, str]:
+    ref = remote_tag_ref(remote, tag)
+    tag_type = run_text(["git", "cat-file", "-t", ref], timeout=30)
+    require(tag_type == "tag", f"{remote} tag {tag} must be an annotated tag, got {tag_type}")
+    tag_object = run_text(["git", "rev-parse", ref], timeout=30)
+    tag_commit = run_text(["git", "rev-parse", f"{ref}^{{}}"], timeout=30)
     require(
         tag_commit == expected_commit,
         f"{remote} tag {tag} does not peel to local HEAD: tag={tag_commit}, local={expected_commit}",
     )
-    return tag_commit
+    return tag_object, tag_commit
 
 
 def verify_remote_aab(remote: str, branch: str) -> tuple[int, str]:
@@ -187,7 +191,7 @@ def main() -> int:
         print(f"- fetch {args.remote} {args.branch} and {args.pages_branch}")
         print(f"- require {args.remote}/{args.branch} matches local HEAD")
         if args.tag:
-            print(f"- require {args.remote} tag {args.tag} peels to local HEAD")
+            print(f"- require {args.remote} tag {args.tag} is annotated and peels to local HEAD")
         print(f"- verify remote `{AAB_PATH}` bytes and SHA-256 from `play_store/upload_checksums.md`")
         print("- scan remote release branch for signing/install artifacts")
         print("- scan remote pages branch for signing/install/binary artifacts")
@@ -203,7 +207,7 @@ def main() -> int:
             require_clean_worktree()
         fetch_remote(args.remote, args.branch, args.pages_branch, args.tag)
         local_head, _remote_head = require_remote_head_matches(args.remote, args.branch)
-        tag_commit = require_remote_tag_matches(args.remote, args.tag, local_head) if args.tag else None
+        tag_result = require_remote_tag_matches(args.remote, args.tag, local_head) if args.tag else None
         aab_size, aab_sha = verify_remote_aab(args.remote, args.branch)
 
         release_ref = remote_ref(args.remote, args.branch)
@@ -219,8 +223,9 @@ def main() -> int:
             validate_privacy_url(privacy_url)
 
         print(f"- commit: {local_head}")
-        if args.tag:
-            print(f"- remote tag {args.tag}: {tag_commit}")
+        if args.tag and tag_result:
+            tag_object, tag_commit = tag_result
+            print(f"- remote tag {args.tag}: annotated {tag_object}, commit {tag_commit}")
         print(f"- remote AAB: {aab_size} bytes, sha256 {aab_sha}")
         print(f"- remote release branch forbidden-path scan: ok")
         print(f"- remote pages branch forbidden-path scan: ok")
