@@ -207,7 +207,7 @@ In `--verify-existing` mode it verifies the generated ZIP exactly matches curren
 
 `./tools/check_signing_backup_inputs.py` validates the ignored local signing inputs before backup without printing password values. Use `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup evidence.
 
-`./tools/verify_remote_release.py` is the networked post-push GitHub release helper. It fetches `origin/main` and `origin/gh-pages`, requires the remote release branch to match local `HEAD`, verifies the remote signed AAB bytes/SHA-256 from `play_store/upload_checksums.md`, scans remote trees for signing/install artifacts and validates the recorded hosted privacy policy URL.
+`./tools/verify_remote_release.py` is the networked post-push GitHub release helper. It fetches `origin/main` and `origin/gh-pages`, requires the remote release branch to match local `HEAD`, can verify an explicit `--tag <release-tag>` peels to local `HEAD`, verifies the remote signed AAB bytes/SHA-256 from `play_store/upload_checksums.md`, scans remote trees for signing/install artifacts and validates the recorded hosted privacy policy URL.
 
 When changing release-facing behavior, update the verifier if the new invariant can be checked locally.
 
