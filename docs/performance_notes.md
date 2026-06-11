@@ -17,6 +17,7 @@ Measured and re-verified on 6 June 2026:
 - ImageGen source background: `1,577,241` bytes, source-only and not a Play upload asset.
 - ImageGen source icon: `1,474,693` bytes, source-only and not a Play upload asset.
 - `play_store` directory total: `6,111` KiB by file bytes, about 6.0 MB.
+- Native libraries in the signed release AAB: 8 `.so` files from AndroidX/DataStore dependencies; the minimum `PT_LOAD` alignment is `0x4000` / 16,384 bytes.
 
 ## Size Budgets
 
@@ -45,6 +46,12 @@ These budgets are intentionally above current size so normal code changes do not
 - Settings writes are small DataStore updates and should not affect frame pacing.
 - Cell state transitions are limited to short color/elevation animations; reduced motion changes them to zero-duration updates.
 - Current-line hint search is not run during every tap or frame; it runs only when the player taps `Подсказка`.
+
+## Native Library And 16 KB Page-Size Posture
+
+The app does not include project-authored NDK code, but the release AAB packages AndroidX/DataStore native helper libraries for `arm64-v8a`, `armeabi-v7a`, `x86` and `x86_64`.
+
+`tools/verify_release.py` parses ELF program headers directly from `app/build/outputs/bundle/release/app-release.aab` and requires every native library `PT_LOAD` segment to have alignment of at least 16,384 bytes. The current minimum is `0x4000` / 16,384 bytes, matching the Android 15+ 16 KB page-size posture documented in `docs/google_play_sources.md`. `tools/verify_play_generated_apk.py` performs the same check for a downloaded Play-generated APK after upload.
 
 ## Optimizations Already In Place
 

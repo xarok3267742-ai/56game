@@ -7,6 +7,7 @@ The script intentionally checks facts that are easy to regress:
 - no platform/runtime permissions or internet dependency;
 - no ads/analytics/payments/backend/network dependency surface;
 - upload artifact/signature presence;
+- native library 16 KB page-size alignment;
 - release signing certificate/report consistency;
 - no debug/test package leakage in production AAB;
 - mandatory fresh debug APK and release AAB build artifacts;
@@ -47,6 +48,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+REQUIRED_NATIVE_LOAD_ALIGNMENT = 16 * 1024
 
 
 class CheckFailure(Exception):
@@ -66,6 +68,60 @@ def require_file(path: str) -> Path:
     file_path = ROOT / path
     require(file_path.is_file(), f"missing file: {path}")
     return file_path
+
+
+def elf_load_alignments(entry_name: str, data: bytes) -> list[int]:
+    require(data[:4] == b"\x7fELF", f"native library is not an ELF file: {entry_name}")
+    require(len(data) >= 64, f"native library ELF header is truncated: {entry_name}")
+
+    elf_class = data[4]
+    endian = data[5]
+    require(endian in {1, 2}, f"native library has unsupported ELF endianness: {entry_name}")
+    prefix = "<" if endian == 1 else ">"
+
+    if elf_class == 2:
+        e_phoff = struct.unpack_from(prefix + "Q", data, 32)[0]
+        e_phentsize = struct.unpack_from(prefix + "H", data, 54)[0]
+        e_phnum = struct.unpack_from(prefix + "H", data, 56)[0]
+        align_offset = 48
+        align_format = prefix + "Q"
+    elif elf_class == 1:
+        e_phoff = struct.unpack_from(prefix + "I", data, 28)[0]
+        e_phentsize = struct.unpack_from(prefix + "H", data, 42)[0]
+        e_phnum = struct.unpack_from(prefix + "H", data, 44)[0]
+        align_offset = 28
+        align_format = prefix + "I"
+    else:
+        raise CheckFailure(f"native library has unsupported ELF class: {entry_name}")
+
+    require(e_phnum > 0, f"native library has no ELF program headers: {entry_name}")
+    require(e_phentsize >= align_offset + struct.calcsize(align_format), f"native library program header is too small: {entry_name}")
+    table_end = e_phoff + e_phentsize * e_phnum
+    require(table_end <= len(data), f"native library program header table is truncated: {entry_name}")
+
+    alignments: list[int] = []
+    for index in range(e_phnum):
+        offset = e_phoff + index * e_phentsize
+        p_type = struct.unpack_from(prefix + "I", data, offset)[0]
+        if p_type == 1:  # PT_LOAD
+            alignments.append(struct.unpack_from(align_format, data, offset + align_offset)[0])
+    require(alignments, f"native library has no PT_LOAD program headers: {entry_name}")
+    return alignments
+
+
+def native_library_alignment_summary(archive_path: Path) -> tuple[list[str], int | None]:
+    native_library_names: list[str] = []
+    minimum_alignment: int | None = None
+    with zipfile.ZipFile(archive_path) as archive:
+        for name in sorted(archive.namelist()):
+            if not name.endswith(".so"):
+                continue
+            native_library_names.append(name)
+            alignments = elf_load_alignments(name, archive.read(name))
+            for alignment in alignments:
+                if minimum_alignment is None or alignment < minimum_alignment:
+                    minimum_alignment = alignment
+    return native_library_names, minimum_alignment
 
 
 def unique_existing_paths(paths: list[Path]) -> list[Path]:
@@ -558,6 +614,7 @@ def check_agents_handoff() -> None:
             "`play_store/signing_backup_evidence_ru.md`",
             "`play_store/screenshots/manifest.md`",
             "`./tools/verify_release.py` is the project-local release gate.",
+            "AAB native `.so` 16 KB page-size alignment",
             "`./tools/run_final_local_gate.py` is the owner-facing final local gate runner.",
             "supports optional `--include-hosted-privacy` recorded hosted privacy URL validation",
             "supports optional `--include-connected --connected-serial <serial>` connected evidence refresh",
@@ -735,6 +792,7 @@ def check_google_play_sources() -> None:
             "Latest source spot-check on 11 June 2026",
             "https://support.google.com/googleplay/android-developer/answer/16926792?hl=en",
             "https://support.google.com/googleplay/android-developer/answer/11926878?hl=en",
+            "https://developer.android.com/guide/practices/page-sizes",
             "https://developer.android.com/guide/app-bundle/app-bundle-format",
             "https://support.google.com/googleplay/android-developer/answer/14151465?hl=en",
             "https://developer.android.com/distribute/google-play/resources/icon-design-specifications",
@@ -744,6 +802,8 @@ def check_google_play_sources() -> None:
             "`targetSdk = 36`",
             "Android 15/API 35",
             "signed `.aab`",
+            "16 KB page sizes",
+            "ELF `PT_LOAD` segment has alignment `0x4000`",
             "1024x500 24-bit PNG without alpha",
             "full-square with no transparent pixels",
             "Screenshot requirement is JPEG or 24-bit PNG without alpha, 320-3840 px per side, with the long side no more than 2x the short side",
@@ -775,6 +835,7 @@ def check_google_play_checklist_handoff() -> None:
             "`applicationId`: `com.qgrid.mobile`",
             "Debug package: `com.qgrid.mobile.debug`",
             "`targetSdk`: 36",
+            "Native 16 KB page-size posture: current signed AAB has 8 packaged `.so` files",
             "Official source audit: rechecked on 11 June 2026 in `docs/google_play_sources.md`",
             "Format: Android App Bundle",
             "Signed AAB path: `app/build/outputs/bundle/release/app-release.aab`",
@@ -1166,6 +1227,7 @@ def check_release_report_handoff() -> None:
             "Latest annotated remote tag handoff hardening",
             "Latest remote signing-artifact extension hardening",
             "Latest remote unexpected-AAB hardening",
+            "Latest native 16 KB page-size verifier hardening",
             "Latest local signing-ignore extension hardening",
             "Latest case-insensitive signing-artifact hygiene hardening",
             "Latest local install-artifact ignore case hardening",
@@ -1340,6 +1402,7 @@ def check_completion_audit_handoff() -> None:
             "Latest annotated remote tag handoff hardening",
             "Latest remote signing-artifact extension hardening",
             "Latest remote unexpected-AAB hardening",
+            "Latest native 16 KB page-size verifier hardening",
             "Latest local signing-ignore extension hardening",
             "Latest case-insensitive signing-artifact hygiene hardening",
             "Latest local install-artifact ignore case hardening",
@@ -1896,6 +1959,26 @@ def check_release_aab_clean() -> None:
                 require(needle not in data, f"release AAB contains forbidden payload marker {needle!r} in {name}")
 
 
+def check_release_native_library_alignment() -> None:
+    aab = require_file("app/build/outputs/bundle/release/app-release.aab")
+    native_library_names, minimum_alignment = native_library_alignment_summary(aab)
+    expected_native_libraries = [
+        "base/lib/arm64-v8a/libandroidx.graphics.path.so",
+        "base/lib/arm64-v8a/libdatastore_shared_counter.so",
+        "base/lib/armeabi-v7a/libandroidx.graphics.path.so",
+        "base/lib/armeabi-v7a/libdatastore_shared_counter.so",
+        "base/lib/x86/libandroidx.graphics.path.so",
+        "base/lib/x86/libdatastore_shared_counter.so",
+        "base/lib/x86_64/libandroidx.graphics.path.so",
+        "base/lib/x86_64/libdatastore_shared_counter.so",
+    ]
+    require(native_library_names == expected_native_libraries, f"unexpected release AAB native libraries: {native_library_names}")
+    require(
+        minimum_alignment is not None and minimum_alignment >= REQUIRED_NATIVE_LOAD_ALIGNMENT,
+        f"release AAB native libraries must support 16 KB page sizes; minimum PT_LOAD alignment is {minimum_alignment}",
+    )
+
+
 def check_build_artifact_freshness() -> None:
     common_inputs = existing_local_inputs(
         [
@@ -1966,6 +2049,8 @@ def check_performance_notes() -> None:
             "ImageGen source background: `1,577,241` bytes",
             "ImageGen source icon: `1,474,693` bytes",
             "`play_store` directory total: `6,111` KiB",
+            "Native libraries in the signed release AAB: 8 `.so` files",
+            "minimum `PT_LOAD` alignment is `0x4000` / 16,384 bytes",
             "Release AAB <= 6 MB",
             "Debug APK <= 30 MB",
             "Full `play_store` directory <= 7 MB",
@@ -2915,6 +3000,7 @@ def check_upload_runbook_handoff() -> None:
             "сверить действия с `play_store/publication_readiness_owner_actions_ru.md`",
             "`./tools/verify_play_generated_apk.py --dry-run` возвращает `play_generated_apk_verify_dry_run_ok`",
             "`./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`",
+            "`./tools/verify_release.py` проверяет 16 KB page-size posture для native `.so` в signed AAB",
             "--require-production-ready",
             "`./tools/check_privacy_policy_url.py --local` возвращает `privacy_policy_local_ok` and prints the canonical privacy text SHA-256 for owner comparison.",
             "`./tools/check_signing_backup_inputs.py` возвращает `signing_backup_input_ok`.",
@@ -3996,6 +4082,7 @@ def check_play_generated_apk_helper() -> None:
             "EXPECTED_LABEL = \"Линия 56\"",
             "EXPECTED_MIN_SDK = \"24\"",
             "EXPECTED_TARGET_SDK = \"36\"",
+            "REQUIRED_NATIVE_LOAD_ALIGNMENT = 16 * 1024",
             "FORBIDDEN_PERMISSIONS = {",
             "\"android.permission.INTERNET\"",
             "\"android.permission.ACCESS_NETWORK_STATE\"",
@@ -4007,9 +4094,13 @@ def check_play_generated_apk_helper() -> None:
             "def find_aapt(",
             "def run_aapt_badging(",
             "def permissions_from_badging(",
+            "def elf_load_alignments(",
+            "def native_library_alignment_summary(",
+            "def verify_native_library_alignment(",
             "def icon_candidates(",
             "APK requests unexpected permissions",
             "APK requests forbidden permissions",
+            "APK native libraries must support 16 KB page sizes",
             "APK does not contain a 512x512 PNG icon candidate.",
             "--dry-run",
             "--apk",
@@ -4031,6 +4122,7 @@ def check_play_generated_apk_helper() -> None:
         "expected versionName: 1.0.0",
         "expected label: Линия 56",
         "no INTERNET, no ACCESS_NETWORK_STATE and no dangerous runtime permissions",
+        "required native posture: native libraries, when present, have PT_LOAD alignment >= 16384 bytes for 16 KB page sizes",
         "play_generated_apk_verify_dry_run_ok",
     ]:
         require(marker in dry_output, f"Play-generated APK helper dry-run missing marker: {marker}")
@@ -4051,6 +4143,7 @@ def check_play_generated_apk_helper() -> None:
         "minSdk/targetSdk: 24/36",
         "permissions: com.qgrid.mobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
         "512x512 icon candidates:",
+        "native libraries: 8 checked; minimum PT_LOAD alignment: 16384 bytes",
         "play_generated_apk_verify_ok",
     ]:
         require(marker in release_output, f"Play-generated APK helper release check missing marker: {marker}")
@@ -4079,6 +4172,22 @@ def check_play_generated_apk_helper() -> None:
     require(release_result["versionCode"] == "1", "Play-generated APK helper module returned wrong release versionCode")
     require(release_result["versionName"] == "1.0.0", "Play-generated APK helper module returned wrong release versionName")
     require(release_result["label"] == "Линия 56", "Play-generated APK helper module returned wrong release label")
+    require(len(release_result["nativeLibraries"]) == 8, "Play-generated APK helper module returned wrong native library count")
+    require(
+        release_result["minimumNativeLoadAlignment"] == 16384,
+        "Play-generated APK helper module returned wrong native library alignment",
+    )
+    original_alignment_summary = module.native_library_alignment_summary
+    try:
+        module.native_library_alignment_summary = lambda _apk: (["lib/arm64-v8a/bad.so"], 4096)
+        try:
+            module.verify_native_library_alignment(release_apk)
+        except module.ApkReviewError as exc:
+            require("16 KB page sizes" in str(exc), f"Play-generated APK helper rejected low native alignment with unexpected message: {exc}")
+        else:
+            raise CheckFailure("Play-generated APK helper must reject native libraries below 16 KB alignment")
+    finally:
+        module.native_library_alignment_summary = original_alignment_summary
     try:
         module.verify_apk(debug_apk)
     except module.ApkReviewError as exc:
@@ -5802,6 +5911,7 @@ def run_checks() -> None:
         check_debug_manifest_binary,
         check_aab_signature,
         check_release_aab_clean,
+        check_release_native_library_alignment,
         check_build_artifact_freshness,
         check_size_budgets,
         check_performance_notes,

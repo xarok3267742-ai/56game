@@ -6,10 +6,11 @@ Latest source spot-check on 6 June 2026 after the ImageGen icon replacement and 
 
 Continuation source spot-check on 6 June 2026: official Google Play / Android Developers pages were rechecked again for target API 35+ submission posture, Android App Bundle upload/use in Play Console, public non-PDF privacy-policy URL requirements, Data Safety disclosure requirements and the personal-account closed-testing owner gate. No local release-candidate change was required because this project already targets SDK 36, builds a signed AAB, documents no-data/no-ads/no-permission posture and keeps privacy URL, Play Console forms and testing tracks as owner-controlled external gates.
 
-Latest source spot-check on 11 June 2026: official Google Play / Android Developers pages were rechecked for target API 35+ submission posture, Android App Bundle upload/use in Play Console, preview asset dimensions/format, Google Play icon requirements, Data Safety, User Data/privacy policy, content rating, target audience and personal-account closed-testing owner gates. The Google Play policy announcement page was also checked for the 15 April 2026 update set; no local product change was required because this project has no Contacts data access, no Location data access, no Health apps scope, no prediction market feature and no News app scope.
+Latest source spot-check on 11 June 2026: official Google Play / Android Developers pages were rechecked for target API 35+ submission posture, Android App Bundle upload/use in Play Console, Android 15+ 16 KB page-size compatibility, preview asset dimensions/format, Google Play icon requirements, Data Safety, User Data/privacy policy, content rating, target audience and personal-account closed-testing owner gates. The Google Play policy announcement page was also checked for the 15 April 2026 update set; no local product change was required because this project has no Contacts data access, no Location data access, no Health apps scope, no prediction market feature and no News app scope.
 
 - Target API level requirements: https://support.google.com/googleplay/android-developer/answer/11926878?hl=en
 - Target API policy summary: https://support.google.com/googleplay/android-developer/answer/11917020?hl=en
+- Android 15+ 16 KB page-size compatibility: https://developer.android.com/guide/practices/page-sizes
 - Android App Bundle format: https://developer.android.com/guide/app-bundle/app-bundle-format
 - Android App Bundle FAQ: https://developer.android.com/guide/app-bundle/faq?hl=en
 - Personal developer account testing requirements: https://support.google.com/googleplay/android-developer/answer/14151465?hl=en
@@ -28,6 +29,7 @@ Latest source spot-check on 11 June 2026: official Google Play / Android Develop
 Current official requirements used for the release-candidate audit:
 
 - New apps and app updates must target Android 15/API 35 or higher from 31 August 2025; this project uses `targetSdk = 36`.
+- Starting 1 November 2025, new apps and updates submitted to Google Play and targeting Android 15/API 35+ devices must support 16 KB page sizes on 64-bit devices; the current signed AAB contains 8 native `.so` files and every ELF `PT_LOAD` segment has alignment `0x4000` / 16,384 bytes.
 - Google Play upload format is Android App Bundle; the current release artifact is a signed `.aab`.
 - Feature graphic requirement is JPEG or 24-bit PNG without alpha at 1024x500; the current feature graphic is 1024x500 24-bit PNG without alpha.
 - Screenshot requirement is JPEG or 24-bit PNG without alpha, 320-3840 px per side, with the long side no more than 2x the short side; current upload screenshots are 24-bit PNGs without alpha and satisfy that ratio.
@@ -41,6 +43,7 @@ Current official requirements used for the release-candidate audit:
 Current project alignment:
 
 - `targetSdk = 36`, which is above the Android 15/API 35 requirement for new apps and updates.
+- Native library 16 KB page-size posture is locally verifier-gated: `tools/verify_release.py` inspects every `.so` in the signed AAB and requires `PT_LOAD` alignment at least 16,384 bytes; `tools/verify_play_generated_apk.py` performs the same check for a downloaded Play-generated APK.
 - Release artifact is a signed `.aab`, which is the Google Play publishing format.
 - App name `Линия 56` is 8 characters, under the 30-character metadata limit.
 - Short description `Соединяйте числа и соберите сумму ровно 56.` is 43 characters, under the 80-character limit.

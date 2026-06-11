@@ -5,7 +5,7 @@ Use this after Play Console creates downloadable APK artifacts from the uploaded
 AAB, or locally against `app/build/outputs/apk/release/app-release.apk` as a
 pre-upload sanity check. This does not replace installing and launching the
 Play-generated APK on a device; it catches package, version and permission
-regressions before rollout.
+regressions before rollout, including native-library 16 KB page-size alignment.
 """
 
 from __future__ import annotations
@@ -28,6 +28,7 @@ EXPECTED_LABEL = "Линия 56"
 EXPECTED_MIN_SDK = "24"
 EXPECTED_TARGET_SDK = "36"
 EXPECTED_ICON_SIZE = (512, 512)
+REQUIRED_NATIVE_LOAD_ALIGNMENT = 16 * 1024
 
 FORBIDDEN_PERMISSIONS = {
     "android.permission.INTERNET",
@@ -137,6 +138,74 @@ def png_dimensions(data: bytes) -> tuple[int, int] | None:
     return struct.unpack(">II", data[16:24])
 
 
+def elf_load_alignments(entry_name: str, data: bytes) -> list[int]:
+    if data[:4] != b"\x7fELF":
+        raise ApkReviewError(f"Native library is not an ELF file: {entry_name}")
+    if len(data) < 64:
+        raise ApkReviewError(f"Native library ELF header is truncated: {entry_name}")
+
+    elf_class = data[4]
+    endian = data[5]
+    if endian not in {1, 2}:
+        raise ApkReviewError(f"Native library has unsupported ELF endianness: {entry_name}")
+    prefix = "<" if endian == 1 else ">"
+
+    if elf_class == 2:
+        e_phoff = struct.unpack_from(prefix + "Q", data, 32)[0]
+        e_phentsize = struct.unpack_from(prefix + "H", data, 54)[0]
+        e_phnum = struct.unpack_from(prefix + "H", data, 56)[0]
+        align_offset = 48
+        align_format = prefix + "Q"
+    elif elf_class == 1:
+        e_phoff = struct.unpack_from(prefix + "I", data, 28)[0]
+        e_phentsize = struct.unpack_from(prefix + "H", data, 42)[0]
+        e_phnum = struct.unpack_from(prefix + "H", data, 44)[0]
+        align_offset = 28
+        align_format = prefix + "I"
+    else:
+        raise ApkReviewError(f"Native library has unsupported ELF class: {entry_name}")
+
+    if e_phnum <= 0:
+        raise ApkReviewError(f"Native library has no ELF program headers: {entry_name}")
+    if e_phentsize < align_offset + struct.calcsize(align_format):
+        raise ApkReviewError(f"Native library program header is too small: {entry_name}")
+    if e_phoff + e_phentsize * e_phnum > len(data):
+        raise ApkReviewError(f"Native library program header table is truncated: {entry_name}")
+
+    alignments: list[int] = []
+    for index in range(e_phnum):
+        offset = e_phoff + index * e_phentsize
+        p_type = struct.unpack_from(prefix + "I", data, offset)[0]
+        if p_type == 1:  # PT_LOAD
+            alignments.append(struct.unpack_from(align_format, data, offset + align_offset)[0])
+    if not alignments:
+        raise ApkReviewError(f"Native library has no PT_LOAD program headers: {entry_name}")
+    return alignments
+
+
+def native_library_alignment_summary(apk: Path) -> tuple[list[str], int | None]:
+    native_library_names: list[str] = []
+    minimum_alignment: int | None = None
+    with zipfile.ZipFile(apk) as archive:
+        for info in sorted(archive.infolist(), key=lambda item: item.filename):
+            if not info.filename.endswith(".so"):
+                continue
+            native_library_names.append(info.filename)
+            for alignment in elf_load_alignments(info.filename, archive.read(info.filename)):
+                if minimum_alignment is None or alignment < minimum_alignment:
+                    minimum_alignment = alignment
+    return native_library_names, minimum_alignment
+
+
+def verify_native_library_alignment(apk: Path) -> tuple[list[str], int | None]:
+    native_libraries, minimum_native_alignment = native_library_alignment_summary(apk)
+    if minimum_native_alignment is not None and minimum_native_alignment < REQUIRED_NATIVE_LOAD_ALIGNMENT:
+        raise ApkReviewError(
+            f"APK native libraries must support 16 KB page sizes; minimum PT_LOAD alignment is {minimum_native_alignment}"
+        )
+    return native_libraries, minimum_native_alignment
+
+
 def icon_candidates(apk: Path) -> list[str]:
     candidates: list[str] = []
     with zipfile.ZipFile(apk) as archive:
@@ -202,6 +271,8 @@ def verify_apk(apk: Path) -> dict[str, object]:
     if not icons:
         raise ApkReviewError("APK does not contain a 512x512 PNG icon candidate.")
 
+    native_libraries, minimum_native_alignment = verify_native_library_alignment(apk)
+
     return {
         "package": package_name,
         "versionCode": version_code,
@@ -212,6 +283,8 @@ def verify_apk(apk: Path) -> dict[str, object]:
         "permissions": permissions,
         "iconReference": icon_reference,
         "iconCandidates": icons,
+        "nativeLibraries": native_libraries,
+        "minimumNativeLoadAlignment": minimum_native_alignment,
     }
 
 
@@ -240,6 +313,7 @@ def main() -> int:
             print(f"- expected minSdk/targetSdk: {EXPECTED_MIN_SDK}/{EXPECTED_TARGET_SDK}")
             print("- required permissions posture: no INTERNET, no ACCESS_NETWORK_STATE and no dangerous runtime permissions")
             print("- required artifact posture: no debug package, no androidTest/JUnit/Espresso/test leakage")
+            print("- required native posture: native libraries, when present, have PT_LOAD alignment >= 16384 bytes for 16 KB page sizes")
             print()
             print("play_generated_apk_verify_dry_run_ok")
             return 0
@@ -258,6 +332,12 @@ def main() -> int:
         print(f"- permissions: {', '.join(permissions) if permissions else 'none'}")
         print(f"- application icon reference: {result['iconReference']}")
         print(f"- 512x512 icon candidates: {', '.join(result['iconCandidates'])}")
+        native_libraries = result["nativeLibraries"]
+        minimum_native_alignment = result["minimumNativeLoadAlignment"]
+        if native_libraries:
+            print(f"- native libraries: {len(native_libraries)} checked; minimum PT_LOAD alignment: {minimum_native_alignment} bytes")
+        else:
+            print("- native libraries: none")
         print()
         print("play_generated_apk_verify_ok")
         return 0
