@@ -186,7 +186,7 @@ The only binary upload artifact for Google Play is the signed AAB.
 Recommended order:
 
 1. Upload the signed AAB to internal testing.
-2. Inspect Play-generated APKs for package, app name, version, icon and permissions.
+2. Inspect Play-generated APKs for package, app name, version, icon, permissions and native 16 KB page-size posture.
 3. Run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.
 4. Install generated APKs on at least one Android device or emulator.
 5. Repeat first-launch, home, game, win, settings, restart and no-internet smoke flows.

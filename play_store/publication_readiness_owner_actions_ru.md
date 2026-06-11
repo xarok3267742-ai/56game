@@ -112,7 +112,7 @@ Required posture:
 
 ## 4. Play-Generated Artifact Review
 
-Action: download or inspect Play-generated artifacts and prove package, label, version, icon and permission posture.
+Action: download or inspect Play-generated artifacts and prove package, label, version, icon, permission and native 16 KB page-size posture.
 
 Evidence file: `play_store/play_console_post_upload_evidence_ru.md`.
 
@@ -130,12 +130,13 @@ Fields to resolve:
 - Play-generated icon matches `play_store/icon/play_icon_512.png`.
 - Play-generated version code/name match this release candidate.
 - Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions.
+- Play-generated native libraries support 16 KB page sizes.
 - Play-generated APK installed and launched on at least one Android device or emulator.
 
 Required posture:
 
-- Generated artifacts must not contain debug package ids, androidTest/JUnit/Espresso/test leakage or forbidden permissions.
-- Stop rollout if package, label, version, icon or permissions differ from the local release candidate.
+- Generated artifacts must not contain debug package ids, androidTest/JUnit/Espresso/test leakage, forbidden permissions or native `.so` files below 16 KB page-size alignment.
+- Stop rollout if package, label, version, icon, permissions or native 16 KB page-size posture differ from the local release candidate.
 
 ## 5. Play Console Forms
 
