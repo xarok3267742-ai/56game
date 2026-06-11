@@ -9,10 +9,10 @@ keystore.properties
 *.[pP][eE][mM]
 *.[pP][kK]8
 *.[kK][eE][yY]
-*.apk
-*.aab
-*.apks
-*.idsig
+*.[aA][pP][kK]
+*.[aA][aA][bB]
+*.[aA][pP][kK][sS]
+*.[iI][dD][sS][iI][gG]
 private/
 
 app/build/
