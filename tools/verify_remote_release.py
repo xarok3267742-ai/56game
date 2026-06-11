@@ -27,7 +27,12 @@ AAB_PATH = "app/build/outputs/bundle/release/app-release.aab"
 MAIN_FORBIDDEN_PATTERNS = (
     re.compile(r"(^|/)(keystore\.properties|local\.properties)$"),
     re.compile(r"(^|/)private/"),
+    re.compile(r"\.jks$"),
+    re.compile(r"\.keystore$"),
     re.compile(r"\.p12$"),
+    re.compile(r"\.pem$"),
+    re.compile(r"\.pk8$"),
+    re.compile(r"\.key$"),
     re.compile(r"\.apk$"),
     re.compile(r"\.apks$"),
     re.compile(r"\.idsig$"),

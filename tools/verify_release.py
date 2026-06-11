@@ -590,6 +590,7 @@ def check_agents_handoff() -> None:
             "requires the remote release branch to match local `HEAD`",
             "can verify an explicit `--tag <release-tag>` is an annotated tag and peels to local `HEAD`",
             "verifies the remote signed AAB bytes/SHA-256 from `play_store/upload_checksums.md`",
+            "scans remote trees for signing/install artifacts including `.p12`, `.jks`, `.keystore`, `.pem`, `.pk8`, `.key`, APK/APKS/IDSIG and private directories",
             "When changing release-facing behavior, update the verifier if the new invariant can be checked locally.",
             "Core loop works and all 36 levels are independently solver-verified.",
             "UI looks like a finished mobile product, not a prototype.",
@@ -1154,6 +1155,7 @@ def check_release_report_handoff() -> None:
             "Latest official source spot-check on 11 June 2026",
             "Latest final local gate after 11 June source audit",
             "Latest annotated remote tag handoff hardening",
+            "Latest remote signing-artifact extension hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Current API 36 connected check",
@@ -1319,6 +1321,7 @@ def check_completion_audit_handoff() -> None:
             "Latest Google Play source spot-check on 11 June 2026",
             "Latest final local gate after 11 June source audit",
             "Latest annotated remote tag handoff hardening",
+            "Latest remote signing-artifact extension hardening",
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Requirements traceability matrix created and verifier-gated",
@@ -4514,6 +4517,11 @@ def check_remote_release_helper() -> None:
             "PRIVACY_URL_CHECK = ROOT / \"tools/check_privacy_policy_url.py\"",
             "AAB_PATH = \"app/build/outputs/bundle/release/app-release.aab\"",
             "MAIN_FORBIDDEN_PATTERNS",
+            "re.compile(r\"\\.jks$\")",
+            "re.compile(r\"\\.keystore$\")",
+            "re.compile(r\"\\.pem$\")",
+            "re.compile(r\"\\.pk8$\")",
+            "re.compile(r\"\\.key$\")",
             "PAGES_FORBIDDEN_PATTERNS",
             "--remote",
             "--branch",
@@ -4638,12 +4646,24 @@ def check_remote_release_helper() -> None:
         module.run_text = original_run_text
 
     module.verify_forbidden_paths("verifier good remote tree", ["app/build/outputs/bundle/release/app-release.aab"], module.MAIN_FORBIDDEN_PATTERNS)
-    try:
-        module.verify_forbidden_paths("verifier bad remote tree", ["private/signing/qgrid-upload.p12"], module.MAIN_FORBIDDEN_PATTERNS)
-    except module.RemoteReleaseError as exc:
-        require("forbidden signing/install paths" in str(exc), "remote release helper rejected forbidden path with unexpected message")
-    else:
-        raise CheckFailure("remote release helper must reject forbidden signing paths")
+    forbidden_remote_path_cases = [
+        "private/signing/qgrid-upload.p12",
+        "release/upload.jks",
+        "release/upload.keystore",
+        "release/upload.pem",
+        "release/upload.pk8",
+        "release/upload.key",
+        "app-release.apk",
+        "bundle.apks",
+        "artifact.idsig",
+    ]
+    for forbidden_path in forbidden_remote_path_cases:
+        try:
+            module.verify_forbidden_paths("verifier bad remote tree", [forbidden_path], module.MAIN_FORBIDDEN_PATTERNS)
+        except module.RemoteReleaseError as exc:
+            require("forbidden signing/install paths" in str(exc), f"remote release helper rejected {forbidden_path} with unexpected message")
+        else:
+            raise CheckFailure(f"remote release helper must reject forbidden remote path: {forbidden_path}")
 
 
 def check_signing_backup_helper() -> None:
