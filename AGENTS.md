@@ -70,6 +70,7 @@ Never commit signing files, passwords, private keys, `local.properties`, APKs, A
 ./tools/verify_play_generated_apk.py --dry-run
 ./tools/check_privacy_policy_url.py --local
 ./tools/check_signing_backup_inputs.py
+./tools/verify_remote_release.py
 ```
 
 Useful install commands:
@@ -205,6 +206,8 @@ In `--verify-existing` mode it verifies the generated ZIP exactly matches curren
 `./tools/check_privacy_policy_url.py --local` validates the local ready-to-host privacy HTML. After the owner hosts it publicly, run `./tools/check_privacy_policy_url.py --url <https-url>` before entering the URL in Play Console.
 
 `./tools/check_signing_backup_inputs.py` validates the ignored local signing inputs before backup without printing password values. Use `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup evidence.
+
+`./tools/verify_remote_release.py` is the networked post-push GitHub release helper. It fetches `origin/main` and `origin/gh-pages`, requires the remote release branch to match local `HEAD`, verifies the remote signed AAB bytes/SHA-256 from `play_store/upload_checksums.md`, scans remote trees for signing/install artifacts and validates the recorded hosted privacy policy URL.
 
 When changing release-facing behavior, update the verifier if the new invariant can be checked locally.
 

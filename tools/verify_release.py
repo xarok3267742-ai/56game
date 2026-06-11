@@ -531,6 +531,7 @@ def check_agents_handoff() -> None:
             "./tools/verify_play_generated_apk.py --dry-run",
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_signing_backup_inputs.py",
+            "./tools/verify_remote_release.py",
             "Run `connectedDebugAndroidTest` when an emulator/device is available.",
             "`app/src/main/java/com/qgrid/mobile/game`: pure Kotlin models, level generation, solver and reducer. No Android dependencies here.",
             "`app/src/main/java/com/qgrid/mobile/data`: DataStore progress/settings persistence.",
@@ -585,6 +586,9 @@ def check_agents_handoff() -> None:
             "`./tools/check_privacy_policy_url.py --url <https-url>` before entering the URL in Play Console.",
             "`./tools/check_signing_backup_inputs.py` validates the ignored local signing inputs before backup without printing password values.",
             "Use `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup evidence.",
+            "`./tools/verify_remote_release.py` is the networked post-push GitHub release helper.",
+            "requires the remote release branch to match local `HEAD`",
+            "verifies the remote signed AAB bytes/SHA-256 from `play_store/upload_checksums.md`",
             "When changing release-facing behavior, update the verifier if the new invariant can be checked locally.",
             "Core loop works and all 36 levels are independently solver-verified.",
             "UI looks like a finished mobile product, not a prototype.",
@@ -653,6 +657,7 @@ def check_readme_handoff() -> None:
             "./tools/verify_play_generated_apk.py --dry-run",
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_signing_backup_inputs.py",
+            "./tools/verify_remote_release.py",
             "Release AAB собран: `app/build/outputs/bundle/release/app-release.aab`",
             "Production package остаётся нейтральным: `com.qgrid.mobile`; debug package: `com.qgrid.mobile.debug`.",
             "Version identity for this upload candidate: `versionCode = 1`, `versionName = 1.0.0`.",
@@ -696,6 +701,7 @@ def check_readme_handoff() -> None:
             "`./tools/verify_play_generated_apk.py --dry-run` documents the Play-generated APK review posture",
             "run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` before rollout",
             "`./tools/check_signing_backup_inputs.py` verifies the active ignored signing inputs without printing password values.",
+            "After pushing, `./tools/verify_remote_release.py` verifies `origin/main`, the remote signed AAB checksum, remote signing/install artifact hygiene, `origin/gh-pages` privacy-policy presence and the recorded hosted privacy URL.",
             "10/10 тестов",
             "replay результата через `Повторить`",
             "Medium_Phone_API_36(AVD) - 16",
@@ -828,6 +834,7 @@ def check_google_play_checklist_handoff() -> None:
             "Use `play_store/publication_readiness_owner_actions_ru.md` to resolve the external owner-action groups before production rollout.",
             "After Play Console creates downloadable APK artifacts from the uploaded AAB, run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`.",
             "Run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok` before backing up signing files and uploading the AAB.",
+            "After pushing the release handoff to GitHub, run `./tools/verify_remote_release.py` and require `remote_release_ok`",
             "Record safe signing-backup evidence in `play_store/signing_backup_evidence_ru.md`.",
             "Record safe post-upload evidence in `play_store/play_console_post_upload_evidence_ru.md`.",
             "Promote to production only after manual gates are complete.",
@@ -2805,6 +2812,8 @@ def check_upload_runbook_handoff() -> None:
             "--require-production-ready",
             "`./tools/check_privacy_policy_url.py --local` возвращает `privacy_policy_local_ok` and prints the canonical privacy text SHA-256 for owner comparison.",
             "`./tools/check_signing_backup_inputs.py` возвращает `signing_backup_input_ok`.",
+            "`./tools/verify_remote_release.py` возвращает `remote_release_ok`",
+            "remote AAB checksum",
             "`app/build/outputs/bundle/release/app-release.aab`",
             "AAB SHA-256 совпадает с `play_store/upload_checksums.md`.",
             "Store icon, feature graphic, phone screenshots and large/tablet screenshots совпадают с `play_store/upload_manifest.md`.",
@@ -4478,6 +4487,81 @@ def check_privacy_policy_url_helper() -> None:
         raise CheckFailure("privacy helper must reject hosted policy text that differs from the local HTML")
 
 
+def check_remote_release_helper() -> None:
+    helper = require_file("tools/verify_remote_release.py")
+    require(os.access(helper, os.X_OK), "tools/verify_remote_release.py must be executable")
+    require_text_markers(
+        "tools/verify_remote_release.py",
+        [
+            "Verify the pushed GitHub release handoff after local gates pass.",
+            "networked and post-push oriented",
+            "CHECKSUMS_PATH = ROOT / \"play_store/upload_checksums.md\"",
+            "POST_UPLOAD_EVIDENCE_PATH = ROOT / \"play_store/play_console_post_upload_evidence_ru.md\"",
+            "PRIVACY_URL_CHECK = ROOT / \"tools/check_privacy_policy_url.py\"",
+            "AAB_PATH = \"app/build/outputs/bundle/release/app-release.aab\"",
+            "MAIN_FORBIDDEN_PATTERNS",
+            "PAGES_FORBIDDEN_PATTERNS",
+            "--remote",
+            "--branch",
+            "--pages-branch",
+            "--privacy-url",
+            "--skip-privacy-url",
+            "--allow-dirty",
+            "--dry-run",
+            "def expected_aab(",
+            "def recorded_privacy_url(",
+            "def require_clean_worktree(",
+            "def fetch_remote(",
+            "def require_remote_head_matches(",
+            "def verify_remote_aab(",
+            "def verify_forbidden_paths(",
+            "def validate_privacy_url(",
+            "remote_release_dry_run_ok",
+            "remote_release_ok",
+            "remote_release_error",
+        ],
+    )
+    output = subprocess.check_output(
+        [str(helper), "--dry-run"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Remote release verification",
+        "Remote: origin",
+        "Branch: main",
+        "Pages branch: gh-pages",
+        "- fetch origin main and gh-pages",
+        "- require origin/main matches local HEAD",
+        "- verify remote `app/build/outputs/bundle/release/app-release.aab` bytes and SHA-256 from `play_store/upload_checksums.md`",
+        "- scan remote release branch for signing/install artifacts",
+        "- scan remote pages branch for signing/install/binary artifacts",
+        "- validate hosted privacy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html",
+        "remote_release_dry_run_ok",
+    ]:
+        require(marker in output, f"remote release dry-run missing marker: {marker}")
+
+    spec = importlib.util.spec_from_file_location("line56_remote_release_check", helper)
+    require(spec is not None and spec.loader is not None, "remote release helper could not be loaded for regression checks")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    expected_size, expected_sha = module.expected_aab()
+    require(expected_size == 2930928, "remote release helper parsed unexpected AAB size")
+    require(expected_sha == "3affd5cc6de7735d7cb9cc4f381e114caa0b20d6bfa933621d596d24dc2e3043", "remote release helper parsed unexpected AAB SHA")
+    require(
+        module.recorded_privacy_url() == "https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html",
+        "remote release helper parsed unexpected recorded privacy URL",
+    )
+    module.verify_forbidden_paths("verifier good remote tree", ["app/build/outputs/bundle/release/app-release.aab"], module.MAIN_FORBIDDEN_PATTERNS)
+    try:
+        module.verify_forbidden_paths("verifier bad remote tree", ["private/signing/qgrid-upload.p12"], module.MAIN_FORBIDDEN_PATTERNS)
+    except module.RemoteReleaseError as exc:
+        require("forbidden signing/install paths" in str(exc), "remote release helper rejected forbidden path with unexpected message")
+    else:
+        raise CheckFailure("remote release helper must reject forbidden signing paths")
+
+
 def check_signing_backup_helper() -> None:
     helper = require_file("tools/check_signing_backup_inputs.py")
     require(os.access(helper, os.X_OK), "tools/check_signing_backup_inputs.py must be executable")
@@ -5499,6 +5583,7 @@ def run_checks() -> None:
         check_play_generated_apk_helper,
         check_publication_readiness_helper,
         check_privacy_policy_url_helper,
+        check_remote_release_helper,
         check_signing_backup_helper,
         check_signing_backup_evidence_handoff,
         check_play_console_submission_handoff,
