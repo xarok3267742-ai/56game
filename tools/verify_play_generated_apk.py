@@ -4,8 +4,9 @@
 Use this after Play Console creates downloadable APK artifacts from the uploaded
 AAB, or locally against `app/build/outputs/apk/release/app-release.apk` as a
 pre-upload sanity check. This does not replace installing and launching the
-Play-generated APK on a device; it catches package, version and permission
-regressions before rollout, including native-library 16 KB page-size alignment.
+Play-generated APK on a device; it catches package, version, permission and
+manifest-privacy regressions before rollout, including native-library 16 KB
+page-size alignment.
 """
 
 from __future__ import annotations
@@ -344,6 +345,52 @@ def manifest_application_resource_id(apk: Path, attribute_name: str) -> str:
     raise ApkReviewError(f"APK manifest is missing application android:{attribute_name} resource.")
 
 
+def manifest_application_attributes(apk: Path) -> dict[str, str]:
+    attributes: dict[str, str] = {}
+    in_application = False
+    for line in run_aapt_xmltree(apk, "AndroidManifest.xml").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("E: application "):
+            in_application = True
+            continue
+        if stripped.startswith("E: ") and not stripped.startswith("E: application "):
+            in_application = False
+        if not in_application or not stripped.startswith("A: android:"):
+            continue
+        match = re.match(r"A: android:([A-Za-z0-9_]+)\([^)]*\)=(.+)$", stripped)
+        if match:
+            attributes[match.group(1)] = match.group(2).strip()
+    return attributes
+
+
+def manifest_boolean_value(raw_value: str, attribute_name: str) -> bool:
+    normalized = raw_value.lower()
+    if "0xffffffff" in normalized or normalized.endswith("true"):
+        return True
+    if "0x0" in normalized or normalized.endswith("false"):
+        return False
+    raise ApkReviewError(f"APK manifest android:{attribute_name} has an unreadable boolean value: {raw_value}")
+
+
+def verify_manifest_privacy_posture(apk: Path) -> tuple[bool, str]:
+    attributes = manifest_application_attributes(apk)
+    if "allowBackup" not in attributes:
+        raise ApkReviewError("APK manifest is missing explicit android:allowBackup=false.")
+
+    allow_backup = manifest_boolean_value(attributes["allowBackup"], "allowBackup")
+    if allow_backup:
+        raise ApkReviewError("APK manifest android:allowBackup must be false.")
+
+    debuggable_raw = attributes.get("debuggable")
+    if debuggable_raw is None:
+        return allow_backup, "absent"
+
+    debuggable = manifest_boolean_value(debuggable_raw, "debuggable")
+    if debuggable:
+        raise ApkReviewError("APK manifest android:debuggable must be absent or false.")
+    return allow_backup, "false"
+
+
 def manifest_icon_matching_candidates(
     apk: Path,
     attribute_name: str,
@@ -426,6 +473,8 @@ def verify_apk(apk: Path) -> dict[str, object]:
     if forbidden_permissions:
         raise ApkReviewError(f"APK requests forbidden permissions: {', '.join(forbidden_permissions)}")
 
+    allow_backup, debuggable = verify_manifest_privacy_posture(apk)
+
     icons, matching_icons = icon_candidates(apk)
     if not icons:
         raise ApkReviewError("APK does not contain a 512x512 PNG icon candidate.")
@@ -457,6 +506,8 @@ def verify_apk(apk: Path) -> dict[str, object]:
         "targetSdk": target_sdk,
         "label": label,
         "permissions": permissions,
+        "allowBackup": allow_backup,
+        "debuggable": debuggable,
         "iconReference": icon_reference,
         "iconCandidates": icons,
         "matchingIconCandidates": matching_icons,
@@ -492,6 +543,7 @@ def main() -> int:
             print(f"- expected label: {EXPECTED_LABEL}")
             print(f"- expected minSdk/targetSdk: {EXPECTED_MIN_SDK}/{EXPECTED_TARGET_SDK}")
             print("- required permissions posture: no INTERNET, no ACCESS_NETWORK_STATE and no dangerous runtime permissions")
+            print("- required manifest privacy posture: allowBackup=false and no debuggable release manifest")
             print("- required icon posture: a 512x512 PNG candidate must pixel-match play_store/icon/play_icon_512.png")
             print("- required app icon posture: application icon reference must link to the store-icon pixel match")
             print("- required round icon posture: round icon reference must link to the store-icon pixel match")
@@ -513,6 +565,8 @@ def main() -> int:
         print(f"- minSdk/targetSdk: {result['minSdk']}/{result['targetSdk']}")
         permissions = result["permissions"]
         print(f"- permissions: {', '.join(permissions) if permissions else 'none'}")
+        print(f"- allowBackup: {str(result['allowBackup']).lower()}")
+        print(f"- debuggable: {result['debuggable']}")
         print(f"- application icon reference: {result['iconReference']}")
         print(f"- 512x512 icon candidates: {', '.join(result['iconCandidates'])}")
         print(f"- store icon pixel matches: {', '.join(result['matchingIconCandidates'])}")

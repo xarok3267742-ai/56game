@@ -22,7 +22,7 @@ This file lists the external owner-controlled inputs that must be resolved befor
 | Privacy policy URL | Public HTTPS URL, accessible without login, no credentials/query/fragments, not PDF, not editable by readers, with hosted normalized text matching `play_store/privacy_policy_ru.html` | Play Console App content > Privacy Policy | `play_store/privacy_policy_hosting_checklist.md` |
 | Signing backup | Secure owner-controlled backup of `private/signing/qgrid-upload.p12` and `keystore.properties` after `./tools/check_signing_backup_inputs.py` returns `signing_backup_input_ok`; record two owner-controlled secure copies and recovery tested without exposing secrets | Owner password manager / secure storage | `play_store/signing_certificate_report.md`, `play_store/signing_backup_evidence_ru.md` |
 | Play account testing path | Internal testing first; closed testing with 12 opted-in testers for 14 continuous days if required by account type | Play Console testing tracks | `play_store/app_content_answers_ru.md` |
-| Final generated-artifact review | Inspect Play-generated APKs, pre-launch report, package, icon, label, screenshots and policy warnings | Play Console release review | `docs/google_play_checklist.md` |
+| Final generated-artifact review | Inspect Play-generated APKs, pre-launch report, package, icon, label, manifest privacy/debug posture, screenshots and policy warnings | Play Console release review | `docs/google_play_checklist.md` |
 
 ## Upload Execution
 

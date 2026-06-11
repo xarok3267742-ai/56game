@@ -113,6 +113,7 @@ POST_UPLOAD_LABELS = (
     "Play-generated icon matches `play_store/icon/play_icon_512.png`",
     "Play-generated version code/name match this release candidate",
     "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions",
+    "Play-generated manifest privacy review shows `allowBackup=false` and no debuggable release manifest",
     "Play-generated native libraries support 16 KB page sizes",
     "Play-generated APK installed and launched on at least one Android device or emulator",
     "App access completed as no restricted access/login/account",
@@ -204,7 +205,7 @@ OWNER_ACTION_GROUPS = (
     ),
     (
         "Play-generated artifact review",
-        "Download or inspect Play-generated artifacts and prove package, label, version, icon, permission and native 16 KB page-size posture.",
+        "Download or inspect Play-generated artifacts and prove package, label, version, icon, permission, manifest privacy and native 16 KB page-size posture.",
         ("play_store/play_console_post_upload_evidence_ru.md",),
         ("./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>",),
         (
@@ -213,6 +214,7 @@ OWNER_ACTION_GROUPS = (
             "Play-generated icon matches `play_store/icon/play_icon_512.png`",
             "Play-generated version code/name match this release candidate",
             "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions",
+            "Play-generated manifest privacy review shows `allowBackup=false` and no debuggable release manifest",
             "Play-generated native libraries support 16 KB page sizes",
             "Play-generated APK installed and launched on at least one Android device or emulator",
         ),
@@ -479,6 +481,9 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
     elif label == "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions":
         validate_no_negative_markers(label, value, file_label)
         validate_contains_all(label, value, file_label, ("no INTERNET", "no ACCESS_NETWORK_STATE", "no dangerous"))
+    elif label == "Play-generated manifest privacy review shows `allowBackup=false` and no debuggable release manifest":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("allowBackup=false", "no debuggable"))
     elif label == "Play-generated native libraries support 16 KB page sizes":
         validate_no_negative_markers(label, value, file_label)
         validate_contains_all(label, value, file_label, ("16 KB", "16384"))
