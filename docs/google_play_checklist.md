@@ -50,6 +50,7 @@ Run immediately before upload:
 
 ```bash
 ./tools/run_final_local_gate.py
+./tools/run_final_local_gate.py --include-hosted-privacy
 ```
 
 Equivalent expanded sequence:
@@ -189,6 +190,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Upload store icon, feature graphic and phone/large-tablet screenshots from `play_store/upload_manifest.md`.
 - Compare AAB and asset bytes/SHA-256 against `play_store/upload_checksums.md` after the final local build.
 - Run `./tools/run_final_local_gate.py` and require `final_local_gate_ok` before starting the Play Console upload.
+- When network is available before upload, run `./tools/run_final_local_gate.py --include-hosted-privacy` and require `final_local_gate_ok`; this keeps the default local gate offline-safe while revalidating the recorded hosted privacy policy URL for upload day.
 - When an API 36 emulator/device is available, prefer `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` so connected evidence is refreshed before the verifier; this optional connected path also cleans generated connected outputs, force-stops/kills known stale local package processes and uninstalls known stale local debug/test packages on the selected serial before instrumentation starts.
 - To have the project manage the API 36 emulator itself, run `./tools/run_api36_connected_gate.py` and require `api36_connected_gate_ok`; it targets `Medium_Phone_API_36` on `emulator-5560`, starts it with `-wipe-data` so stale debug/test APKs from older local projects cannot steal focus, retries the cleaned AVD once without `-wipe-data` if the emulator exits after the wipe reset before boot, and refuses to touch a different AVD on that serial.
 - Run `./tools/print_upload_packet.py` and require `upload_packet_ok` before uploading assets.

@@ -10,6 +10,12 @@
 ./tools/run_final_local_gate.py
 ```
 
+Если сеть доступна перед загрузкой и нужно повторно проверить уже записанный hosted privacy URL:
+
+```bash
+./tools/run_final_local_gate.py --include-hosted-privacy
+```
+
 Если доступен стабильный API 36 эмулятор или устройство, используйте connected-вариант одной командой:
 
 ```bash
@@ -51,6 +57,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 Перед upload убедиться:
 
 - `./tools/run_final_local_gate.py` возвращает `final_local_gate_ok`.
+- `./tools/run_final_local_gate.py --include-hosted-privacy` возвращает `final_local_gate_ok` when network access is available and the recorded hosted privacy URL still passes `privacy_policy_url_ok`.
 - При доступном API 36 устройстве `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` тоже возвращает `final_local_gate_ok` и обновляет connected evidence перед verifier.
 - `./tools/run_api36_connected_gate.py` возвращает `api36_connected_gate_ok`, если helper сам поднимает `Medium_Phone_API_36`, прогоняет connected final gate и безопасно останавливает только свой эмулятор.
 - `./tools/verify_release.py` возвращает `release_verification_ok`.

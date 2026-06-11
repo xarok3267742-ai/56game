@@ -82,6 +82,13 @@ android {
     }
 }
 
+// The signed AAB is tracked as a Play handoff artifact, so embedding the
+// current Git revision would make the checked-in checksum drift after every
+// release commit.
+tasks.matching { it.name == "extractReleaseVersionControlInfo" }.configureEach {
+    enabled = false
+}
+
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2026.05.01"))
     androidTestImplementation(platform("androidx.compose:compose-bom:2026.05.01"))

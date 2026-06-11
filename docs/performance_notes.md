@@ -8,8 +8,8 @@
 
 Measured and re-verified on 6 June 2026:
 
-- Signed release AAB: `2,931,129` bytes, about 2.8 MB.
-- Debug APK: `20,050,164` bytes, about 19.1 MB.
+- Signed release AAB: `2,930,928` bytes, about 2.8 MB.
+- Debug APK: `19,833,279` bytes, about 19.1 MB.
 - Google Play feature graphic: `410,321` bytes.
 - Google Play store icon: `274,405` bytes.
 - Largest phone screenshot: `133,859` bytes.

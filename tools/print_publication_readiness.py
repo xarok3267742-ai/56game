@@ -637,10 +637,11 @@ def recorded_privacy_url_value() -> str | None:
 
 
 def validate_privacy_url(url: str, *, recorded_value: str | None = None) -> None:
+    checked_url = normalized_public_https_url("--privacy-url", url, "command line")
     if recorded_value is not None:
         validate_privacy_url_matches_recorded(url, recorded_value, "play_store/play_console_post_upload_evidence_ru.md")
     completed = subprocess.run(
-        [str(PRIVACY_URL_CHECK), "--url", url],
+        [str(PRIVACY_URL_CHECK), "--url", checked_url],
         cwd=ROOT,
         text=True,
         stdout=subprocess.PIPE,
@@ -692,6 +693,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--privacy-url",
         help="Optional public HTTPS privacy policy URL to validate with check_privacy_policy_url.py.",
+    )
+    parser.add_argument(
+        "--check-recorded-privacy-url",
+        action="store_true",
+        help="Validate the recorded Public privacy policy URL from play_store/play_console_post_upload_evidence_ru.md.",
     )
     parser.add_argument(
         "--require-production-ready",
@@ -764,14 +770,21 @@ def main() -> int:
             print("- list owner-controlled external gates that remain `not yet available locally`")
             print("- group unresolved owner actions by evidence file and required command")
             print("- optionally validate public HTTPS privacy policy URL via `--privacy-url <https-url>`")
+            print("- optionally validate recorded public HTTPS privacy policy URL via `--check-recorded-privacy-url`")
             print("- with `--require-production-ready`, fail while external owner gates remain unresolved")
             print("publication_readiness_dry_run_ok")
             return 0
 
         post_upload_unresolved, signing_backup_unresolved = verify_local_handoff_files()
         privacy_url_checked = False
-        if args.privacy_url:
-            validate_privacy_url(args.privacy_url, recorded_value=recorded_privacy_url_value())
+        recorded_url = recorded_privacy_url_value()
+        if args.check_recorded_privacy_url:
+            require(recorded_url is not None, "recorded Public privacy policy URL is still pending")
+            require(args.privacy_url is None, "use either --privacy-url or --check-recorded-privacy-url, not both")
+            validate_privacy_url(recorded_url, recorded_value=recorded_url)
+            privacy_url_checked = True
+        elif args.privacy_url:
+            validate_privacy_url(args.privacy_url, recorded_value=recorded_url)
             privacy_url_checked = True
         return print_status(
             post_upload_unresolved,

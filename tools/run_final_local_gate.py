@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Run the final local gate before owner handoff.
 
-This script is intentionally local-only. It builds/tests the release candidate,
-optionally refreshes connected Android test evidence, then runs the read-only
-handoff helpers that verify upload assets, the store-asset review sheet, the
-optional upload archive, Play Console copy, Play-generated APK review posture,
-local privacy HTML and signing input hygiene.
+This script is intentionally local by default. It builds/tests the release
+candidate, optionally refreshes connected Android test evidence, then runs the
+read-only handoff helpers that verify upload assets, the store-asset review
+sheet, the optional upload archive, Play Console copy, Play-generated APK review
+posture, local privacy HTML and signing input hygiene. Use
+--include-hosted-privacy only for a pre-upload run that should also revalidate
+the recorded hosted privacy policy URL.
 """
 
 from __future__ import annotations
@@ -37,6 +39,11 @@ STALE_CONNECTED_PACKAGES: tuple[str, ...] = (
     "com.ivliev.line56.debug",
     "com.ivliev.line56",
 )
+PUBLICATION_READINESS_COMMAND: tuple[str, ...] = ("./tools/print_publication_readiness.py",)
+PUBLICATION_READINESS_WITH_RECORDED_PRIVACY_COMMAND: tuple[str, ...] = (
+    "./tools/print_publication_readiness.py",
+    "--check-recorded-privacy-url",
+)
 HANDOFF_COMMANDS: tuple[tuple[str, ...], ...] = (
     ("./tools/verify_release.py",),
     ("./tools/print_upload_packet.py",),
@@ -44,20 +51,7 @@ HANDOFF_COMMANDS: tuple[tuple[str, ...], ...] = (
     ("./tools/prepare_play_upload_archive.py", "--dry-run"),
     ("./tools/prepare_play_upload_archive.py", "--verify-existing"),
     ("./tools/print_play_console_packet.py",),
-    ("./tools/print_publication_readiness.py",),
-    ("./tools/verify_play_generated_apk.py", "--dry-run"),
-    ("./tools/check_privacy_policy_url.py", "--local"),
-    ("./tools/check_signing_backup_inputs.py",),
-)
-COMMANDS: tuple[tuple[str, ...], ...] = (
-    ("./gradlew", "test", "lint", "assembleDebug", "assembleRelease", "bundleRelease"),
-    ("./tools/verify_release.py",),
-    ("./tools/print_upload_packet.py",),
-    ("./tools/create_store_asset_review_sheet.py", "--dry-run"),
-    ("./tools/prepare_play_upload_archive.py", "--dry-run"),
-    ("./tools/prepare_play_upload_archive.py", "--verify-existing"),
-    ("./tools/print_play_console_packet.py",),
-    ("./tools/print_publication_readiness.py",),
+    PUBLICATION_READINESS_COMMAND,
     ("./tools/verify_play_generated_apk.py", "--dry-run"),
     ("./tools/check_privacy_policy_url.py", "--local"),
     ("./tools/check_signing_backup_inputs.py",),
@@ -80,16 +74,33 @@ def parse_args() -> argparse.Namespace:
         "--connected-serial",
         help="ANDROID_SERIAL value for --include-connected, for example emulator-5560.",
     )
+    parser.add_argument(
+        "--include-hosted-privacy",
+        action="store_true",
+        help="Validate the recorded hosted privacy policy URL during publication-readiness output.",
+    )
     args = parser.parse_args()
     if args.connected_serial and not args.include_connected:
         parser.error("--connected-serial requires --include-connected")
     return args
 
 
-def planned_commands(include_connected: bool) -> tuple[tuple[str, ...], ...]:
+def handoff_commands(include_hosted_privacy: bool) -> tuple[tuple[str, ...], ...]:
+    if not include_hosted_privacy:
+        return HANDOFF_COMMANDS
+    return tuple(
+        PUBLICATION_READINESS_WITH_RECORDED_PRIVACY_COMMAND
+        if command == PUBLICATION_READINESS_COMMAND
+        else command
+        for command in HANDOFF_COMMANDS
+    )
+
+
+def planned_commands(include_connected: bool, include_hosted_privacy: bool) -> tuple[tuple[str, ...], ...]:
+    handoff = handoff_commands(include_hosted_privacy)
     if include_connected:
-        return (BUILD_COMMAND, CONNECTED_COMMAND, *HANDOFF_COMMANDS)
-    return COMMANDS
+        return (BUILD_COMMAND, CONNECTED_COMMAND, *handoff)
+    return (BUILD_COMMAND, *handoff)
 
 
 def printable_command(command: tuple[str, ...], connected_serial: str | None) -> str:
@@ -199,7 +210,7 @@ def main() -> int:
     args = parse_args()
     print("Final local gate")
     print("================")
-    for command in planned_commands(args.include_connected):
+    for command in planned_commands(args.include_connected, args.include_hosted_privacy):
         printable = printable_command(command, args.connected_serial)
         if command == CONNECTED_COMMAND:
             if args.dry_run:

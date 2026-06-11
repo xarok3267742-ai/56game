@@ -53,7 +53,9 @@ Never commit signing files, passwords, private keys, `local.properties`, APKs, A
 ./gradlew connectedDebugAndroidTest
 ./gradlew bundleRelease
 ./tools/run_final_local_gate.py
+./tools/run_final_local_gate.py --include-hosted-privacy
 ./tools/run_final_local_gate.py --include-connected --connected-serial <serial>
+./tools/run_final_local_gate.py --include-connected --connected-serial <serial> --include-hosted-privacy
 ./tools/run_api36_connected_gate.py
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
@@ -82,7 +84,7 @@ Final local gate before handoff:
 ./tools/run_final_local_gate.py
 ```
 
-The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local` and `./tools/check_signing_backup_inputs.py` in order.
+The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local` and `./tools/check_signing_backup_inputs.py` in order. Add `--include-hosted-privacy` for a networked pre-upload run that replaces the publication-readiness step with `./tools/print_publication_readiness.py --check-recorded-privacy-url`.
 
 Run `connectedDebugAndroidTest` when an emulator/device is available. For a one-command owner preflight on an available API 36 device, use `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` so connected evidence is refreshed before `./tools/verify_release.py`. To let the project start and stop its own API 36 AVD safely, use `./tools/run_api36_connected_gate.py`; it targets `Medium_Phone_API_36` on `emulator-5560`, wipes that project-owned AVD data on managed start to avoid stale debug/test APK interference, and refuses to touch a different AVD on that serial.
 
@@ -181,7 +183,7 @@ Release-facing Play files must stay present:
 
 `./tools/verify_release.py` is the project-local release gate. It checks build config, signing-file hygiene, no committed API keys/tokens/private-key blocks/dev URLs, backup/privacy manifest state, APK permissions, AAB signature, AAB debug/test cleanliness, artifact/asset size budgets, store assets, upload manifest paths, upload checksums, alt text, privacy HTML, signing report, listing length, forbidden identifiers, Russian Kotlin literals and required documentation.
 
-`./tools/run_final_local_gate.py` is the owner-facing final local gate runner. It runs the local build/test/release verifier and read-only handoff helpers in the required order, supports optional `--include-connected --connected-serial <serial>` connected evidence refresh, cleans generated connected-test outputs, force-stops/kills known stale local package processes and uninstalls known stale local debug/test packages on the selected serial before that optional connected run, and prints `final_local_gate_ok` only after every command succeeds.
+`./tools/run_final_local_gate.py` is the owner-facing final local gate runner. It runs the local build/test/release verifier and read-only handoff helpers in the required order, supports optional `--include-hosted-privacy` recorded hosted privacy URL validation, supports optional `--include-connected --connected-serial <serial>` connected evidence refresh, cleans generated connected-test outputs, force-stops/kills known stale local package processes and uninstalls known stale local debug/test packages on the selected serial before that optional connected run, and prints `final_local_gate_ok` only after every command succeeds.
 
 `./tools/run_api36_connected_gate.py` is the managed API 36 connected gate helper. It boots a clean `Medium_Phone_API_36` on `emulator-5560` with `-wipe-data`, retries the cleaned AVD once without `-wipe-data` if the emulator exits after the wipe reset before boot, runs `./tools/run_final_local_gate.py --include-connected --connected-serial emulator-5560`, then stops only the emulator it started. If that serial is already occupied by another AVD, it fails instead of stopping or reusing it. Use `--preserve-avd-data` only for diagnostics where stale installed packages are intentionally being preserved.
 
@@ -195,7 +197,7 @@ In `--verify-existing` mode it verifies the generated ZIP exactly matches curren
 
 `./tools/print_play_console_packet.py` is the read-only owner helper for Play Console forms. It verifies listing/App content handoff consistency and prints the copy-ready store listing, policy posture and manual owner gates.
 
-`./tools/print_publication_readiness.py` is the read-only owner helper for publication status. It prints the difference between a locally verifier-approved release candidate and a production-ready Google Play release, lists unresolved owner-controlled gates, groups unresolved owner actions by evidence file and required command, and returns `publication_readiness_local_ready_external_pending` until external evidence is recorded.
+`./tools/print_publication_readiness.py` is the read-only owner helper for publication status. It prints the difference between a locally verifier-approved release candidate and a production-ready Google Play release, can validate the recorded hosted privacy policy URL with `--check-recorded-privacy-url`, lists unresolved owner-controlled gates, groups unresolved owner actions by evidence file and required command, and returns `publication_readiness_local_ready_external_pending` until external evidence is recorded.
 
 `./tools/verify_play_generated_apk.py` is the owner helper for Play-generated APK review after upload. In `--dry-run` mode it prints expected package/version/permission posture; with `--apk <path>` it verifies the APK package, version, label, SDK levels, no forbidden permissions, no debug/test leakage and a 512x512 icon candidate.
 

@@ -4,7 +4,7 @@ Verified for the current local release candidate after the ImageGen icon/onboard
 
 | Path | Bytes | SHA-256 |
 |---|---:|---|
-| `app/build/outputs/bundle/release/app-release.aab` | 2931129 | `221c73d11513f9926da6f6fd3cc9d6771cb4f6ab422dc361945bbc5f66919d8a` |
+| `app/build/outputs/bundle/release/app-release.aab` | 2930928 | `3affd5cc6de7735d7cb9cc4f381e114caa0b20d6bfa933621d596d24dc2e3043` |
 | `play_store/icon/play_icon_512.png` | 274405 | `d9272798e3241fd1bc05f71620ed297a45ccbeb3691eb8a7184eb5d7a948f27c` |
 | `play_store/feature_graphic.png` | 410321 | `f6fb4bce8dea5e687b141ce1bf38e9df0f5ce1d8fd35a7dd3420d1d100fb71da` |
 | `play_store/screenshots/phone/01_onboarding.png` | 133859 | `601df1b615497e558beb527ba347107891c26cafe44206e0792cba9487e2a198` |

@@ -13,8 +13,8 @@ first_launch_result=Starting: Intent { cmp=com.qgrid.mobile/.MainActivity }
 Status: ok
 LaunchState: COLD
 Activity: com.qgrid.mobile/.MainActivity
-TotalTime: 1801
-WaitTime: 1805
+TotalTime: 787
+WaitTime: 790
 Complete
 background_return_command=input keyevent HOME then am start -W
 background_return_result=Starting: Intent { cmp=com.qgrid.mobile/.MainActivity }
@@ -22,15 +22,15 @@ Warning: Activity not started, its current task has been brought to the front
 Status: ok
 LaunchState: UNKNOWN (0)
 Activity: com.qgrid.mobile/.MainActivity
-WaitTime: 253
+WaitTime: 21
 Complete
 force_stop_relaunch_command=am force-stop com.qgrid.mobile then am start -W
 force_stop_relaunch_result=Starting: Intent { cmp=com.qgrid.mobile/.MainActivity }
 Status: ok
 LaunchState: COLD
 Activity: com.qgrid.mobile/.MainActivity
-TotalTime: 1297
-WaitTime: 1350
+TotalTime: 482
+WaitTime: 484
 Complete
 home_progress_visible_after_relaunch=true
 home_start_action_visible_after_relaunch=true

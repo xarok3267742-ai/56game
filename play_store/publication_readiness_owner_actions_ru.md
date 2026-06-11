@@ -4,6 +4,7 @@
 
 ```bash
 ./tools/print_publication_readiness.py
+./tools/print_publication_readiness.py --check-recorded-privacy-url
 ```
 
 Текущий локальный статус: `publication_readiness_local_ready_external_pending`.
@@ -11,7 +12,7 @@
 Production rollout нельзя начинать, пока после записи безопасных внешних evidence не проходит:
 
 ```bash
-./tools/print_publication_readiness.py --privacy-url <https-url> --require-production-ready
+./tools/print_publication_readiness.py --check-recorded-privacy-url --require-production-ready
 ```
 
 Не записывать в этот файл, `play_store/play_console_post_upload_evidence_ru.md` или `play_store/signing_backup_evidence_ru.md` пароли, private keys, keystore contents, Play account tokens, закрытые ссылки с доступом, recovery codes или персональные данные тестеров.
@@ -201,8 +202,8 @@ Required posture:
 Before production rollout:
 
 ```bash
-./tools/run_final_local_gate.py
-./tools/print_publication_readiness.py --privacy-url <https-url> --require-production-ready
+./tools/run_final_local_gate.py --include-hosted-privacy
+./tools/print_publication_readiness.py --check-recorded-privacy-url --require-production-ready
 ```
 
 Expected production-ready marker only after all external evidence is recorded:

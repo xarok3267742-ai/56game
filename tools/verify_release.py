@@ -306,6 +306,8 @@ def check_build_config() -> None:
         "isShrinkResources = true",
         'getDefaultProguardFile("proguard-android-optimize.txt")',
         '"proguard-rules.pro"',
+        'tasks.matching { it.name == "extractReleaseVersionControlInfo" }.configureEach',
+        "enabled = false",
     }
     for needle in expected:
         require(needle in text, f"missing build config: {needle}")
@@ -513,7 +515,9 @@ def check_agents_handoff() -> None:
             "./gradlew connectedDebugAndroidTest",
             "./gradlew bundleRelease",
             "./tools/run_final_local_gate.py",
+            "./tools/run_final_local_gate.py --include-hosted-privacy",
             "./tools/run_final_local_gate.py --include-connected --connected-serial <serial>",
+            "./tools/run_final_local_gate.py --include-connected --connected-serial <serial> --include-hosted-privacy",
             "./tools/run_api36_connected_gate.py",
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
@@ -553,6 +557,7 @@ def check_agents_handoff() -> None:
             "`play_store/screenshots/manifest.md`",
             "`./tools/verify_release.py` is the project-local release gate.",
             "`./tools/run_final_local_gate.py` is the owner-facing final local gate runner.",
+            "supports optional `--include-hosted-privacy` recorded hosted privacy URL validation",
             "supports optional `--include-connected --connected-serial <serial>` connected evidence refresh",
             "uninstalls known stale local debug/test packages on the selected serial",
             "prints `final_local_gate_ok` only after every command succeeds.",
@@ -569,6 +574,7 @@ def check_agents_handoff() -> None:
             "`./tools/print_play_console_packet.py` is the read-only owner helper for Play Console forms.",
             "prints the copy-ready store listing, policy posture and manual owner gates.",
             "`./tools/print_publication_readiness.py` is the read-only owner helper for publication status.",
+            "can validate the recorded hosted privacy policy URL with `--check-recorded-privacy-url`",
             "groups unresolved owner actions by evidence file and required command",
             "publication_readiness_local_ready_external_pending",
             "`./tools/verify_play_generated_apk.py` is the owner helper for Play-generated APK review after upload.",
@@ -628,7 +634,9 @@ def check_readme_handoff() -> None:
             "./gradlew connectedDebugAndroidTest",
             "./gradlew bundleRelease",
             "./tools/run_final_local_gate.py",
+            "./tools/run_final_local_gate.py --include-hosted-privacy",
             "./tools/run_final_local_gate.py --include-connected --connected-serial <serial>",
+            "./tools/run_final_local_gate.py --include-connected --connected-serial <serial> --include-hosted-privacy",
             "./tools/run_api36_connected_gate.py",
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
@@ -645,8 +653,8 @@ def check_readme_handoff() -> None:
             "Release AAB собран: `app/build/outputs/bundle/release/app-release.aab`",
             "Production package остаётся нейтральным: `com.qgrid.mobile`; debug package: `com.qgrid.mobile.debug`.",
             "Version identity for this upload candidate: `versionCode = 1`, `versionName = 1.0.0`.",
-            "Текущий release AAB: `2,931,129` bytes",
-            "`221c73d11513f9926da6f6fd3cc9d6771cb4f6ab422dc361945bbc5f66919d8a`",
+            "Текущий release AAB: `2,930,928` bytes",
+            "`3affd5cc6de7735d7cb9cc4f381e114caa0b20d6bfa933621d596d24dc2e3043`",
             "For Google Play, the signed AAB is the only binary upload artifact.",
             "Generated release APK outputs under `app/build/outputs/apk/release` are install/testing artifacts only and must not be uploaded to Play.",
             "Последняя asset-правка на 6 июня 2026",
@@ -665,6 +673,7 @@ def check_readme_handoff() -> None:
             "post-upload evidence template - в `play_store/play_console_post_upload_evidence_ru.md`",
             "signing backup evidence and owner template - в `play_store/signing_backup_evidence_ru.md`",
             "`./tools/run_final_local_gate.py` runs the complete final local gate and prints `final_local_gate_ok` only after build/test/verifier/handoff helpers pass.",
+            "Add `--include-hosted-privacy` for a networked pre-upload run that also revalidates the recorded hosted privacy policy URL.",
             "uninstalls known stale local debug/test packages on the selected serial",
             "old instrumentation packages cannot pollute verifier evidence or steal focus",
             "When an API 36 emulator/device is available, `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` refreshes `connectedDebugAndroidTest` evidence before the verifier.",
@@ -1172,8 +1181,8 @@ def check_release_report_handoff() -> None:
             "Latest optional connected final-gate execution",
             "`./tools/run_final_local_gate.py --include-connected --connected-serial emulator-5560` passed on `Medium_Phone_API_36(AVD) - 16`",
             "Latest managed API 36 connected-gate helper hardening",
-            "Debug APK: `app/build/outputs/apk/debug/app-debug.apk`, package `com.qgrid.mobile.debug`, 20,050,164 bytes.",
-            "Signed Release AAB: `app/build/outputs/bundle/release/app-release.aab`, 2,931,129 bytes.",
+            "Debug APK: `app/build/outputs/apk/debug/app-debug.apk`, package `com.qgrid.mobile.debug`, 19,833,279 bytes.",
+            "Signed Release AAB: `app/build/outputs/bundle/release/app-release.aab`, 2,930,928 bytes.",
             "Upload runbook: `play_store/upload_runbook_ru.md`.",
             "Post-upload evidence template: `play_store/play_console_post_upload_evidence_ru.md`.",
             "Signing backup evidence and owner template: `play_store/signing_backup_evidence_ru.md`.",
@@ -1215,7 +1224,7 @@ def check_completion_audit_handoff() -> None:
             "Lint passes with no issues: `./gradlew lint`.",
             "Signed release AAB builds: `./gradlew bundleRelease`.",
             "Production AAB cleanliness is checked by `tools/verify_release.py`",
-            "current release AAB is 2,931,129 bytes and current debug APK is 20,050,164 bytes.",
+            "current release AAB is 2,930,928 bytes and current debug APK is 19,833,279 bytes.",
             "latest connected run finished 10 tests covering product name",
             "Latest result replay hardening",
             "Release APK installed on API 35 emulator: `./gradlew installRelease`.",
@@ -1753,6 +1762,10 @@ def check_release_aab_clean() -> None:
 
     with zipfile.ZipFile(aab) as archive:
         names = archive.namelist()
+        require(
+            "base/root/META-INF/version-control-info.textproto" not in names,
+            "release AAB must not contain Git VCS metadata that changes after each release commit",
+        )
         unexpected_entries = [
             name for name in names
             if any(fragment in name for fragment in forbidden_entry_fragments)
@@ -1826,8 +1839,8 @@ def check_performance_notes() -> None:
         "docs/performance_notes.md",
         [
             "Measured and re-verified on 6 June 2026",
-            "Signed release AAB: `2,931,129` bytes",
-            "Debug APK: `20,050,164` bytes",
+            "Signed release AAB: `2,930,928` bytes",
+            "Debug APK: `19,833,279` bytes",
             "Google Play feature graphic: `410,321` bytes",
             "Google Play store icon: `274,405` bytes",
             "Largest phone screenshot: `133,859` bytes",
@@ -2658,7 +2671,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "Publication Readiness Owner Actions - RU",
             "./tools/print_publication_readiness.py",
             "publication_readiness_local_ready_external_pending",
-            "./tools/print_publication_readiness.py --privacy-url <https-url> --require-production-ready",
+            "./tools/print_publication_readiness.py --check-recorded-privacy-url --require-production-ready",
             "пароли, private keys, keystore contents, Play account tokens",
             "Upload Artifact Identity",
             "play_store/play_console_post_upload_evidence_ru.md",
@@ -2859,8 +2872,11 @@ def check_final_local_gate_runner() -> None:
         "tools/run_final_local_gate.py",
         [
             "Run the final local gate before owner handoff.",
-            "This script is intentionally local-only.",
-            "COMMANDS: tuple[tuple[str, ...], ...] = (",
+            "This script is intentionally local by default.",
+            "--include-hosted-privacy only for a pre-upload run",
+            "PUBLICATION_READINESS_COMMAND: tuple[str, ...] = (\"./tools/print_publication_readiness.py\",)",
+            "PUBLICATION_READINESS_WITH_RECORDED_PRIVACY_COMMAND: tuple[str, ...] = (",
+            "\"--check-recorded-privacy-url\"",
             "(\"./gradlew\", \"test\", \"lint\", \"assembleDebug\", \"assembleRelease\", \"bundleRelease\")",
             "(\"./tools/verify_release.py\",)",
             "(\"./tools/print_upload_packet.py\",)",
@@ -2875,6 +2891,7 @@ def check_final_local_gate_runner() -> None:
             "--dry-run",
             "--include-connected",
             "--connected-serial",
+            "--include-hosted-privacy",
             "CONNECTED_COMMAND: tuple[str, ...] = (\"./gradlew\", \"connectedDebugAndroidTest\")",
             "CONNECTED_OUTPUT_DIRS: tuple[Path, ...] = (",
             "STALE_CONNECTED_PACKAGES: tuple[str, ...] = (",
@@ -2929,6 +2946,25 @@ def check_final_local_gate_runner() -> None:
     ]:
         require(command in output, f"final local gate dry-run missing command: {command}")
     require("final_local_gate_dry_run_ok" in output, "final local gate dry-run did not finish with final_local_gate_dry_run_ok")
+
+    hosted_privacy_output = subprocess.check_output(
+        [str(helper), "--dry-run", "--include-hosted-privacy"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    require(
+        "./tools/print_publication_readiness.py --check-recorded-privacy-url" in hosted_privacy_output,
+        "final local gate hosted privacy dry-run missing recorded privacy URL readiness command",
+    )
+    require(
+        "./tools/print_publication_readiness.py\n" not in hosted_privacy_output,
+        "final local gate hosted privacy dry-run must replace the plain publication-readiness command",
+    )
+    require(
+        "final_local_gate_dry_run_ok" in hosted_privacy_output,
+        "final local gate hosted privacy dry-run did not finish with final_local_gate_dry_run_ok",
+    )
 
     connected_output = subprocess.check_output(
         [str(helper), "--dry-run", "--include-connected", "--connected-serial", "emulator-5560"],
@@ -3949,6 +3985,7 @@ def check_publication_readiness_helper() -> None:
             "def negative_status_markers(",
             "def unresolved_label(",
             "def print_owner_action_breakdown(",
+            "checked_url = normalized_public_https_url(\"--privacy-url\", url, \"command line\")",
             "must not include query parameters",
             "must be a positive confirmation without negative status markers",
             "must explicitly say evidence was recorded without secrets",
@@ -3961,6 +3998,7 @@ def check_publication_readiness_helper() -> None:
             "def validate_contains_0o600(",
             "def recorded_privacy_url_value(",
             "--privacy-url",
+            "--check-recorded-privacy-url",
             "--require-production-ready",
             "--dry-run",
             "def verify_local_handoff_files(",
@@ -3993,6 +4031,7 @@ def check_publication_readiness_helper() -> None:
         "validate exact recorded evidence values against package/version/checksum/privacy/signing expectations",
         "list owner-controlled external gates",
         "group unresolved owner actions by evidence file and required command",
+        "validate recorded public HTTPS privacy policy URL via `--check-recorded-privacy-url`",
         "publication_readiness_dry_run_ok",
     ]:
         require(marker in dry_output, f"publication readiness dry-run missing marker: {marker}")
@@ -4233,6 +4272,31 @@ def check_publication_readiness_helper() -> None:
         require("must match recorded Public privacy policy URL" in str(exc), f"publication helper rejected mismatched checked privacy URL with unexpected message: {exc}")
     else:
         raise CheckFailure("publication helper must reject privacy URL checks that do not match recorded owner evidence")
+
+    recorded_privacy_subprocess_calls: list[list[str]] = []
+    original_subprocess_run = module.subprocess.run
+
+    class RecordedPrivacyCompleted:
+        returncode = 0
+        stdout = "privacy_policy_url_ok\n"
+
+    def fake_privacy_url_run(command: list[str], **kwargs: object) -> RecordedPrivacyCompleted:
+        recorded_privacy_subprocess_calls.append(command)
+        return RecordedPrivacyCompleted()
+
+    module.subprocess.run = fake_privacy_url_run
+    try:
+        module.validate_privacy_url(
+            "https://privacy.example.co/policy.",
+            recorded_value="https://privacy.example.co/policy.",
+        )
+    finally:
+        module.subprocess.run = original_subprocess_run
+    require(
+        recorded_privacy_subprocess_calls
+        and recorded_privacy_subprocess_calls[0][-1] == "https://privacy.example.co/policy",
+        "publication helper must strip sentence punctuation before invoking privacy URL checker",
+    )
 
     try:
         module.validate_signing_backup_value("Active key alias", "line56_upload", "verifier bad signing evidence")
