@@ -644,7 +644,13 @@ def validate_signing_backup_value(label: str, value: str, file_label: str) -> No
     elif label == "Legacy ignored local key exists and is owner-only":
         validate_contains_all(label, value, file_label, ("private/signing/line56-upload.p12", "0o600", "ignored", "not active"))
     elif label == "Backup completed before Play upload":
-        validate_yes(label, value, file_label)
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("private/signing/qgrid-upload.p12", "keystore.properties", "before Play upload"))
+        lowered = value.lower()
+        require(
+            "backed up" in lowered or "backup completed" in lowered,
+            f"{file_label} value for {label} must explicitly say signing inputs were backed up before Play upload: {value}",
+        )
     elif label == "At least two owner-controlled secure copies exist":
         validate_yes(label, value, file_label)
         normalized = lower_value(value)

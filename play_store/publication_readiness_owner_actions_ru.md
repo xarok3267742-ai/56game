@@ -114,6 +114,7 @@ Required posture:
 - Credentials file is `keystore.properties`.
 - Active key alias is `qgrid_upload`.
 - `./tools/check_signing_backup_inputs.py` must return `signing_backup_input_ok`.
+- Backup completion evidence must explicitly mention `private/signing/qgrid-upload.p12`, `keystore.properties` and `before Play upload`.
 - Evidence must explicitly say backup evidence was recorded without secrets, two owner-controlled secure copies exist and recovery was tested without exposing secrets.
 
 ## 4. Play-Generated Artifact Review
