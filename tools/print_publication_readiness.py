@@ -573,10 +573,26 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         normalized = lower_value(value)
         require(normalized in {"yes", "no"}, f"{file_label} value for {label} must be yes or no: {value}")
     elif label == "Closed testing status if required":
+        validate_no_negative_markers(label, value, file_label)
         normalized = lower_value(value)
+        if normalized == "not required for this account":
+            return
+        require("completed required closed testing" in normalized, f"{file_label} value for {label} must be not required or completed: {value}")
         require(
-            normalized in {"not required for this account", "completed required closed testing"},
-            f"{file_label} value for {label} must be not required or completed: {value}",
+            re.search(r"\b(?:12|twelve)\b", normalized) is not None and ("opted-in tester" in normalized or "opted in tester" in normalized),
+            f"{file_label} value for {label} must explicitly mention at least 12 opted-in testers: {value}",
+        )
+        require(
+            re.search(r"\b(?:14|fourteen)\b", normalized) is not None and ("continuous" in normalized or "continuously" in normalized),
+            f"{file_label} value for {label} must explicitly mention at least 14 continuous days: {value}",
+        )
+        require(
+            re.search(r"\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b", value) is None,
+            f"{file_label} value for {label} must not record tester email addresses: {value}",
+        )
+        require(
+            re.search(r"https?://|www\.", value, re.I) is None,
+            f"{file_label} value for {label} must not record tester URLs or private tester links: {value}",
         )
     elif label == "Pre-launch report result":
         validate_no_negative_markers(label, value, file_label)
@@ -624,7 +640,7 @@ def validate_closed_testing_consistency(post_upload: str, file_label: str) -> No
     status = lower_value(status_value)
     if required == "yes":
         require(
-            status == "completed required closed testing",
+            "completed required closed testing" in status,
             f"{file_label} closed testing is required but status is not completed: {status_value}",
         )
     elif required == "no":

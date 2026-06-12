@@ -210,7 +210,7 @@ Required posture:
 
 - Upload first through internal testing.
 - Internal-testing evidence must explicitly mention `internal testing` and that the AAB was uploaded or upload completed.
-- If the publisher account requires closed testing, complete the required tester/time gate before production.
+- If the publisher account requires closed testing, complete the required tester/time gate before production and record safe evidence that explicitly mentions at least 12 opted-in testers and at least 14 continuous days without tester personal data, invite links or private tester URLs.
 - Pre-launch report must have no blocking issues, no reproducible crashes and no unresolved policy warnings.
 - Pre-launch/policy evidence must explicitly mention `Play Console pre-launch report`, `no reproducible crashes` and `Play policy warnings`.
 - Store listing preview evidence must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and no damaging crops.

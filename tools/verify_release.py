@@ -1201,6 +1201,7 @@ def check_release_report_handoff() -> None:
             "Latest owner date evidence hardening",
             "Latest testing-first release-track evidence hardening",
             "Latest internal-testing upload evidence hardening",
+            "Latest closed-testing tester-duration evidence hardening",
             "Latest Play pre-launch/policy evidence hardening",
             "Latest closed-testing evidence consistency hardening",
             "Latest owner evidence secret-pattern hardening",
@@ -1391,6 +1392,7 @@ def check_completion_audit_handoff() -> None:
             "Latest owner date evidence hardening",
             "Latest testing-first release-track evidence hardening",
             "Latest internal-testing upload evidence hardening",
+            "Latest closed-testing tester-duration evidence hardening",
             "Latest Play pre-launch/policy evidence hardening",
             "Latest owner evidence secret-pattern hardening",
             "Latest post-upload evidence handoff hardening",
@@ -2960,6 +2962,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "./tools/create_store_asset_review_sheet.py --write",
             "Internal-testing evidence must explicitly mention `internal testing` and that the AAB was uploaded or upload completed.",
             "Closed testing required for this account.",
+            "at least 12 opted-in testers and at least 14 continuous days without tester personal data, invite links or private tester URLs",
             "Pre-launch/policy evidence must explicitly mention `Play Console pre-launch report`, `no reproducible crashes` and `Play policy warnings`.",
             "Store listing preview checked for damaging image crops.",
             "Store listing preview evidence must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and no damaging crops.",
@@ -4523,6 +4526,10 @@ def check_publication_readiness_helper() -> None:
             "must name the safe support contact type as support email or support website URL without recording the actual contact value",
             "must not record an actual support email address",
             "must not record an actual support website URL",
+            "must explicitly mention at least 12 opted-in testers",
+            "must explicitly mention at least 14 continuous days",
+            "must not record tester email addresses",
+            "must not record tester URLs or private tester links",
             "validate_contains_all(label, value, file_label, (\"Play Console\", \"support\", \"contact\", \"real support contact\"))",
             "validate_contains_all(label, value, file_label, (\"Google Play listing\", \"support contact\", \"privacy policy\", \"inquiry mechanism\"))",
             "validate_contains_all(label, value, file_label, (\"release owner\", \"owner tracker\"))",
@@ -4640,6 +4647,27 @@ def check_publication_readiness_helper() -> None:
         ("Uploaded AAB SHA-256", "0" * 64, "unexpected value"),
         ("First release track used", "production", "internal testing first"),
         ("First release track used", "closed testing", "internal testing first"),
+        ("Closed testing status if required", "completed required closed testing", "12 opted-in testers"),
+        (
+            "Closed testing status if required",
+            "completed required closed testing with 12 testers for 14 days continuously",
+            "12 opted-in testers",
+        ),
+        (
+            "Closed testing status if required",
+            "completed required closed testing with 12 opted-in testers for 14 days",
+            "14 continuous days",
+        ),
+        (
+            "Closed testing status if required",
+            "completed required closed testing with 12 opted-in testers for 14 days continuously: tester@example.com",
+            "tester email",
+        ),
+        (
+            "Closed testing status if required",
+            "completed required closed testing with 12 opted-in testers for 14 days continuously: https://example.com/testers",
+            "tester URLs",
+        ),
         ("Internal testing upload completed", "yes", "missing"),
         ("Internal testing upload completed", "internal testing selected", "uploaded to internal testing"),
         ("Pre-launch report result", "passed", "missing"),
@@ -4777,6 +4805,12 @@ def check_publication_readiness_helper() -> None:
             raise CheckFailure(f"publication helper must reject bad post-upload evidence for {label}")
 
     module.validate_post_upload_value("Upload date/time", "2026-06-06 12:30", "verifier good post-upload evidence", expected_sha)
+    module.validate_post_upload_value(
+        "Closed testing status if required",
+        "completed required closed testing with 12 opted-in testers for 14 days continuously",
+        "verifier good post-upload evidence",
+        expected_sha,
+    )
     module.validate_signing_backup_value("Backup date/time", "6 June 2026, 12:30", "verifier good signing evidence")
     post_upload_template = read("play_store/play_console_post_upload_evidence_ru.md")
 
@@ -4791,7 +4825,7 @@ def check_publication_readiness_helper() -> None:
 
     module.validate_closed_testing_consistency(post_upload_template, "verifier pending post-upload evidence")
     module.validate_closed_testing_consistency(
-        closed_testing_post_upload("yes", "completed required closed testing"),
+        closed_testing_post_upload("yes", "completed required closed testing with 12 opted-in testers for 14 days continuously"),
         "verifier required closed-testing evidence",
     )
     module.validate_closed_testing_consistency(
