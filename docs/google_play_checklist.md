@@ -173,7 +173,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 
 ## Known Limitations
 
-- Privacy policy is not publication-complete until real Play Console support/contact fields and a public HTTPS URL are set.
+- Privacy policy is not publication-complete until the verified hosted URL is entered in Play Console and real Play Console support/contact fields are set.
 - Play Console forms are not completed locally because account access is external.
 - Closed testing cannot be completed locally because it depends on account type and testers.
 - Owner release inputs are isolated in `play_store/owner_release_inputs.md`.
@@ -205,7 +205,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok` before backing up signing files and uploading the AAB.
 - After pushing the release handoff to GitHub, run `./tools/verify_remote_release.py --tag <release-tag>` and require `remote_release_ok`; it verifies `origin/main`, the annotated remote release tag, every remote upload asset checksum from `play_store/upload_checksums.md`, rejects extra remote `.aab` files outside `app/build/outputs/bundle/release/app-release.aab`, checks remote forbidden-path hygiene, verifies `origin/gh-pages` privacy-policy presence and validates the recorded hosted privacy URL.
 - Record safe signing-backup evidence in `play_store/signing_backup_evidence_ru.md`.
-- Add public privacy policy URL `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html`.
+- Enter the verified public privacy policy URL `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` in Play Console.
 - Before entering the URL, run `./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` and require `privacy_policy_url_ok`; the hosted policy must be public HTTPS, no credentials/query/fragments, non-PDF, valid UTF-8, free of script/tracker/widget markers and text-identical to the current local `play_store/privacy_policy_ru.html` after whitespace normalization.
 - Complete Data Safety using `play_store/data_safety_ru.md`.
 - Complete content rating using `play_store/content_rating_notes.md`.

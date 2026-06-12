@@ -35,7 +35,7 @@ Manifest не запрашивает dangerous/platform runtime permissions. Loc
 
 ## Privacy Policy Notes
 
-Готовый текст policy создан: `play_store/privacy_policy_ru.md`; HTML-версия лежит в `play_store/privacy_policy_ru.html` and uses the Google Play listing support contact as the privacy inquiry mechanism. Перед публикацией владелец должен заполнить рабочий support contact в Play Console and разместить policy на публичном HTTPS URL.
+Готовый текст policy создан: `play_store/privacy_policy_ru.md`; HTML-версия лежит в `play_store/privacy_policy_ru.html`, hosted URL уже recorded as `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html`, and the policy uses the Google Play listing support contact as the privacy inquiry mechanism. Перед публикацией владелец должен ввести verified hosted URL в Play Console and заполнить рабочий support contact в Play Console.
 
 In-app About/privacy copy also states the local privacy posture in short scannable points: no personal data collection, local-only progress/settings, no ads/analytics/accounts/payments/internet permissions, Android backup disabled and deletion through Android app data clearing or uninstall. `tools/verify_release.py` gates these key Android string markers.
 

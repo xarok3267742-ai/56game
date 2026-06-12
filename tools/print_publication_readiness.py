@@ -3,8 +3,9 @@
 
 This helper is intentionally read-only. It separates the locally verified
 release candidate from the external Google Play publication gates that cannot
-be proven from this repository: public privacy URL, support contact, signing
-backup, Play Console forms, testing tracks and Play-generated artifact review.
+be proven from this repository: Play Console privacy URL entry, support contact,
+signing backup, Play Console forms, testing tracks and Play-generated artifact
+review.
 """
 
 from __future__ import annotations

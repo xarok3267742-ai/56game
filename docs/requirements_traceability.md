@@ -4,7 +4,7 @@ Checked against the original RTF instruction and current local release candidate
 
 ## Summary
 
-Local release-candidate scope is covered and verifier-gated where it can be proven from the repository, build artifacts or Android tooling. Full Google Play publication is not complete locally because owner-controlled external actions remain: populated Play Console support/contact fields for privacy inquiries, public HTTPS privacy-policy URL, secure keystore backup, Play Console forms and required testing tracks. Those owner inputs are isolated in `play_store/owner_release_inputs.md`.
+Local release-candidate scope is covered and verifier-gated where it can be proven from the repository, build artifacts or Android tooling. Full Google Play publication is not complete locally because owner-controlled external actions remain: entering the verified hosted privacy-policy URL in Play Console, populated Play Console support/contact fields for privacy inquiries, secure keystore backup, Play Console forms and required testing tracks. Those owner inputs are isolated in `play_store/owner_release_inputs.md`.
 
 ## Phase Coverage
 
@@ -45,7 +45,7 @@ Local release-candidate scope is covered and verifier-gated where it can be prov
 ## External Manual Gates
 
 - Fill the Play Console support/contact fields used by the privacy-policy inquiry mechanism.
-- Host the final privacy policy on a public HTTPS URL.
+- Enter the verified hosted privacy-policy URL in Play Console and keep the hosted URL passing `privacy_policy_url_ok`.
 - Back up `private/signing/qgrid-upload.p12` and `keystore.properties` in an owner-controlled secure location.
 - Complete Play Console app-content, data-safety, content-rating, target-audience and store-listing forms.
 - Run required internal/closed testing tracks for the publisher account type.
