@@ -666,7 +666,13 @@ def validate_signing_backup_value(label: str, value: str, file_label: str) -> No
             f"{file_label} value for {label} must explicitly say recovery was tested without exposing secrets: {value}",
         )
     elif label == "Secure owner-controlled storage type chosen":
-        validate_non_empty(label, value, file_label)
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("owner-controlled", "secure"))
+        lowered = value.lower()
+        require(
+            "password manager" in lowered or "encrypted" in lowered or "offline backup" in lowered,
+            f"{file_label} value for {label} must name a secure owner-controlled storage type such as password manager or encrypted offline backup: {value}",
+        )
     elif label == "Responsible owner":
         validate_non_empty(label, value, file_label)
     elif label == "Backup date/time":

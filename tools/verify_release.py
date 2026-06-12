@@ -1221,6 +1221,7 @@ def check_release_report_handoff() -> None:
             "Latest signing-backup evidence hardening",
             "Latest signing-backup negative-regression gate",
             "Latest signing-backup completion evidence hardening",
+            "Latest signing-backup storage evidence hardening",
             "Latest active-keystore backup evidence hardening",
             "Latest privacy URL query-parameter hardening",
             "Latest connected start-state isolation hardening",
@@ -1404,6 +1405,7 @@ def check_completion_audit_handoff() -> None:
             "Latest signing-backup evidence hardening",
             "Latest signing-backup negative-regression gate",
             "Latest signing-backup completion evidence hardening",
+            "Latest signing-backup storage evidence hardening",
             "Latest active-keystore backup evidence hardening",
             "Latest privacy URL query-parameter hardening",
             "Latest post-upload signing-evidence alignment",
@@ -2917,6 +2919,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "`./tools/check_signing_backup_inputs.py` must return `signing_backup_input_ok`.",
             "Active-keystore backup evidence must explicitly mention `private/signing/qgrid-upload.p12` and `before AAB upload`.",
             "Backup completion evidence must explicitly mention `private/signing/qgrid-upload.p12`, `keystore.properties` and `before Play upload`.",
+            "Storage-type evidence must explicitly mention `owner-controlled`, `secure` and a concrete storage type such as password manager or encrypted offline backup.",
             "Active keystore is `private/signing/qgrid-upload.p12`.",
             "Active key alias is `qgrid_upload`.",
             "two owner-controlled secure copies exist and recovery was tested without exposing secrets",
@@ -4502,6 +4505,8 @@ def check_publication_readiness_helper() -> None:
             "must explicitly say evidence was recorded without secrets",
             "must explicitly say the AAB was uploaded to internal testing",
             "must explicitly say signing inputs were backed up before Play upload",
+            "must name a secure owner-controlled storage type such as password manager or encrypted offline backup",
+            "validate_contains_all(label, value, file_label, (\"owner-controlled\", \"secure\"))",
             "validate_contains_all(label, value, file_label, (\"private/signing/qgrid-upload.p12\", \"keystore.properties\", \"before Play upload\"))",
             "must explicitly say the Play Console pre-launch report passed or has no blocking issues",
             "must explicitly say the pre-launch report has no reproducible crashes",
@@ -4828,7 +4833,7 @@ def check_publication_readiness_helper() -> None:
         read("play_store/signing_backup_evidence_ru.md"),
         {
             "Backup completed before Play upload": "private/signing/qgrid-upload.p12 and keystore.properties backed up before Play upload",
-            "Secure owner-controlled storage type chosen": "owner password manager plus encrypted offline backup",
+            "Secure owner-controlled storage type chosen": "owner-controlled secure password manager plus encrypted offline backup",
             "At least two owner-controlled secure copies exist": "yes, two owner-controlled secure copies exist",
             "Recovery tested without exposing secrets": "yes, recovery tested without exposing secrets",
             "Responsible owner": "release owner recorded in owner tracker",
@@ -4946,6 +4951,8 @@ def check_publication_readiness_helper() -> None:
             "private/signing/qgrid-upload.p12 and keystore.properties before Play upload",
             "backed up before Play upload",
         ),
+        ("Secure owner-controlled storage type chosen", "password manager", "missing"),
+        ("Secure owner-controlled storage type chosen", "owner-controlled secure storage", "storage type"),
         ("At least two owner-controlled secure copies exist", "yes", "at least two secure copies"),
         ("At least two owner-controlled secure copies exist", "yes, one owner-controlled secure copy exists", "at least two secure copies"),
         ("Recovery tested without exposing secrets", "yes", "without exposing secrets"),
@@ -4967,7 +4974,12 @@ def check_publication_readiness_helper() -> None:
             try:
                 module.validate_signing_backup_value(label, value, "verifier weak signing evidence")
             except module.PublicationReadinessError as exc:
-                require("must not be pending, unknown or negative evidence" in str(exc), f"publication helper rejected weak non-empty {label} with unexpected message: {exc}")
+                message = str(exc)
+                require(
+                    "must not be pending, unknown or negative evidence" in message
+                    or "must not include negative status markers" in message,
+                    f"publication helper rejected weak non-empty {label} with unexpected message: {exc}",
+                )
             else:
                 raise CheckFailure(f"publication helper must reject weak non-empty signing evidence for {label}: {value}")
 
@@ -5448,6 +5460,7 @@ def check_signing_backup_evidence_handoff() -> None:
             "At least two owner-controlled secure copies exist: not yet available locally.",
             "Recovery tested without exposing secrets: not yet available locally.",
             "For backup completion, explicitly mention `private/signing/qgrid-upload.p12`, `keystore.properties` and `before Play upload`.",
+            "For storage type, use wording like `owner-controlled secure password manager plus encrypted offline backup`.",
             "For secure copies, use wording like `yes, two owner-controlled secure copies exist`.",
             "For recovery, use wording like `yes, recovery tested without exposing secrets`.",
             "Fewer than two owner-controlled secure backup copies exist.",

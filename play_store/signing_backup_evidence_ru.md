@@ -40,6 +40,7 @@ Expected owner-side backup result:
 When replacing the pending backup lines after a real backup, keep the values safe and specific:
 
 - For backup completion, explicitly mention `private/signing/qgrid-upload.p12`, `keystore.properties` and `before Play upload`.
+- For storage type, use wording like `owner-controlled secure password manager plus encrypted offline backup`.
 - For secure copies, use wording like `yes, two owner-controlled secure copies exist`.
 - For recovery, use wording like `yes, recovery tested without exposing secrets`.
 
