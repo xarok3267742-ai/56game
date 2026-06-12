@@ -23,7 +23,7 @@
 - Play Console support/contact field populated: not yet available locally.
 - Support/contact mechanism matches `play_store/privacy_policy_ru.html`: not yet available locally.
 
-After entering the privacy policy URL, keep support/contact evidence explicit and do not use a bare `yes`: the support/contact line must mention the Play Console support/contact field and that it is populated; the mechanism line must mention the Google Play listing support contact and the privacy policy.
+After entering the privacy policy URL, keep support/contact evidence explicit and do not use a bare `yes`: the support/contact line must mention the Play Console support/contact field and that it is populated; the mechanism line must mention the Google Play listing support contact, the privacy policy and the privacy inquiry mechanism.
 
 ## Signing Backup
 

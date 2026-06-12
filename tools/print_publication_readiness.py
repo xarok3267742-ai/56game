@@ -482,7 +482,7 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         )
     elif label == "Support/contact mechanism matches `play_store/privacy_policy_ru.html`":
         validate_no_negative_markers(label, value, file_label)
-        validate_contains_all(label, value, file_label, ("Google Play listing", "support contact", "privacy policy"))
+        validate_contains_all(label, value, file_label, ("Google Play listing", "support contact", "privacy policy", "inquiry mechanism"))
     elif label == "Play-generated APK package is `com.qgrid.mobile`":
         validate_exact(label, value, file_label, "com.qgrid.mobile")
     elif label == "Play-generated APK signature verifies and certificate SHA-256 recorded":
