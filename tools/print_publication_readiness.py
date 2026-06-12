@@ -444,7 +444,6 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         "Privacy policy URL is HTTPS",
         "Privacy policy URL is accessible without login",
         "Privacy policy URL is not PDF",
-        "Active upload keystore backed up before AAB upload",
         "Internal testing upload completed",
     }:
         validate_yes(label, value, file_label)
@@ -463,6 +462,9 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
             "without secrets" in lowered or "without exposing secrets" in lowered,
             f"{file_label} value for {label} must explicitly say evidence was recorded without secrets: {value}",
         )
+    elif label == "Active upload keystore backed up before AAB upload":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("private/signing/qgrid-upload.p12", "before AAB upload"))
     elif label == "Play Console support/contact field populated":
         validate_no_negative_markers(label, value, file_label)
         validate_contains_all(label, value, file_label, ("Play Console", "support", "contact"))

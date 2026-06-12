@@ -33,6 +33,7 @@ After entering the privacy policy URL, keep support/contact evidence explicit an
 - Owner-controlled backup evidence recorded without secrets: not yet available locally.
 
 After the real backup is complete, keep the backup evidence line explicit and safe, for example: `yes, recorded without secrets`.
+The active-keystore backup line must explicitly mention `private/signing/qgrid-upload.p12` and `before AAB upload`; do not record passwords, key contents or recovery codes.
 
 ## Play-Generated Artifact Review
 

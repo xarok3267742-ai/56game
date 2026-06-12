@@ -91,6 +91,11 @@ Command:
 ./tools/check_signing_backup_inputs.py
 ```
 
+Required posture:
+
+- `./tools/check_signing_backup_inputs.py` must return `signing_backup_input_ok`.
+- Active-keystore backup evidence must explicitly mention `private/signing/qgrid-upload.p12` and `before AAB upload`.
+
 Fields to resolve:
 
 - Active upload keystore backed up before AAB upload.
