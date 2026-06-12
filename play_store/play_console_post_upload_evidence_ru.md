@@ -73,6 +73,7 @@ After completing Policy Forms, keep the evidence explicit and do not use a bare 
 - Internal testing upload completed: not yet available locally.
 - Closed testing required for this account: not yet available locally.
 - Closed testing status if required: not yet available locally.
+- Production access status if required: not yet available locally.
 - Pre-launch report result: not yet available locally.
 - Reproducible crashes in pre-launch report: not yet available locally.
 - Play policy warnings: not yet available locally.
@@ -80,6 +81,7 @@ After completing Policy Forms, keep the evidence explicit and do not use a bare 
 
 After internal testing upload, the internal-testing line must explicitly mention `internal testing` and that the AAB was uploaded or upload completed; do not use a bare `yes`.
 If closed testing is required for the publisher account, the closed-testing status line must explicitly mention completed required closed testing, at least 12 opted-in testers and at least 14 continuous days. Do not record tester names, emails, URLs or invite links.
+If closed testing is required for the publisher account, the production-access status line must explicitly mention `Play Console production access` and that it was `granted` or `approved`. If closed testing is not required for this account, record `not required for this account`.
 After Play Console pre-launch review, the pre-launch result line must explicitly mention `Play Console pre-launch report` and `passed` or `no blocking issues`; the crash line must mention `pre-launch report` and `no reproducible crashes`; the policy-warning line must mention `Play policy warnings` and `no warnings`, `no unresolved warnings` or `resolved`.
 After store-listing preview review, the preview-crop line must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and `no damaging crops`; do not use a bare `yes`.
 

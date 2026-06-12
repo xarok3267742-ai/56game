@@ -127,6 +127,7 @@ POST_UPLOAD_LABELS = (
     "Internal testing upload completed",
     "Closed testing required for this account",
     "Closed testing status if required",
+    "Production access status if required",
     "Pre-launch report result",
     "Reproducible crashes in pre-launch report",
     "Play policy warnings",
@@ -248,6 +249,7 @@ OWNER_ACTION_GROUPS = (
             "Internal testing upload completed",
             "Closed testing required for this account",
             "Closed testing status if required",
+            "Production access status if required",
             "Pre-launch report result",
             "Reproducible crashes in pre-launch report",
             "Play policy warnings",
@@ -594,6 +596,19 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
             re.search(r"https?://|www\.", value, re.I) is None,
             f"{file_label} value for {label} must not record tester URLs or private tester links: {value}",
         )
+    elif label == "Production access status if required":
+        validate_no_negative_markers(label, value, file_label)
+        normalized = lower_value(value)
+        if normalized == "not required for this account":
+            return
+        require(
+            "play console" in normalized and "production access" in normalized,
+            f"{file_label} value for {label} must explicitly mention Play Console production access: {value}",
+        )
+        require(
+            "granted" in normalized or "approved" in normalized,
+            f"{file_label} value for {label} must be not required or explicitly say Play Console production access was granted or approved: {value}",
+        )
     elif label == "Pre-launch report result":
         validate_no_negative_markers(label, value, file_label)
         validate_contains_all(label, value, file_label, ("Play Console pre-launch report",))
@@ -633,21 +648,37 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
 def validate_closed_testing_consistency(post_upload: str, file_label: str) -> None:
     required_value = find_bullet_value(post_upload, "Closed testing required for this account", file_label)
     status_value = find_bullet_value(post_upload, "Closed testing status if required", file_label)
+    production_access_value = find_bullet_value(post_upload, "Production access status if required", file_label)
     if is_pending(required_value) or is_pending(status_value):
         return
 
     required = lower_value(required_value)
     status = lower_value(status_value)
+    production_access = lower_value(production_access_value)
     if required == "yes":
         require(
             "completed required closed testing" in status,
             f"{file_label} closed testing is required but status is not completed: {status_value}",
         )
+        if not is_pending(production_access_value):
+            require(
+                production_access != "not required for this account",
+                f"{file_label} closed testing is required but production access is marked not required: {production_access_value}",
+            )
+            require(
+                "production access" in production_access and ("granted" in production_access or "approved" in production_access),
+                f"{file_label} closed testing is required but production access is not granted or approved: {production_access_value}",
+            )
     elif required == "no":
         require(
             status == "not required for this account",
             f"{file_label} closed testing is not required but status says completed: {status_value}",
         )
+        if not is_pending(production_access_value):
+            require(
+                production_access == "not required for this account",
+                f"{file_label} closed testing is not required but production access status says required: {production_access_value}",
+            )
 
 
 def validate_signing_backup_value(label: str, value: str, file_label: str) -> None:

@@ -1204,6 +1204,7 @@ def check_release_report_handoff() -> None:
             "Latest closed-testing tester-duration evidence hardening",
             "Latest Play pre-launch/policy evidence hardening",
             "Latest closed-testing evidence consistency hardening",
+            "Latest production-access owner evidence hardening",
             "Latest owner evidence secret-pattern hardening",
             "Latest post-upload evidence handoff hardening",
             "Latest owner backup-evidence specificity hardening",
@@ -1318,8 +1319,8 @@ def check_release_report_handoff() -> None:
             "Privacy policy URL helper: `tools/check_privacy_policy_url.py`.",
             "Signing backup input helper: `tools/check_signing_backup_inputs.py`.",
             "Latest privacy-policy placeholder-removal hardening",
-            "Need manual Play Console forms, owner inputs, entering the verified privacy policy URL in Play Console and populated Play Console support/contact fields.",
-            "Публикация в Google Play still requires entering the verified privacy URL in Play Console, populated Play Console support/contact fields, keystore backup and Play Console forms.",
+            "Need manual Play Console forms, owner inputs, entering the verified privacy policy URL in Play Console, populated Play Console support/contact fields, testing-track evidence and production-access approval if required.",
+            "Публикация в Google Play still requires entering the verified privacy URL in Play Console, populated Play Console support/contact fields, keystore backup, Play Console forms, testing-track evidence and production-access approval if required.",
         ],
     )
 
@@ -1394,6 +1395,7 @@ def check_completion_audit_handoff() -> None:
             "Latest internal-testing upload evidence hardening",
             "Latest closed-testing tester-duration evidence hardening",
             "Latest Play pre-launch/policy evidence hardening",
+            "Latest production-access owner evidence hardening",
             "Latest owner evidence secret-pattern hardening",
             "Latest post-upload evidence handoff hardening",
             "Latest owner backup-evidence specificity hardening",
@@ -1489,13 +1491,13 @@ def check_completion_audit_handoff() -> None:
             "Latest closed-testing evidence consistency hardening",
             "Privacy policy text and HTML are hosted at `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` and passed `privacy_policy_url_ok`, but final publication still needs that URL entered in Play Console plus populated Play Console support/contact fields.",
             "Play Console forms are not completed because they require account access.",
-            "Closed testing cannot be completed locally; account type and testers are external.",
+            "Closed testing and any required Play Console production-access approval cannot be completed locally; account type, testers and Play review are external.",
             "Owner release inputs in `play_store/owner_release_inputs.md` require real owner decisions before upload.",
             "Signing backup local inputs are preflight-checked and safely recorded",
             "## Current Verdict",
             "strong signed code release candidate",
             "not yet a fully publication-complete Google Play product",
-            "Play Console privacy URL entry, Play Console support/contact fields, signing backup and Play Console/account actions remain outside the local codebase",
+            "Play Console privacy URL entry, Play Console support/contact fields, signing backup, testing-track evidence, production-access approval if required and Play Console/account actions remain outside the local codebase",
         ],
     )
 
@@ -2963,6 +2965,8 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "Internal-testing evidence must explicitly mention `internal testing` and that the AAB was uploaded or upload completed.",
             "Closed testing required for this account.",
             "at least 12 opted-in testers and at least 14 continuous days without tester personal data, invite links or private tester URLs",
+            "Production access status if required.",
+            "Play Console production access is granted or approved before production rollout",
             "Pre-launch/policy evidence must explicitly mention `Play Console pre-launch report`, `no reproducible crashes` and `Play policy warnings`.",
             "Store listing preview checked for damaging image crops.",
             "Store listing preview evidence must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and no damaging crops.",
@@ -4530,6 +4534,12 @@ def check_publication_readiness_helper() -> None:
             "must explicitly mention at least 14 continuous days",
             "must not record tester email addresses",
             "must not record tester URLs or private tester links",
+            "Production access status if required",
+            "must explicitly mention Play Console production access",
+            "must be not required or explicitly say Play Console production access was granted or approved",
+            "closed testing is required but production access is marked not required",
+            "closed testing is required but production access is not granted or approved",
+            "closed testing is not required but production access status says required",
             "validate_contains_all(label, value, file_label, (\"Play Console\", \"support\", \"contact\", \"real support contact\"))",
             "validate_contains_all(label, value, file_label, (\"Google Play listing\", \"support contact\", \"privacy policy\", \"inquiry mechanism\"))",
             "validate_contains_all(label, value, file_label, (\"release owner\", \"owner tracker\"))",
@@ -4620,7 +4630,7 @@ def check_publication_readiness_helper() -> None:
         "evidence: play_store/play_console_post_upload_evidence_ru.md, play_store/signing_backup_evidence_ru.md",
         "command: ./tools/check_signing_backup_inputs.py",
         "Play-generated artifact review: 9 unresolved field(s).",
-        "Testing track and final review: 7 unresolved field(s).",
+        "Testing track and final review: 8 unresolved field(s).",
         "publication_readiness_local_ready_external_pending",
     ]:
         require(marker in output, f"publication readiness output missing marker: {marker}")
@@ -4667,6 +4677,18 @@ def check_publication_readiness_helper() -> None:
             "Closed testing status if required",
             "completed required closed testing with 12 opted-in testers for 14 days continuously: https://example.com/testers",
             "tester URLs",
+        ),
+        ("Production access status if required", "yes", "Play Console production access"),
+        ("Production access status if required", "production access requested", "Play Console production access"),
+        (
+            "Production access status if required",
+            "Play Console production access pending",
+            "negative status markers",
+        ),
+        (
+            "Production access status if required",
+            "Play Console production access requested",
+            "granted or approved",
         ),
         ("Internal testing upload completed", "yes", "missing"),
         ("Internal testing upload completed", "internal testing selected", "uploaded to internal testing"),
@@ -4811,34 +4833,65 @@ def check_publication_readiness_helper() -> None:
         "verifier good post-upload evidence",
         expected_sha,
     )
+    module.validate_post_upload_value(
+        "Production access status if required",
+        "Play Console production access granted",
+        "verifier good post-upload evidence",
+        expected_sha,
+    )
     module.validate_signing_backup_value("Backup date/time", "6 June 2026, 12:30", "verifier good signing evidence")
     post_upload_template = read("play_store/play_console_post_upload_evidence_ru.md")
 
-    def closed_testing_post_upload(required: str, status: str) -> str:
+    def closed_testing_post_upload(required: str, status: str, production_access: str = "not yet available locally") -> str:
         return post_upload_template.replace(
             "- Closed testing required for this account: not yet available locally.",
             f"- Closed testing required for this account: {required}.",
         ).replace(
             "- Closed testing status if required: not yet available locally.",
             f"- Closed testing status if required: {status}.",
+        ).replace(
+            "- Production access status if required: not yet available locally.",
+            f"- Production access status if required: {production_access}.",
         )
 
     module.validate_closed_testing_consistency(post_upload_template, "verifier pending post-upload evidence")
     module.validate_closed_testing_consistency(
-        closed_testing_post_upload("yes", "completed required closed testing with 12 opted-in testers for 14 days continuously"),
+        closed_testing_post_upload(
+            "yes",
+            "completed required closed testing with 12 opted-in testers for 14 days continuously",
+            "Play Console production access granted",
+        ),
         "verifier required closed-testing evidence",
     )
     module.validate_closed_testing_consistency(
         closed_testing_post_upload("no", "not required for this account"),
         "verifier no-closed-testing evidence",
     )
-    for required, status, expected_message in [
-        ("yes", "not required for this account", "closed testing is required but status is not completed"),
-        ("no", "completed required closed testing", "closed testing is not required but status says completed"),
+    for required, status, production_access, expected_message in [
+        ("yes", "not required for this account", "not yet available locally", "closed testing is required but status is not completed"),
+        ("no", "completed required closed testing", "not yet available locally", "closed testing is not required but status says completed"),
+        (
+            "yes",
+            "completed required closed testing with 12 opted-in testers for 14 days continuously",
+            "not required for this account",
+            "closed testing is required but production access is marked not required",
+        ),
+        (
+            "yes",
+            "completed required closed testing with 12 opted-in testers for 14 days continuously",
+            "Play Console production access requested",
+            "production access is not granted or approved",
+        ),
+        (
+            "no",
+            "not required for this account",
+            "Play Console production access granted",
+            "closed testing is not required but production access status says required",
+        ),
     ]:
         try:
             module.validate_closed_testing_consistency(
-                closed_testing_post_upload(required, status),
+                closed_testing_post_upload(required, status, production_access),
                 "verifier inconsistent closed-testing evidence",
             )
         except module.PublicationReadinessError as exc:
@@ -4894,6 +4947,7 @@ def check_publication_readiness_helper() -> None:
             "Internal testing upload completed": "AAB uploaded to internal testing",
             "Closed testing required for this account": "no",
             "Closed testing status if required": "not required for this account",
+            "Production access status if required": "not required for this account",
             "Pre-launch report result": "Play Console pre-launch report passed with no blocking issues",
             "Reproducible crashes in pre-launch report": "Play Console pre-launch report shows no reproducible crashes",
             "Play policy warnings": "Play policy warnings reviewed: no warnings",
@@ -5795,11 +5849,13 @@ def check_post_upload_evidence_handoff() -> None:
             "Internal testing upload completed: not yet available locally.",
             "Closed testing required for this account: not yet available locally.",
             "Closed testing status if required: not yet available locally.",
+            "Production access status if required: not yet available locally.",
             "Pre-launch report result: not yet available locally.",
             "Reproducible crashes in pre-launch report: not yet available locally.",
             "Play policy warnings: not yet available locally.",
             "Store listing preview checked for damaging image crops: not yet available locally.",
             "After internal testing upload, the internal-testing line must explicitly mention `internal testing` and that the AAB was uploaded or upload completed",
+            "production-access status line must explicitly mention `Play Console production access` and that it was `granted` or `approved`",
             "After Play Console pre-launch review, the pre-launch result line must explicitly mention `Play Console pre-launch report` and `passed` or `no blocking issues`",
             "After store-listing preview review, the preview-crop line must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and `no damaging crops`",
             "Stop production rollout and return to local rebuild/recheck",
