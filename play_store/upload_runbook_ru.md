@@ -40,6 +40,7 @@ Equivalent expanded sequence:
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
 ./tools/print_post_upload_evidence_packet.py
+./tools/print_privacy_contact_evidence_packet.py
 ./tools/print_play_console_forms_evidence_packet.py
 ./tools/create_store_asset_review_sheet.py --dry-run
 ./tools/prepare_play_upload_archive.py --dry-run
@@ -67,6 +68,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - `./tools/verify_release.py` возвращает `release_verification_ok`.
 - `./tools/print_upload_packet.py` возвращает `upload_packet_ok`.
 - `./tools/print_post_upload_evidence_packet.py` возвращает `post_upload_evidence_packet_ok`; после реальной загрузки в Play Console запустите `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and copy the safe upload artifact/internal-testing evidence lines into `play_store/play_console_post_upload_evidence_ru.md`.
+- `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` возвращает `privacy_contact_evidence_packet_ok`; после реального заполнения Play Console support/contact field copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - `./tools/print_play_console_forms_evidence_packet.py` возвращает `play_console_forms_evidence_packet_ok`; после реального заполнения Play Console policy forms copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - `./tools/create_store_asset_review_sheet.py --dry-run` возвращает `store_asset_review_sheet_dry_run_ok`; visually review `play_store/store_asset_review_sheet.png` before upload and do not upload that sheet to Play Console.
 - `./tools/prepare_play_upload_archive.py --dry-run` возвращает `play_upload_archive_dry_run_ok`; `./tools/prepare_play_upload_archive.py --verify-existing` возвращает `play_upload_archive_existing_ok`; optional `./tools/prepare_play_upload_archive.py --write` создаёт generated owner handoff ZIP under `build/play_upload`, который нужно распаковать, а не загружать целиком в Play Console.
@@ -230,6 +232,7 @@ After Play Console upload, record these owner-side facts in the release notes or
 - Uploaded AAB version code and version name.
 - Play Console track used first.
 - Safe upload artifact/internal-testing lines from `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`.
+- Safe privacy/contact lines from `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`.
 - Safe Play Console policy-form lines from `./tools/print_play_console_forms_evidence_packet.py`.
 - Public privacy policy URL.
 - Privacy policy URL check result from `./tools/check_privacy_policy_url.py --url <https-url>`.

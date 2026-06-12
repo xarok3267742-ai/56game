@@ -62,6 +62,7 @@ Commands:
 ```bash
 ./tools/check_privacy_policy_url.py --local
 ./tools/check_privacy_policy_url.py --url <https-url>
+./tools/print_privacy_contact_evidence_packet.py --contact-type support-email
 ```
 
 Fields to resolve:

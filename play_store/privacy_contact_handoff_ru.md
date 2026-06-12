@@ -22,11 +22,14 @@
 3. Use either a support email or support website URL; do not record the actual value in this repository.
 4. Enter the hosted privacy policy URL in the Play Console privacy policy field.
 5. Run `./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` again and require `privacy_policy_url_ok`.
-6. Record only safe evidence in `play_store/play_console_post_upload_evidence_ru.md`.
+6. Run `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` or `./tools/print_privacy_contact_evidence_packet.py --contact-type support-website` and require `privacy_contact_evidence_packet_ok`.
+7. Record only safe evidence in `play_store/play_console_post_upload_evidence_ru.md`.
 
 ## Safe Evidence Phrases Accepted By Local Gate
 
 Use one of these support/contact lines after the real Play Console field is populated:
+
+The helper `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` prints the safe lines for the email path, and `--contact-type support-website` prints the safe line for the support website path. Do not edit those lines to include the actual contact value.
 
 ```text
 Play Console support/contact field populated: Play Console support/contact field populated with a real support contact email for privacy inquiries.

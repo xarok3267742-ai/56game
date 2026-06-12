@@ -14,7 +14,7 @@ The script intentionally checks facts that are easy to regress:
 - lightweight artifact and asset size budgets;
 - Play store asset dimensions/alpha;
 - upload manifest paths;
-- upload-packet, post-upload evidence and Play Console forms evidence helper consistency;
+- upload-packet, post-upload evidence, privacy/contact evidence and Play Console forms evidence helper consistency;
 - store asset review sheet helper consistency;
 - Play upload archive helper consistency;
 - Play Console packet helper consistency;
@@ -583,6 +583,7 @@ def check_agents_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/create_store_asset_review_sheet.py --write",
@@ -639,6 +640,9 @@ def check_agents_handoff() -> None:
             "requires the exact ordered upload path set and prints the Google Play upload packet plus the Do Not Upload list.",
             "`./tools/print_post_upload_evidence_packet.py` is the read-only owner helper for upload-day evidence.",
             "prints exact safe lines for the upload artifact identity and internal-testing upload fields",
+            "`./tools/print_privacy_contact_evidence_packet.py` is the read-only owner helper for privacy/contact evidence.",
+            "prints safe privacy URL and support/contact evidence lines for `play_store/play_console_post_upload_evidence_ru.md`",
+            "It never prints the actual support email address or support website URL.",
             "`./tools/print_play_console_forms_evidence_packet.py` is the read-only owner helper for Play Console policy-form evidence.",
             "prints exact safe lines for App access, ads, Data Safety, content rating, target audience and AI disclosure fields",
             "`./tools/create_store_asset_review_sheet.py` is the local visual asset review helper.",
@@ -673,7 +677,7 @@ def check_agents_handoff() -> None:
             "No placeholder user-facing content remains.",
             "Store assets are present and verifier-approved.",
             "`./tools/run_final_local_gate.py` passes and prints `final_local_gate_ok`",
-            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
+            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
             "preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device",
             "Google Play checklist, release report and upload handoff are current.",
             "The full publication goal is not complete until manual external gates are done",
@@ -685,7 +689,7 @@ def check_agents_handoff() -> None:
     final_gate = agents.split("Final local gate before handoff:", 1)[1].split("Run `connectedDebugAndroidTest`", 1)[0]
     require("./tools/run_final_local_gate.py" in final_gate, "AGENTS.md final local gate must use run_final_local_gate.py")
     require(
-        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
+        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
         in final_gate,
         "AGENTS.md final local gate must document the runner command expansion",
     )
@@ -694,6 +698,7 @@ def check_agents_handoff() -> None:
         "./tools/verify_release.py",
         "./tools/print_upload_packet.py",
         "./tools/print_post_upload_evidence_packet.py",
+        "./tools/print_privacy_contact_evidence_packet.py",
         "./tools/print_play_console_forms_evidence_packet.py",
         "./tools/create_store_asset_review_sheet.py --dry-run",
         "./tools/prepare_play_upload_archive.py --dry-run",
@@ -729,6 +734,7 @@ def check_readme_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/create_store_asset_review_sheet.py --write",
@@ -780,6 +786,8 @@ def check_readme_handoff() -> None:
             "`./tools/print_upload_packet.py` prints and verifies the exact ordered upload packet",
             "`./tools/print_post_upload_evidence_packet.py` prints safe upload artifact and internal-testing evidence lines",
             "rerun it with `--upload-date <date/time>` for a concrete upload-date line",
+            "`./tools/print_privacy_contact_evidence_packet.py` prints safe privacy URL and support/contact evidence lines",
+            "do not record the actual support email or support website URL",
             "`./tools/print_play_console_forms_evidence_packet.py` prints safe Play Console policy-form evidence lines",
             "use it only after the App access, ads, Data Safety, content rating, target audience and AI disclosure forms are actually completed",
             "`./tools/create_store_asset_review_sheet.py --write` regenerates the internal visual review sheet",
@@ -890,6 +898,7 @@ def check_google_play_checklist_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/prepare_play_upload_archive.py --dry-run",
@@ -921,6 +930,8 @@ def check_google_play_checklist_handoff() -> None:
             "Hosted public HTTPS URL: `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html`.",
             "Manual gate: enter the hosted URL in Play Console and keep the Play Console support/contact fields populated with a real support contact.",
             "Privacy/contact handoff source: `play_store/privacy_contact_handoff_ru.md`; use it for safe support/contact evidence wording without recording the actual support email or URL.",
+            "Run `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` and require `privacy_contact_evidence_packet_ok`",
+            "copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "Data collection: none.",
             "Data sharing: none.",
             "No `INTERNET` or `ACCESS_NETWORK_STATE` permission.",
@@ -948,6 +959,7 @@ def check_google_play_checklist_handoff() -> None:
             "Run `./tools/print_upload_packet.py` and require `upload_packet_ok` before uploading assets.",
             "Run `./tools/print_post_upload_evidence_packet.py` and require `post_upload_evidence_packet_ok`",
             "copy the safe upload artifact/internal-testing lines into `play_store/play_console_post_upload_evidence_ru.md`",
+            "Run `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` and require `privacy_contact_evidence_packet_ok`",
             "Run `./tools/print_play_console_forms_evidence_packet.py` and require `play_console_forms_evidence_packet_ok`",
             "copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "Run `./tools/print_signing_backup_evidence_packet.py` and require `signing_backup_evidence_packet_ok`",
@@ -1201,6 +1213,7 @@ def check_release_plan_handoff() -> None:
             "Equivalent expanded sequence:",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/print_play_console_packet.py",
@@ -1208,6 +1221,9 @@ def check_release_plan_handoff() -> None:
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_signing_backup_inputs.py",
             "./tools/print_signing_backup_evidence_packet.py",
+            "./tools/print_privacy_contact_evidence_packet.py --contact-type support-email",
+            "privacy_contact_evidence_packet_ok",
+            "copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "./gradlew clean",
             "./gradlew test",
             "./gradlew assembleDebug",
@@ -1287,6 +1303,8 @@ def check_release_report_handoff() -> None:
             "Latest privacy/contact handoff hardening",
             "Latest post-upload evidence packet hardening",
             "Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`.",
+            "Latest privacy/contact evidence packet hardening",
+            "Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`.",
             "Latest Play Console forms evidence packet hardening",
             "Latest Play-generated version owner-evidence hardening",
             "Latest privacy helper negative-regression gate",
@@ -1488,6 +1506,7 @@ def check_completion_audit_handoff() -> None:
             "Latest Play support/contact value-redaction evidence hardening",
             "Latest privacy/contact handoff hardening",
             "Latest post-upload evidence packet hardening",
+            "Latest privacy/contact evidence packet hardening",
             "Latest Play Console forms evidence packet hardening",
             "Latest Play-generated version owner-evidence hardening",
             "Latest privacy helper negative-regression gate",
@@ -2648,6 +2667,10 @@ def check_asset_handoff() -> None:
         "upload manifest must include Play Console packet helper handoff",
     )
     require(
+        "Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`" in upload_manifest,
+        "upload manifest must include privacy/contact evidence packet helper handoff",
+    )
+    require(
         "Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`" in upload_manifest,
         "upload manifest must include post-upload evidence packet helper handoff",
     )
@@ -3031,6 +3054,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "Privacy/contact handoff: `play_store/privacy_contact_handoff_ru.md`.",
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_privacy_policy_url.py --url <https-url>",
+            "./tools/print_privacy_contact_evidence_packet.py --contact-type support-email",
             "URL must be public HTTPS, without credentials, query parameters or fragments.",
             "Hosted text must match `play_store/privacy_policy_ru.html`.",
             "Evidence must not use bare `yes`; it must explicitly say the Play Console support/contact field is populated with a real support contact for privacy inquiries, name the safe contact type as support email or support website URL without recording the actual email address or URL, and state that the privacy policy inquiry mechanism uses the Google Play listing support contact.",
@@ -3172,6 +3196,8 @@ def check_upload_runbook_handoff() -> None:
             "`./tools/print_upload_packet.py` возвращает `upload_packet_ok`.",
             "`./tools/print_post_upload_evidence_packet.py` возвращает `post_upload_evidence_packet_ok`",
             "copy the safe upload artifact/internal-testing evidence lines into `play_store/play_console_post_upload_evidence_ru.md`",
+            "`./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` возвращает `privacy_contact_evidence_packet_ok`",
+            "copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/print_play_console_forms_evidence_packet.py` возвращает `play_console_forms_evidence_packet_ok`",
             "copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/create_store_asset_review_sheet.py --dry-run` возвращает `store_asset_review_sheet_dry_run_ok`",
@@ -3266,6 +3292,7 @@ def check_upload_runbook_handoff() -> None:
             "After any local rebuild, rerun the full preflight and compare `play_store/upload_checksums.md` again before uploading.",
             "Evidence To Record After Upload",
             "Safe upload artifact/internal-testing lines from `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`.",
+            "Safe privacy/contact lines from `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`.",
             "Safe Play Console policy-form lines from `./tools/print_play_console_forms_evidence_packet.py`.",
             "Public privacy policy URL.",
             "Signing backup input check result from `./tools/check_signing_backup_inputs.py`.",
@@ -3296,6 +3323,7 @@ def check_final_local_gate_runner() -> None:
             "(\"./tools/verify_release.py\",)",
             "(\"./tools/print_upload_packet.py\",)",
             "(\"./tools/print_post_upload_evidence_packet.py\",)",
+            "(\"./tools/print_privacy_contact_evidence_packet.py\",)",
             "(\"./tools/print_play_console_forms_evidence_packet.py\",)",
             "(\"./tools/create_store_asset_review_sheet.py\", \"--dry-run\")",
             "(\"./tools/prepare_play_upload_archive.py\", \"--dry-run\")",
@@ -3358,6 +3386,7 @@ def check_final_local_gate_runner() -> None:
         "./tools/verify_release.py",
         "./tools/print_upload_packet.py",
         "./tools/print_post_upload_evidence_packet.py",
+        "./tools/print_privacy_contact_evidence_packet.py",
         "./tools/print_play_console_forms_evidence_packet.py",
         "./tools/create_store_asset_review_sheet.py --dry-run",
         "./tools/prepare_play_upload_archive.py --dry-run",
@@ -3750,6 +3779,99 @@ def check_post_upload_evidence_packet_helper() -> None:
             require(expected_message in str(exc), f"post-upload helper rejected bad upload date with unexpected message: {exc}")
         else:
             raise CheckFailure(f"post-upload helper must reject bad upload date: {bad_date}")
+
+
+def check_privacy_contact_evidence_packet_helper() -> None:
+    helper = require_file("tools/print_privacy_contact_evidence_packet.py")
+    require(os.access(helper, os.X_OK), "tools/print_privacy_contact_evidence_packet.py must be executable")
+    require_text_markers(
+        "tools/print_privacy_contact_evidence_packet.py",
+        [
+            "Print safe privacy/contact evidence lines for the owner.",
+            "This helper is intentionally read-only.",
+            "CONTACT_TYPE_LINES",
+            "def validate_no_forbidden_evidence(",
+            "must not contain the actual support email address",
+            "must not contain the actual support website URL or private links",
+            "def validate_contact_type(",
+            "contact type must be one of",
+            "def evidence_lines(",
+            "Play Console support/contact field populated",
+            "Support/contact mechanism matches",
+            "DESTINATION_EVIDENCE = \"play_store/play_console_post_upload_evidence_ru.md\"",
+            "PRIVACY_CONTACT_HANDOFF = \"play_store/privacy_contact_handoff_ru.md\"",
+            "Use these lines only after the Play Console support/contact field is actually populated",
+            "privacy_contact_evidence_packet_ok",
+        ],
+    )
+
+    output = subprocess.check_output(
+        [str(helper), "--contact-type", "support-email"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Privacy/contact evidence packet",
+        "Destination evidence file: play_store/play_console_post_upload_evidence_ru.md",
+        "Source handoff: play_store/privacy_contact_handoff_ru.md",
+        "Use these lines only after the Play Console support/contact field is actually populated",
+        "Do not record the actual support email address, support website URL, account tokens or private links.",
+        "Public privacy policy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html.",
+        "Privacy policy URL check command returned `privacy_policy_url_ok`: privacy_policy_url_ok.",
+        "Privacy Contact Lines",
+        "Play Console support/contact field populated: Play Console support/contact field populated with a real support contact email for privacy inquiries.",
+        "Support/contact mechanism matches `play_store/privacy_policy_ru.html`: privacy policy inquiry mechanism uses the Google Play listing support contact.",
+        "privacy_contact_evidence_packet_ok",
+    ]:
+        require(marker in output, f"privacy/contact evidence packet missing marker: {marker}")
+
+    website_output = subprocess.check_output(
+        [str(helper), "--contact-type", "support-website"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    require(
+        "Play Console support/contact field populated: Play Console support/contact field populated with a real support contact support website URL for privacy inquiries."
+        in website_output,
+        "privacy/contact evidence packet support-website run missing support website safe line",
+    )
+    require("privacy_contact_evidence_packet_ok" in website_output, "privacy/contact evidence packet support-website run did not finish ok")
+
+    spec = importlib.util.spec_from_file_location("line56_privacy_contact_evidence_packet", helper)
+    require(spec is not None and spec.loader is not None, "privacy/contact evidence packet helper could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    email_lines = module.evidence_lines("support-email")
+    website_lines = module.evidence_lines("support-website")
+    require(
+        any("real support contact email for privacy inquiries" in line for line in email_lines),
+        "privacy/contact helper generated wrong support-email line",
+    )
+    require(
+        any("real support contact support website URL for privacy inquiries" in line for line in website_lines),
+        "privacy/contact helper generated wrong support-website line",
+    )
+    try:
+        module.validate_contact_type("bad")
+    except module.PrivacyContactEvidencePacketError as exc:
+        require("must be one of" in str(exc), f"privacy/contact helper rejected bad contact type with unexpected message: {exc}")
+    else:
+        raise CheckFailure("privacy/contact helper must reject unknown contact type")
+
+    for bad_evidence, expected_message in [
+        ("support@example.com", "actual support email"),
+        ("https://support.example.com", "actual support website"),
+        ("token=secret", "password, token, secret or API key assignments"),
+    ]:
+        try:
+            module.validate_no_forbidden_evidence(bad_evidence)
+        except module.PrivacyContactEvidencePacketError as exc:
+            require(expected_message in str(exc), f"privacy/contact helper rejected forbidden evidence with unexpected message: {exc}")
+        else:
+            raise CheckFailure(f"privacy/contact helper must reject forbidden evidence: {bad_evidence}")
 
 
 def check_play_console_forms_evidence_packet_helper() -> None:
@@ -4855,6 +4977,7 @@ def check_publication_readiness_helper() -> None:
             "Internal testing upload completed",
             "internal testing first",
             "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
+            "./tools/print_privacy_contact_evidence_packet.py --contact-type support-email",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>",
             "def expected_aab_sha256(",
@@ -4978,6 +5101,7 @@ def check_publication_readiness_helper() -> None:
         "Privacy policy and Play contact: 2 unresolved field(s).",
         "action: Validate the hosted privacy policy URL, enter it in Play Console and populate Play Console support/contact fields.",
         "command: ./tools/check_privacy_policy_url.py --url <https-url>",
+        "command: ./tools/print_privacy_contact_evidence_packet.py --contact-type support-email",
         "Signing backup: 9 unresolved field(s).",
         "evidence: play_store/play_console_post_upload_evidence_ru.md, play_store/signing_backup_evidence_ru.md",
         "command: ./tools/check_signing_backup_inputs.py",
@@ -6216,8 +6340,11 @@ def check_privacy_contact_handoff() -> None:
             "Enter the support contact in the Google Play listing support/contact fields.",
             "Use either a support email or support website URL; do not record the actual value in this repository.",
             "Enter the hosted privacy policy URL in the Play Console privacy policy field.",
+            "Run `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` or `./tools/print_privacy_contact_evidence_packet.py --contact-type support-website` and require `privacy_contact_evidence_packet_ok`.",
             "Record only safe evidence in `play_store/play_console_post_upload_evidence_ru.md`.",
             "Safe Evidence Phrases Accepted By Local Gate",
+            "The helper `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` prints the safe lines for the email path, and `--contact-type support-website` prints the safe line for the support website path.",
+            "Do not edit those lines to include the actual contact value.",
             "Play Console support/contact field populated: Play Console support/contact field populated with a real support contact email for privacy inquiries.",
             "Play Console support/contact field populated: Play Console support/contact field populated with a real support contact support website URL for privacy inquiries.",
             "Support/contact mechanism matches `play_store/privacy_policy_ru.html`: privacy policy inquiry mechanism uses the Google Play listing support contact.",
@@ -6426,10 +6553,12 @@ def check_owner_release_inputs() -> None:
             "Upload Execution",
             "Use `play_store/upload_runbook_ru.md` as the owner-facing sequence for the upload day.",
             "Do Not Upload list, release-track order, stop conditions and post-upload evidence to record.",
-            "Use `play_store/privacy_contact_handoff_ru.md` for the Play Console privacy URL, support/contact field and safe evidence wording without recording the actual support email or URL.",
+            "Use `play_store/privacy_contact_handoff_ru.md` and `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` for the Play Console privacy URL, support/contact field and safe evidence wording without recording the actual support email or URL.",
+            "./tools/print_privacy_contact_evidence_packet.py --contact-type support-email",
+            "support/contact type",
             "use `play_store/closed_testing_handoff_ru.md` for tester task coverage, aggregate feedback topics and safe evidence phrases",
             "use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data",
-            "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`, `./tools/print_play_console_forms_evidence_packet.py` and `play_store/play_console_post_upload_evidence_ru.md`",
+            "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`, `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`, `./tools/print_play_console_forms_evidence_packet.py` and `play_store/play_console_post_upload_evidence_ru.md`",
             "production-access status",
             "Before upload, use `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>` and `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup facts after the real owner-controlled backup.",
             "Do not record secrets or tester personal data.",
@@ -6474,6 +6603,7 @@ def check_post_upload_evidence_handoff() -> None:
             "safe contact type as support email or support website URL without recording the actual email address or URL",
             "The mechanism line must mention the Google Play listing support contact, the privacy policy and the privacy inquiry mechanism.",
             "Use `play_store/privacy_contact_handoff_ru.md` for exact safe evidence phrases. Do not record the actual support email address or support website URL.",
+            "Use `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` after the Play Console support/contact field is actually populated and copy only the safe Privacy Contact Lines.",
             "Signing backup evidence file: `play_store/signing_backup_evidence_ru.md`.",
             "Signing backup input check command returned `signing_backup_input_ok`: recorded locally on 6 June 2026.",
             "Active upload keystore backed up before AAB upload: not yet available locally.",
@@ -7204,6 +7334,7 @@ def run_checks() -> None:
         check_api36_connected_gate_helper,
         check_upload_packet_helper,
         check_post_upload_evidence_packet_helper,
+        check_privacy_contact_evidence_packet_helper,
         check_play_console_forms_evidence_packet_helper,
         check_store_asset_review_sheet_helper,
         check_play_upload_archive_helper,

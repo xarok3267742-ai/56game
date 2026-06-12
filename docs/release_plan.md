@@ -64,6 +64,7 @@ Equivalent expanded sequence:
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
 ./tools/print_post_upload_evidence_packet.py
+./tools/print_privacy_contact_evidence_packet.py
 ./tools/print_play_console_forms_evidence_packet.py
 ./tools/create_store_asset_review_sheet.py --dry-run
 ./tools/prepare_play_upload_archive.py --dry-run
@@ -83,3 +84,11 @@ After the owner hosts the privacy policy, run:
 ```
 
 The URL check must return `privacy_policy_url_ok`; it rejects non-public/non-HTTPS URLs, URLs with credentials/query/fragments, PDF final paths, invalid UTF-8, script/tracker/widget markers and hosted text that does not match the current normalized text of `play_store/privacy_policy_ru.html`.
+
+After the Play Console support/contact field is actually populated, run:
+
+```bash
+./tools/print_privacy_contact_evidence_packet.py --contact-type support-email
+```
+
+The helper must return `privacy_contact_evidence_packet_ok`; copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md` and never record the actual support email address or support website URL.

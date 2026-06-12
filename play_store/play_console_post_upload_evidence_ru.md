@@ -27,6 +27,7 @@ After the real Play Console upload, run `./tools/print_post_upload_evidence_pack
 
 After entering the privacy policy URL, keep support/contact evidence explicit and do not use a bare `yes`: the support/contact line must mention the Play Console support/contact field, that it is populated with a real support contact for privacy inquiries, and the safe contact type as support email or support website URL without recording the actual email address or URL. The mechanism line must mention the Google Play listing support contact, the privacy policy and the privacy inquiry mechanism.
 Use `play_store/privacy_contact_handoff_ru.md` for exact safe evidence phrases. Do not record the actual support email address or support website URL.
+Use `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` after the Play Console support/contact field is actually populated and copy only the safe Privacy Contact Lines.
 
 ## Signing Backup
 

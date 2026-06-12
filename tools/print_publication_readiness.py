@@ -178,7 +178,10 @@ OWNER_ACTION_GROUPS = (
         "Privacy policy and Play contact",
         "Validate the hosted privacy policy URL, enter it in Play Console and populate Play Console support/contact fields.",
         ("play_store/play_console_post_upload_evidence_ru.md",),
-        ("./tools/check_privacy_policy_url.py --url <https-url>",),
+        (
+            "./tools/check_privacy_policy_url.py --url <https-url>",
+            "./tools/print_privacy_contact_evidence_packet.py --contact-type support-email",
+        ),
         (
             "Public privacy policy URL",
             "Privacy policy URL check command returned `privacy_policy_url_ok`",
