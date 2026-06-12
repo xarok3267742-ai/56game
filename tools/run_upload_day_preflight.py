@@ -27,6 +27,7 @@ WRITE_AND_VERIFY_COMMANDS: tuple[tuple[str, ...], ...] = (
     ("./tools/print_publication_readiness.py", "--check-recorded-privacy-url"),
 )
 REMOTE_RELEASE_COMMAND_PREFIX = ("./tools/verify_remote_release.py", "--tag")
+MANAGED_GATE_TRANSIENT_EXIT_CODES = (-15, 241)
 
 
 def parse_args() -> argparse.Namespace:
@@ -74,8 +75,15 @@ def planned_commands(args: argparse.Namespace) -> tuple[tuple[str, ...], ...]:
     return tuple(commands)
 
 
+def managed_api36_gate_was_terminated(command: tuple[str, ...], exit_code: int) -> bool:
+    return command == MANAGED_API36_CONNECTED_GATE and exit_code in MANAGED_GATE_TRANSIENT_EXIT_CODES
+
+
 def run_command(command: tuple[str, ...]) -> int:
     completed = subprocess.run(command, cwd=ROOT)
+    if managed_api36_gate_was_terminated(command, completed.returncode):
+        print("managed API 36 connected preflight ended during emulator loss; retrying that managed gate once")
+        completed = subprocess.run(command, cwd=ROOT)
     return completed.returncode
 
 
@@ -90,6 +98,8 @@ def main() -> int:
         printable = " ".join(command)
         if args.dry_run:
             print(f"- {printable}")
+            if command == MANAGED_API36_CONNECTED_GATE:
+                print("- if that managed API 36 gate is terminated by transient emulator loss, rerun it once")
             continue
         print(f"$ {printable}")
         exit_code = run_command(command)

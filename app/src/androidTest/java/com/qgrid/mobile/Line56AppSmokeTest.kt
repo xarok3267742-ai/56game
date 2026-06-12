@@ -1,5 +1,6 @@
 package com.qgrid.mobile
 
+import android.content.Intent
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertCountEquals
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.test.platform.app.InstrumentationRegistry
 import com.qgrid.mobile.data.ProgressRepository
 import com.qgrid.mobile.game.CellPosition
 import com.qgrid.mobile.game.LevelDefinition
@@ -28,11 +30,13 @@ class Line56AppSmokeTest {
 
     @Before
     fun resetLocalStateBeforeEachTest() {
+        bringAppToFront()
         runBlocking {
             val repository = ProgressRepository(composeRule.activity.applicationContext)
             repository.clearLocalState()
             repository.setOnboardingSeen()
         }
+        bringAppToFront()
         composeRule.waitForIdle()
         composeRule.waitUntil(timeoutMillis = 10_000) {
             currentProgress().completedLevelIds.isEmpty()
@@ -332,6 +336,7 @@ class Line56AppSmokeTest {
     }
 
     private fun ensureHome() {
+        bringAppToFront()
         composeRule.waitUntil(timeoutMillis = 10_000) {
             !hasText("Загрузка")
         }
@@ -354,12 +359,29 @@ class Line56AppSmokeTest {
                     pressBack()
                     composeRule.waitForIdle()
                 }
-                else -> composeRule.waitForIdle()
+                else -> {
+                    bringAppToFront()
+                    composeRule.waitForIdle()
+                }
             }
         }
         composeRule.waitUntil(timeoutMillis = 10_000) {
             hasText("Прогресс")
         }
+    }
+
+    private fun bringAppToFront() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val launchIntent = checkNotNull(context.packageManager.getLaunchIntentForPackage(context.packageName)) {
+            "Missing launcher intent for ${context.packageName}"
+        }
+        launchIntent.addFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                Intent.FLAG_ACTIVITY_SINGLE_TOP,
+        )
+        context.startActivity(launchIntent)
+        composeRule.waitForIdle()
     }
 
     private fun pressBack() {

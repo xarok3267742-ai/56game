@@ -3657,6 +3657,9 @@ def check_upload_day_preflight_helper() -> None:
             "(\"./tools/print_play_console_packet.py\",)",
             "(\"./tools/print_publication_readiness.py\", \"--check-recorded-privacy-url\")",
             "REMOTE_RELEASE_COMMAND_PREFIX = (\"./tools/verify_remote_release.py\", \"--tag\")",
+            "MANAGED_GATE_TRANSIENT_EXIT_CODES = (-15, 241)",
+            "def managed_api36_gate_was_terminated(",
+            "managed API 36 connected preflight ended during emulator loss; retrying that managed gate once",
             "--include-connected",
             "--connected-serial",
             "--managed-api36-connected",
@@ -3711,6 +3714,10 @@ def check_upload_day_preflight_helper() -> None:
     require(
         "./tools/run_api36_connected_gate.py --include-hosted-privacy" in managed_output,
         "upload-day preflight managed dry-run missing API36 hosted connected gate",
+    )
+    require(
+        "if that managed API 36 gate is terminated by transient emulator loss, rerun it once" in managed_output,
+        "upload-day preflight managed dry-run missing transient emulator-loss retry note",
     )
     require("upload_day_preflight_dry_run_ok" in managed_output, "upload-day preflight managed dry-run did not finish with dry-run ok")
 
