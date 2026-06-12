@@ -32,6 +32,10 @@
 ./tools/run_final_local_gate.py --include-connected --connected-serial <serial> --include-hosted-privacy
 ./tools/run_api36_connected_gate.py
 ./tools/run_api36_connected_gate.py --include-hosted-privacy
+./tools/run_upload_day_preflight.py --dry-run
+./tools/run_upload_day_preflight.py
+./tools/run_upload_day_preflight.py --managed-api36-connected
+./tools/run_upload_day_preflight.py --release-tag <release-tag>
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
 ./tools/print_post_upload_evidence_packet.py
@@ -108,6 +112,8 @@ Google Play store icon лежит в `play_store/icon/play_icon_512.png`, featur
 `./tools/print_closed_testing_evidence_packet.py --dry-run` prints the safe closed-testing evidence mode choices for the local gate. After Play Console confirms the account path, use exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`, then copy only the safe Testing Track Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 
 Managed API 36 connected-gate note: if `./tools/run_api36_connected_gate.py` starts the project-owned AVD and the connected final gate loses that managed emulator after boot, the helper restarts the cleaned AVD once without `-wipe-data` and reruns the connected final gate. Ordinary connected test failures are still returned as failures.
+
+Upload-day preflight note: `./tools/run_upload_day_preflight.py` runs the hosted-privacy final local gate, regenerates the internal store asset review sheet, writes and verifies `build/play_upload/line56_v1_google_play_upload_packet.zip`, reprints the upload/Play Console packets and rechecks publication readiness. Use `--managed-api36-connected` when the project-owned API 36 AVD should refresh connected evidence in the same pre-upload pass, and `--release-tag <release-tag>` after pushing a tagged release to include remote verification.
 
 Store screenshots are reproducible through `tools/capture_store_screenshots.py`; run it against a booted API 35 emulator after visible UI changes. The script refreshes phone/tablet screenshots, crops phone captures to Play-compliant 1080x2064 PNGs, crops tablet captures to 1600x2336, rebuilds the feature graphic, updates `play_store/upload_checksums.md`, prints the current checksum rows and then `./tools/verify_release.py` should pass.
 

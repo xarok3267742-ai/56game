@@ -7,6 +7,8 @@
 Запускать из корня проекта:
 
 ```bash
+./tools/run_upload_day_preflight.py --dry-run
+./tools/run_upload_day_preflight.py
 ./tools/run_final_local_gate.py
 ```
 
@@ -28,6 +30,15 @@
 ./tools/run_api36_connected_gate.py
 ./tools/run_api36_connected_gate.py --include-hosted-privacy
 ```
+
+Для upload-day owner bundle pass можно заменить отдельные hosted-privacy, review-sheet, archive and packet commands одной командой:
+
+```bash
+./tools/run_upload_day_preflight.py --managed-api36-connected
+./tools/run_upload_day_preflight.py --release-tag <release-tag>
+```
+
+Она запускает hosted-privacy final local gate, регенерирует internal store asset review sheet, writes and verifies `build/play_upload/line56_v1_google_play_upload_packet.zip`, reprints upload/Play Console packets and reruns publication readiness with recorded hosted privacy URL validation. Она не загружает файлы в Play Console и не закрывает внешние owner gates.
 
 Equivalent expanded sequence:
 
@@ -68,6 +79,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - `./tools/run_final_local_gate.py --include-hosted-privacy` возвращает `final_local_gate_ok` when network access is available and the recorded hosted privacy URL still passes `privacy_policy_url_ok`.
 - При доступном API 36 устройстве `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` тоже возвращает `final_local_gate_ok`, очищает generated connected outputs, force-stops `com.qgrid.mobile`, удаляет stale local debug/test packages including `com.qgrid.mobile.debug` and `com.qgrid.mobile.debug.test`, и обновляет connected evidence перед verifier.
 - `./tools/run_api36_connected_gate.py` возвращает `api36_connected_gate_ok`, если helper сам поднимает `Medium_Phone_API_36`, прогоняет connected final gate и безопасно останавливает только свой эмулятор; добавьте `--include-hosted-privacy`, когда сеть доступна и нужно включить recorded hosted privacy URL check в тот же managed run.
+- `./tools/run_upload_day_preflight.py` возвращает `upload_day_preflight_ok`, регенерирует review sheet, writes/verifies the owner upload ZIP, reprints the upload packet and Play Console packet, reruns publication readiness with recorded hosted privacy URL validation, and can include `--managed-api36-connected` or `--release-tag <release-tag>` for connected/remote pre-upload evidence.
 - `./tools/verify_release.py` возвращает `release_verification_ok`.
 - `./tools/print_upload_packet.py` возвращает `upload_packet_ok`.
 - `./tools/print_post_upload_evidence_packet.py` возвращает `post_upload_evidence_packet_ok`; после реальной загрузки в Play Console запустите `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and copy the safe upload artifact/internal-testing evidence lines into `play_store/play_console_post_upload_evidence_ru.md`.

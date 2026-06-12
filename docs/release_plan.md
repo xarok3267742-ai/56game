@@ -49,7 +49,10 @@ Preferred single command:
 
 ```bash
 ./tools/run_final_local_gate.py
+./tools/run_upload_day_preflight.py
 ```
+
+Use `./tools/run_upload_day_preflight.py --managed-api36-connected` when the project-owned API 36 AVD should refresh connected evidence in the same upload-day pass. Use `./tools/run_upload_day_preflight.py --release-tag <release-tag>` after a tagged push to include remote release verification.
 
 Equivalent expanded sequence:
 

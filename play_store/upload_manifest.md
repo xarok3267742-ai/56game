@@ -37,6 +37,7 @@
 - Upload checksums: `play_store/upload_checksums.md`
 - Final local gate runner: `tools/run_final_local_gate.py`
 - Managed API 36 connected gate helper: `tools/run_api36_connected_gate.py`
+- Upload-day preflight helper: `tools/run_upload_day_preflight.py`
 - Upload packet helper: `tools/print_upload_packet.py`
 - Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`
 - Closed-testing evidence packet helper: `tools/print_closed_testing_evidence_packet.py`
@@ -68,6 +69,7 @@
 - Signing backup evidence and owner template: `play_store/signing_backup_evidence_ru.md`
 - Final local gate runner: `tools/run_final_local_gate.py`
 - Managed API 36 connected gate helper: `tools/run_api36_connected_gate.py`
+- Upload-day preflight helper: `tools/run_upload_day_preflight.py`
 - Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`
 - Closed-testing evidence packet helper: `tools/print_closed_testing_evidence_packet.py`
 - Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`

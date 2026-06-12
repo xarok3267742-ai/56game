@@ -3639,6 +3639,94 @@ def check_api36_connected_gate_helper() -> None:
     require("api36_connected_gate_dry_run_ok" in hosted_output, "api36 connected hosted-privacy dry-run did not finish with api36_connected_gate_dry_run_ok")
 
 
+def check_upload_day_preflight_helper() -> None:
+    helper = require_file("tools/run_upload_day_preflight.py")
+    require(os.access(helper, os.X_OK), "tools/run_upload_day_preflight.py must be executable")
+    require_text_markers(
+        "tools/run_upload_day_preflight.py",
+        [
+            "Run the upload-day preflight and write safe owner handoff outputs.",
+            "does not upload to Play Console and does not claim production readiness",
+            "FINAL_LOCAL_GATE = (\"./tools/run_final_local_gate.py\",)",
+            "MANAGED_API36_CONNECTED_GATE = (\"./tools/run_api36_connected_gate.py\", \"--include-hosted-privacy\")",
+            "WRITE_AND_VERIFY_COMMANDS: tuple[tuple[str, ...], ...] = (",
+            "(\"./tools/create_store_asset_review_sheet.py\", \"--write\")",
+            "(\"./tools/prepare_play_upload_archive.py\", \"--write\")",
+            "(\"./tools/prepare_play_upload_archive.py\", \"--verify-existing\")",
+            "(\"./tools/print_upload_packet.py\",)",
+            "(\"./tools/print_play_console_packet.py\",)",
+            "(\"./tools/print_publication_readiness.py\", \"--check-recorded-privacy-url\")",
+            "REMOTE_RELEASE_COMMAND_PREFIX = (\"./tools/verify_remote_release.py\", \"--tag\")",
+            "--include-connected",
+            "--connected-serial",
+            "--managed-api36-connected",
+            "--release-tag",
+            "parser.error(\"--include-connected requires --connected-serial\")",
+            "parser.error(\"--managed-api36-connected cannot be combined",
+            "command.append(\"--include-hosted-privacy\")",
+            "Owner handoff archive: build/play_upload/line56_v1_google_play_upload_packet.zip",
+            "Store asset review sheet: play_store/store_asset_review_sheet.png",
+            "print_publication_readiness.py --check-recorded-privacy-url --require-production-ready",
+            "upload_day_preflight_dry_run_ok",
+            "upload_day_preflight_ok",
+        ],
+    )
+
+    output = subprocess.check_output(
+        [str(helper), "--dry-run"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for command in [
+        "./tools/run_final_local_gate.py --include-hosted-privacy",
+        "./tools/create_store_asset_review_sheet.py --write",
+        "./tools/prepare_play_upload_archive.py --write",
+        "./tools/prepare_play_upload_archive.py --verify-existing",
+        "./tools/print_upload_packet.py",
+        "./tools/print_play_console_packet.py",
+        "./tools/print_publication_readiness.py --check-recorded-privacy-url",
+        "upload_day_preflight_dry_run_ok",
+    ]:
+        require(command in output, f"upload-day preflight dry-run missing command: {command}")
+
+    connected_output = subprocess.check_output(
+        [str(helper), "--dry-run", "--include-connected", "--connected-serial", "emulator-5560"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    require(
+        "./tools/run_final_local_gate.py --include-connected --connected-serial emulator-5560 --include-hosted-privacy" in connected_output,
+        "upload-day preflight connected dry-run missing serial-scoped hosted final local gate",
+    )
+    require("upload_day_preflight_dry_run_ok" in connected_output, "upload-day preflight connected dry-run did not finish with dry-run ok")
+
+    managed_output = subprocess.check_output(
+        [str(helper), "--dry-run", "--managed-api36-connected"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    require(
+        "./tools/run_api36_connected_gate.py --include-hosted-privacy" in managed_output,
+        "upload-day preflight managed dry-run missing API36 hosted connected gate",
+    )
+    require("upload_day_preflight_dry_run_ok" in managed_output, "upload-day preflight managed dry-run did not finish with dry-run ok")
+
+    remote_output = subprocess.check_output(
+        [str(helper), "--dry-run", "--release-tag", "v1.0.0-rc58"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    require(
+        "./tools/verify_remote_release.py --tag v1.0.0-rc58" in remote_output,
+        "upload-day preflight tagged dry-run missing remote release verification command",
+    )
+    require("upload_day_preflight_dry_run_ok" in remote_output, "upload-day preflight tagged dry-run did not finish with dry-run ok")
+
+
 def check_upload_packet_helper() -> None:
     helper = require_file("tools/print_upload_packet.py")
     require(os.access(helper, os.X_OK), "tools/print_upload_packet.py must be executable")
@@ -7862,6 +7950,7 @@ def run_checks() -> None:
         check_upload_runbook_handoff,
         check_final_local_gate_runner,
         check_api36_connected_gate_helper,
+        check_upload_day_preflight_helper,
         check_upload_packet_helper,
         check_post_upload_evidence_packet_helper,
         check_closed_testing_evidence_packet_helper,
