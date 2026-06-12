@@ -50,6 +50,7 @@
 - Play Console packet helper: `tools/print_play_console_packet.py`
 - Publication readiness helper: `tools/print_publication_readiness.py`
 - Play-generated APK verification helper: `tools/verify_play_generated_apk.py`
+- Play-generated APK evidence packet helper: `tools/print_play_generated_apk_evidence_packet.py`
 - Signing backup evidence packet helper: `tools/print_signing_backup_evidence_packet.py`
 - Privacy policy URL: host `play_store/privacy_policy_ru.html` after filling the Play Console support/contact fields used by the policy inquiry mechanism.
 
@@ -80,6 +81,7 @@
 - Play Console packet helper: `tools/print_play_console_packet.py`
 - Publication readiness helper: `tools/print_publication_readiness.py`
 - Play-generated APK verification helper: `tools/verify_play_generated_apk.py`
+- Play-generated APK evidence packet helper: `tools/print_play_generated_apk_evidence_packet.py`
 - Signing backup evidence packet helper: `tools/print_signing_backup_evidence_packet.py`
 
 ## Do Not Upload

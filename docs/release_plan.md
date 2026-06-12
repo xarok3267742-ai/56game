@@ -75,6 +75,7 @@ Equivalent expanded sequence:
 ./tools/print_play_console_packet.py
 ./tools/print_publication_readiness.py
 ./tools/verify_play_generated_apk.py --dry-run
+./tools/print_play_generated_apk_evidence_packet.py --dry-run
 ./tools/check_privacy_policy_url.py --local
 ./tools/check_signing_backup_inputs.py
 ./tools/print_signing_backup_evidence_packet.py

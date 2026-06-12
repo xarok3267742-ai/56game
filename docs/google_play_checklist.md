@@ -80,6 +80,7 @@ Equivalent expanded sequence:
 ./tools/print_play_console_packet.py
 ./tools/print_publication_readiness.py
 ./tools/verify_play_generated_apk.py --dry-run
+./tools/print_play_generated_apk_evidence_packet.py --dry-run
 ./tools/check_privacy_policy_url.py --local
 ./tools/check_signing_backup_inputs.py
 ./tools/print_signing_backup_evidence_packet.py
@@ -224,6 +225,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Run `./tools/print_publication_readiness.py` and require `publication_readiness_local_ready_external_pending` before upload; require `./tools/print_publication_readiness.py --require-production-ready` only after owner-controlled external evidence is recorded.
 - Use `play_store/publication_readiness_owner_actions_ru.md` to resolve the external owner-action groups before production rollout.
 - After Play Console creates downloadable APK artifacts from the uploaded AAB, run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`, `signer certificate SHA-256: ...`, `store icon pixel matches: ...`, `application icon linked store icon: ...`, `round icon linked store icon: ...`, `allowBackup: false` and `debuggable: absent` or `debuggable: false`.
+- After the downloaded Play-generated APK is verified, installed and launched, run `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated` with exactly one of `--installed-launched-on-device` or `--installed-launched-on-emulator`, then copy only the safe Play-Generated APK Review Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - Run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok` before backing up signing files and uploading the AAB.
 - Run `./tools/print_signing_backup_evidence_packet.py` and require `signing_backup_evidence_packet_ok`; after the real owner-controlled backup, rerun it with `--backup-date <date/time>` and copy only the safe signing-backup lines into `play_store/signing_backup_evidence_ru.md` and `play_store/play_console_post_upload_evidence_ru.md`.
 - After pushing the release handoff to GitHub, run `./tools/verify_remote_release.py --tag <release-tag>` and require `remote_release_ok`; it verifies `origin/main`, the annotated remote release tag, every remote upload asset checksum from `play_store/upload_checksums.md`, rejects extra remote `.aab` files outside `app/build/outputs/bundle/release/app-release.aab`, checks remote forbidden-path hygiene, verifies `origin/gh-pages` privacy-policy presence and validates the recorded hosted privacy URL.
@@ -240,6 +242,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Apply for and receive Play Console production access if the publisher account requires it.
 - Review generated APKs and pre-launch report.
 - Record safe post-upload evidence in `play_store/play_console_post_upload_evidence_ru.md`.
+- Record safe Play-generated APK review evidence from `./tools/print_play_generated_apk_evidence_packet.py` only after the downloaded Play-generated APK is verified, installed and launched.
 - Record safe closed-testing/production-access evidence from `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed` only after Play Console confirms the account path.
 - Record safe Play pre-launch/policy review evidence from `./tools/print_pre_launch_review_evidence_packet.py` only after Play Console pre-launch report and policy warnings are reviewed.
 - Record safe store-listing preview crop evidence from `./tools/print_store_listing_review_evidence_packet.py` only after Play Console preview and current review sheet are checked.

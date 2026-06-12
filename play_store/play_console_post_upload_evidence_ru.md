@@ -43,6 +43,7 @@ Use `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>` 
 ## Play-Generated Artifact Review
 
 - Play-generated APK verification command: run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.
+- Play-generated APK evidence packet command: run `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device` or `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator` after verification, install and launch.
 - Play-generated APK package is `com.qgrid.mobile`: not yet available locally.
 - Play-generated APK signature verifies and certificate SHA-256 recorded: not yet available locally.
 - Play-generated app label is `Линия 56`: not yet available locally.
@@ -61,6 +62,7 @@ After Play-generated artifact review, the permissions line must explicitly inclu
 The manifest privacy line must explicitly include `allowBackup=false` and `no debuggable`, based on helper output `allowBackup: false` and `debuggable: absent` or `debuggable: false`.
 The native-library line must explicitly include `16 KB`, `16384`, `uncompressed`, `ZIP-aligned` and `extractNativeLibs=false`, based on helper output `native libraries: 8 checked; minimum PT_LOAD alignment: 16384 bytes`, `native APK packaging: 8 uncompressed; minimum ZIP data alignment: 16384 bytes` and `extractNativeLibs: false`.
 The install/launch line must explicitly say the Play-generated APK was `installed` and `launched` on an Android device or Android emulator; do not use a bare `yes`.
+After Play-generated APK verification, install and launch, use `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device` or `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator`, then copy only the safe Play-Generated APK Review Lines.
 
 ## Policy Forms
 

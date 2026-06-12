@@ -81,6 +81,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - `./tools/print_play_console_packet.py` возвращает `play_console_packet_ok`.
 - `./tools/print_publication_readiness.py` возвращает `publication_readiness_local_ready_external_pending` до закрытия внешних owner gates and groups unresolved owner actions by evidence file and required command; сверить действия с `play_store/publication_readiness_owner_actions_ru.md`. Production rollout не начинать, пока `--require-production-ready` не проходит после записи внешних evidence.
 - `./tools/verify_play_generated_apk.py --dry-run` возвращает `play_generated_apk_verify_dry_run_ok`; после Play-generated artifact download запустить `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok` plus the `signer certificate SHA-256: ...`, `store icon pixel matches: ...`, `application icon linked store icon: ...`, `round icon linked store icon: ...`, `allowBackup: false` and `debuggable: absent` or `debuggable: false` lines.
+- `./tools/print_play_generated_apk_evidence_packet.py --dry-run` возвращает `play_generated_apk_evidence_packet_dry_run_ok`; после Play-generated APK verification, install and launch run it with `--apk <path-to-play-generated.apk> --confirm-play-generated` plus exactly one of `--installed-launched-on-device` or `--installed-launched-on-emulator`, then copy only the safe Play-Generated APK Review Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - `./tools/verify_release.py` проверяет 16 KB page-size posture для native `.so` в signed AAB; post-upload APK helper проверяет тот же `PT_LOAD` alignment на Play-generated APK plus uncompressed native-library packaging, 16 KB ZIP data alignment and `extractNativeLibs=false`.
 - `./tools/check_privacy_policy_url.py --local` возвращает `privacy_policy_local_ok` and prints the canonical privacy text SHA-256 for owner comparison.
 - `./tools/check_signing_backup_inputs.py` возвращает `signing_backup_input_ok`.
@@ -211,11 +212,12 @@ Recommended order:
 2. Inspect Play-generated APKs for package, app name, version, APK signature, signer certificate SHA-256, store-icon pixel match, application/round icon linkage, permissions, `allowBackup=false`, no debuggable release manifest and native 16 KB page-size posture.
 3. Run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.
 4. Install generated APKs on at least one Android device or emulator.
-5. Repeat first-launch, home, game, win, settings, restart and no-internet smoke flows.
-6. Review Play pre-launch report and policy warnings.
-7. Run closed testing if required by the publisher account type; use `play_store/closed_testing_handoff_ru.md` for tester task coverage and safe evidence phrases.
-8. Apply for and receive Play Console production access if closed testing is required for the publisher account; use `play_store/production_access_answers_ru.md` to prepare safe answers.
-9. Promote to production only after owner gates, testing tracks, production-access status and review warnings are complete.
+5. Run `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated` with the matching install/launch flag and copy only the safe Play-Generated APK Review Lines.
+6. Repeat first-launch, home, game, win, settings, restart and no-internet smoke flows.
+7. Review Play pre-launch report and policy warnings.
+8. Run closed testing if required by the publisher account type; use `play_store/closed_testing_handoff_ru.md` for tester task coverage and safe evidence phrases.
+9. Apply for and receive Play Console production access if closed testing is required for the publisher account; use `play_store/production_access_answers_ru.md` to prepare safe answers.
+10. Promote to production only after owner gates, testing tracks, production-access status and review warnings are complete.
 
 ## 8. Stop Conditions
 
@@ -238,6 +240,7 @@ After Play Console upload, record these owner-side facts in the release notes or
 - Uploaded AAB version code and version name.
 - Play Console track used first.
 - Safe upload artifact/internal-testing lines from `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`.
+- Safe Play-generated APK review lines from `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated` plus the matching install/launch flag.
 - Safe closed-testing/production-access lines from exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`.
 - Safe privacy/contact lines from `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`.
 - Safe Play Console policy-form lines from `./tools/print_play_console_forms_evidence_packet.py`.

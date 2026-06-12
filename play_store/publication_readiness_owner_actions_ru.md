@@ -139,6 +139,9 @@ Commands:
 ```bash
 ./tools/verify_play_generated_apk.py --dry-run
 ./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>
+./tools/print_play_generated_apk_evidence_packet.py --dry-run
+./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device
+./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator
 ```
 
 Fields to resolve:
@@ -158,6 +161,7 @@ Required posture:
 - Generated artifacts must not contain debug package ids, Android Debug signing certificates, missing/invalid APK signatures, androidTest/JUnit/Espresso/test leakage, forbidden permissions, `allowBackup=true`, `debuggable=true`, `extractNativeLibs=true`, compressed native libraries, native ZIP data offsets below 16 KB alignment, icon pixels that differ from `play_store/icon/play_icon_512.png`, application/round icon references that are not linked to that matching PNG, or native `.so` files below 16 KB ELF `PT_LOAD` alignment.
 - Version evidence must explicitly mention `versionCode 1` and `versionName 1.0.0`.
 - Install/launch evidence must explicitly say the downloaded Play-generated APK was installed and launched on an Android device or Android emulator.
+- After the downloaded Play-generated APK is verified, installed and launched, copy only the safe Play-Generated APK Review Lines from `./tools/print_play_generated_apk_evidence_packet.py`.
 - Stop rollout if package, label, version, icon, permissions, manifest privacy or native 16 KB page-size posture differ from the local release candidate.
 
 ## 5. Play Console Forms
@@ -213,6 +217,8 @@ Commands:
 ./tools/create_store_asset_review_sheet.py --write
 ./tools/print_store_listing_review_evidence_packet.py
 ./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>
+./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device
+./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator
 ```
 
 Fields to resolve:

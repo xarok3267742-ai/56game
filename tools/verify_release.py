@@ -14,7 +14,7 @@ The script intentionally checks facts that are easy to regress:
 - lightweight artifact and asset size budgets;
 - Play store asset dimensions/alpha;
 - upload manifest paths;
-- upload-packet, post-upload evidence, closed-testing evidence, privacy/contact evidence, Play Console forms evidence, Play pre-launch review evidence and store-listing review evidence helper consistency;
+- upload-packet, post-upload evidence, closed-testing evidence, Play-generated APK evidence, privacy/contact evidence, Play Console forms evidence, Play pre-launch review evidence and store-listing review evidence helper consistency;
 - store asset review sheet helper consistency;
 - Play upload archive helper consistency;
 - Play Console packet helper consistency;
@@ -597,6 +597,9 @@ def check_agents_handoff() -> None:
             "./tools/print_play_console_packet.py",
             "./tools/print_publication_readiness.py",
             "./tools/verify_play_generated_apk.py --dry-run",
+            "./tools/print_play_generated_apk_evidence_packet.py --dry-run",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator",
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_signing_backup_inputs.py",
             "./tools/print_signing_backup_evidence_packet.py",
@@ -670,6 +673,9 @@ def check_agents_handoff() -> None:
             "publication_readiness_local_ready_external_pending",
             "`./tools/verify_play_generated_apk.py` is the owner helper for Play-generated APK review after upload.",
             "with `--apk <path>` it verifies the APK package, version, label, SDK levels, APK signature, signer certificate SHA-256, no Android Debug certificate, no forbidden permissions, `allowBackup=false`, no debuggable release manifest, `extractNativeLibs=false`, native `.so` `PT_LOAD` alignment, uncompressed 16 KB ZIP-aligned native libraries, no debug/test leakage, a 512x512 icon candidate whose pixels match `play_store/icon/play_icon_512.png`, an application icon reference linked to that matching PNG and a round icon reference linked to that same PNG.",
+            "`./tools/print_play_generated_apk_evidence_packet.py` is the read-only owner helper for Play-generated APK evidence.",
+            "With `--apk <path-to-play-generated.apk> --confirm-play-generated` plus exactly one of `--installed-launched-on-device` or `--installed-launched-on-emulator`",
+            "prints safe Play-generated APK review lines for `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/check_privacy_policy_url.py --local` validates the local ready-to-host privacy HTML.",
             "`./tools/check_privacy_policy_url.py --url <https-url>` before entering the URL in Play Console.",
             "`./tools/check_signing_backup_inputs.py` validates the ignored local signing inputs before backup without printing password values.",
@@ -689,7 +695,7 @@ def check_agents_handoff() -> None:
             "No placeholder user-facing content remains.",
             "Store assets are present and verifier-approved.",
             "`./tools/run_final_local_gate.py` passes and prints `final_local_gate_ok`",
-            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
+            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/print_play_generated_apk_evidence_packet.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
             "preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device",
             "Google Play checklist, release report and upload handoff are current.",
             "The full publication goal is not complete until manual external gates are done",
@@ -701,7 +707,7 @@ def check_agents_handoff() -> None:
     final_gate = agents.split("Final local gate before handoff:", 1)[1].split("Run `connectedDebugAndroidTest`", 1)[0]
     require("./tools/run_final_local_gate.py" in final_gate, "AGENTS.md final local gate must use run_final_local_gate.py")
     require(
-        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
+        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/print_play_generated_apk_evidence_packet.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
         in final_gate,
         "AGENTS.md final local gate must document the runner command expansion",
     )
@@ -721,6 +727,7 @@ def check_agents_handoff() -> None:
         "./tools/print_play_console_packet.py",
         "./tools/print_publication_readiness.py",
         "./tools/verify_play_generated_apk.py --dry-run",
+        "./tools/print_play_generated_apk_evidence_packet.py --dry-run",
         "./tools/check_privacy_policy_url.py --local",
         "./tools/check_signing_backup_inputs.py",
         "./tools/print_signing_backup_evidence_packet.py",
@@ -764,6 +771,9 @@ def check_readme_handoff() -> None:
             "./tools/print_play_console_packet.py",
             "./tools/print_publication_readiness.py",
             "./tools/verify_play_generated_apk.py --dry-run",
+            "./tools/print_play_generated_apk_evidence_packet.py --dry-run",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator",
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_signing_backup_inputs.py",
             "./tools/print_signing_backup_evidence_packet.py",
@@ -826,6 +836,8 @@ def check_readme_handoff() -> None:
             "groups unresolved owner actions by evidence file and required command",
             "`./tools/verify_play_generated_apk.py --dry-run` documents the Play-generated APK review posture",
             "run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` before rollout",
+            "`./tools/print_play_generated_apk_evidence_packet.py --dry-run` prints the safe Play-generated APK evidence command",
+            "copy only the safe Play-Generated APK Review Lines",
             "`./tools/check_signing_backup_inputs.py` verifies the active ignored signing inputs without printing password values.",
             "`./tools/print_signing_backup_evidence_packet.py` prints safe signing-backup evidence lines",
             "after the real owner-controlled backup, rerun it with `--backup-date <date/time>` for a concrete backup-date line.",
@@ -934,6 +946,7 @@ def check_google_play_checklist_handoff() -> None:
             "./tools/print_play_console_packet.py",
             "./tools/print_publication_readiness.py",
             "./tools/verify_play_generated_apk.py --dry-run",
+            "./tools/print_play_generated_apk_evidence_packet.py --dry-run",
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_signing_backup_inputs.py",
             "./tools/print_signing_backup_evidence_packet.py",
@@ -1006,6 +1019,8 @@ def check_google_play_checklist_handoff() -> None:
             "Use `play_store/publication_readiness_owner_actions_ru.md` to resolve the external owner-action groups before production rollout.",
             "Apply for and receive Play Console production access if the publisher account requires it.",
             "After Play Console creates downloadable APK artifacts from the uploaded AAB, run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`, `signer certificate SHA-256: ...`, `store icon pixel matches: ...`, `application icon linked store icon: ...`, `round icon linked store icon: ...`, `allowBackup: false` and `debuggable: absent` or `debuggable: false`.",
+            "After the downloaded Play-generated APK is verified, installed and launched, run `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated`",
+            "copy only the safe Play-Generated APK Review Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "Run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok` before backing up signing files and uploading the AAB.",
             "After pushing the release handoff to GitHub, run `./tools/verify_remote_release.py --tag <release-tag>` and require `remote_release_ok`",
             "annotated remote release tag",
@@ -1013,6 +1028,7 @@ def check_google_play_checklist_handoff() -> None:
             "validates the recorded hosted privacy URL",
             "Record safe signing-backup evidence in `play_store/signing_backup_evidence_ru.md`.",
             "Record safe post-upload evidence in `play_store/play_console_post_upload_evidence_ru.md`.",
+            "Record safe Play-generated APK review evidence from `./tools/print_play_generated_apk_evidence_packet.py`",
             "Record safe closed-testing/production-access evidence from `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`",
             "Record safe Play pre-launch/policy review evidence from `./tools/print_pre_launch_review_evidence_packet.py`",
             "Record safe store-listing preview crop evidence from `./tools/print_store_listing_review_evidence_packet.py`",
@@ -1257,6 +1273,7 @@ def check_release_plan_handoff() -> None:
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/print_play_console_packet.py",
             "./tools/verify_play_generated_apk.py --dry-run",
+            "./tools/print_play_generated_apk_evidence_packet.py --dry-run",
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_signing_backup_inputs.py",
             "./tools/print_signing_backup_evidence_packet.py",
@@ -1291,6 +1308,7 @@ def check_release_report_handoff() -> None:
             "`./gradlew test lint assembleDebug assembleRelease bundleRelease`",
             "play_upload_archive_existing_ok",
             "play_generated_apk_verify_dry_run_ok",
+            "play_generated_apk_evidence_packet_dry_run_ok",
             "Latest upload-packet helper hardening",
             "Latest upload-packet negative-regression gate",
             "Latest store asset review sheet hardening",
@@ -1306,6 +1324,7 @@ def check_release_report_handoff() -> None:
             "Latest Play Console packet negative-regression gate",
             "Latest Play-generated APK verification helper hardening",
             "Latest Play-generated APK verification negative-regression gate",
+            "Latest Play-generated APK evidence packet hardening",
             "Latest Play-generated icon pixel-match helper hardening",
             "Latest owner evidence validation hardening",
             "Latest publication-readiness negative-regression gate",
@@ -1351,6 +1370,8 @@ def check_release_report_handoff() -> None:
             "Play pre-launch review evidence packet helper: `tools/print_pre_launch_review_evidence_packet.py`.",
             "Latest store-listing review evidence packet hardening",
             "Store listing review evidence packet helper: `tools/print_store_listing_review_evidence_packet.py`.",
+            "Latest Play-generated APK evidence packet hardening",
+            "Play-generated APK evidence packet helper: `tools/print_play_generated_apk_evidence_packet.py`.",
             "Latest Play-generated version owner-evidence hardening",
             "Latest privacy helper negative-regression gate",
             "Latest signing-backup evidence hardening",
@@ -1518,6 +1539,7 @@ def check_completion_audit_handoff() -> None:
             "Latest Play Console packet negative-regression gate",
             "Latest Play-generated APK verification helper hardening",
             "Latest Play-generated APK verification negative-regression gate",
+            "Latest Play-generated APK evidence packet hardening",
             "Latest Play-generated icon pixel-match helper hardening",
             "Latest owner evidence validation hardening",
             "Latest positive owner-gate evidence hardening",
@@ -1571,6 +1593,7 @@ def check_completion_audit_handoff() -> None:
             "Latest final local gate execution",
             "play_upload_archive_existing_ok",
             "play_generated_apk_verify_dry_run_ok",
+            "play_generated_apk_evidence_packet_dry_run_ok",
             "Store metadata is verifier-checked",
             "Privacy/data-safety/content-rating handoff is verifier-checked",
             "App content answer sheet is verifier-checked",
@@ -2755,6 +2778,10 @@ def check_asset_handoff() -> None:
         "upload manifest must include Play-generated APK verification helper handoff",
     )
     require(
+        "Play-generated APK evidence packet helper: `tools/print_play_generated_apk_evidence_packet.py`" in upload_manifest,
+        "upload manifest must include Play-generated APK evidence packet helper handoff",
+    )
+    require(
         "Play upload archive helper: `tools/prepare_play_upload_archive.py`" in upload_manifest,
         "upload manifest must include Play upload archive helper handoff",
     )
@@ -3135,6 +3162,9 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "Play-Generated Artifact Review",
             "./tools/verify_play_generated_apk.py --dry-run",
             "./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>",
+            "./tools/print_play_generated_apk_evidence_packet.py --dry-run",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator",
             "Play-generated APK signature verifies and certificate SHA-256 recorded.",
             "Android Debug signing certificates",
             "missing/invalid APK signatures",
@@ -3146,6 +3176,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "native `.so` files below 16 KB ELF `PT_LOAD` alignment",
             "Version evidence must explicitly mention `versionCode 1` and `versionName 1.0.0`.",
             "Install/launch evidence must explicitly say the downloaded Play-generated APK was installed and launched on an Android device or Android emulator.",
+            "copy only the safe Play-Generated APK Review Lines",
             "Play Console Forms",
             "play_store/app_content_answers_ru.md",
             "play_store/data_safety_ru.md",
@@ -3285,6 +3316,8 @@ def check_upload_runbook_handoff() -> None:
             "сверить действия с `play_store/publication_readiness_owner_actions_ru.md`",
             "`./tools/verify_play_generated_apk.py --dry-run` возвращает `play_generated_apk_verify_dry_run_ok`",
             "`./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok` plus the `signer certificate SHA-256: ...`, `store icon pixel matches: ...`, `application icon linked store icon: ...`, `round icon linked store icon: ...`, `allowBackup: false` and `debuggable: absent` or `debuggable: false` lines.",
+            "`./tools/print_play_generated_apk_evidence_packet.py --dry-run` возвращает `play_generated_apk_evidence_packet_dry_run_ok`",
+            "copy only the safe Play-Generated APK Review Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/verify_release.py` проверяет 16 KB page-size posture для native `.so` в signed AAB",
             "--require-production-ready",
             "`./tools/check_privacy_policy_url.py --local` возвращает `privacy_policy_local_ok` and prints the canonical privacy text SHA-256 for owner comparison.",
@@ -3357,6 +3390,7 @@ def check_upload_runbook_handoff() -> None:
             "Upload the signed AAB to internal testing.",
             "Inspect Play-generated APKs for package, app name, version, APK signature, signer certificate SHA-256, store-icon pixel match, application/round icon linkage, permissions, `allowBackup=false`, no debuggable release manifest and native 16 KB page-size posture.",
             "Run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.",
+            "Run `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated` with the matching install/launch flag",
             "Run closed testing if required by the publisher account type; use `play_store/closed_testing_handoff_ru.md` for tester task coverage and safe evidence phrases.",
             "Apply for and receive Play Console production access if closed testing is required for the publisher account; use `play_store/production_access_answers_ru.md` to prepare safe answers.",
             "Promote to production only after owner gates, testing tracks, production-access status and review warnings are complete.",
@@ -3366,6 +3400,7 @@ def check_upload_runbook_handoff() -> None:
             "After any local rebuild, rerun the full preflight and compare `play_store/upload_checksums.md` again before uploading.",
             "Evidence To Record After Upload",
             "Safe upload artifact/internal-testing lines from `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`.",
+            "Safe Play-generated APK review lines from `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated` plus the matching install/launch flag.",
             "Safe closed-testing/production-access lines from exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`.",
             "Safe privacy/contact lines from `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`.",
             "Safe Play Console policy-form lines from `./tools/print_play_console_forms_evidence_packet.py`.",
@@ -3411,6 +3446,7 @@ def check_final_local_gate_runner() -> None:
             "(\"./tools/print_play_console_packet.py\",)",
             "(\"./tools/print_publication_readiness.py\",)",
             "(\"./tools/verify_play_generated_apk.py\", \"--dry-run\")",
+            "(\"./tools/print_play_generated_apk_evidence_packet.py\", \"--dry-run\")",
             "(\"./tools/check_privacy_policy_url.py\", \"--local\")",
             "(\"./tools/check_signing_backup_inputs.py\",)",
             "(\"./tools/print_signing_backup_evidence_packet.py\",)",
@@ -3477,6 +3513,7 @@ def check_final_local_gate_runner() -> None:
         "./tools/print_play_console_packet.py",
         "./tools/print_publication_readiness.py",
         "./tools/verify_play_generated_apk.py --dry-run",
+        "./tools/print_play_generated_apk_evidence_packet.py --dry-run",
         "./tools/check_privacy_policy_url.py --local",
         "./tools/check_signing_backup_inputs.py",
         "./tools/print_signing_backup_evidence_packet.py",
@@ -5266,6 +5303,157 @@ def check_play_generated_apk_helper() -> None:
         raise CheckFailure("Play-generated APK helper module must reject debug APK")
 
 
+def check_play_generated_apk_evidence_packet_helper() -> None:
+    helper = require_file("tools/print_play_generated_apk_evidence_packet.py")
+    require(os.access(helper, os.X_OK), "tools/print_play_generated_apk_evidence_packet.py must be executable")
+    require_text_markers(
+        "tools/print_play_generated_apk_evidence_packet.py",
+        [
+            "Print safe Play-generated APK review evidence lines for the owner.",
+            "This helper is intentionally read-only.",
+            "DESTINATION_EVIDENCE = \"play_store/play_console_post_upload_evidence_ru.md\"",
+            "VERIFY_HELPER = ROOT / \"tools/verify_play_generated_apk.py\"",
+            "LAUNCH_DEVICE = \"device\"",
+            "LAUNCH_EMULATOR = \"emulator\"",
+            "def validate_no_forbidden_evidence(",
+            "must not contain email addresses",
+            "must not contain URLs or private links",
+            "def load_verifier_module(",
+            "def evidence_lines(",
+            "Play-generated APK package is `com.qgrid.mobile`",
+            "Play-generated APK signature verifies and certificate SHA-256 recorded",
+            "Play-generated app label is `Линия 56`",
+            "Play-generated icon matches `play_store/icon/play_icon_512.png`",
+            "Play-generated version code/name match this release candidate",
+            "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE`",
+            "and no dangerous runtime permissions",
+            "Play-generated manifest privacy review shows `allowBackup=false` and no debuggable release manifest",
+            "Play-generated native libraries support 16 KB page sizes",
+            "Play-generated APK installed and launched on at least one Android device or emulator",
+            "--confirm-play-generated",
+            "--installed-launched-on-device",
+            "--installed-launched-on-emulator",
+            "play_generated_apk_evidence_packet_dry_run_ok",
+            "play_generated_apk_evidence_packet_ok",
+        ],
+    )
+
+    dry_output = subprocess.check_output(
+        [str(helper), "--dry-run"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Play-generated APK evidence packet",
+        "Destination evidence file: play_store/play_console_post_upload_evidence_ru.md",
+        "Requires a downloaded Play-generated APK artifact, not a locally built APK.",
+        "--apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device",
+        "--apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator",
+        "play_generated_apk_evidence_packet_dry_run_ok",
+    ]:
+        require(marker in dry_output, f"Play-generated APK evidence packet dry-run missing marker: {marker}")
+
+    release_apk = require_file("app/build/outputs/apk/release/app-release.apk")
+    release_output = subprocess.check_output(
+        [
+            str(helper),
+            "--apk",
+            str(release_apk),
+            "--confirm-play-generated",
+            "--installed-launched-on-emulator",
+        ],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Verified By",
+        "play_generated_apk_verify_ok",
+        "Play-Generated APK Review Lines",
+        "Play-generated APK package is `com.qgrid.mobile`: com.qgrid.mobile.",
+        "signer certificate SHA-256 dd971e778a0a87e79e1a44181d453b83807fb306ff48deacbafd4811368372f1",
+        "Play-generated app label is `Линия 56`: Линия 56.",
+        "yes, store icon pixel match verified; application icon linked store icon pixel match and round icon linked store icon pixel match verified.",
+        "verified versionCode 1 and versionName 1.0.0.",
+        "no INTERNET, no ACCESS_NETWORK_STATE and no dangerous runtime permissions",
+        "allowBackup=false and no debuggable release manifest; debuggable: absent.",
+        "verified 16 KB page-size support: 8 native libraries checked, minimum PT_LOAD alignment 16384 bytes",
+        "native APK packaging verified: 8 uncompressed, ZIP-aligned native libraries, minimum ZIP data alignment 16384 bytes, extractNativeLibs=false.",
+        "downloaded Play-generated APK was installed and launched on an Android emulator.",
+        "play_generated_apk_evidence_packet_ok",
+    ]:
+        require(marker in release_output, f"Play-generated APK evidence packet release output missing marker: {marker}")
+
+    for bad_args, expected_message in [
+        ((str(helper), "--apk", str(release_apk), "--installed-launched-on-emulator"), "--confirm-play-generated is required"),
+        ((str(helper), "--apk", str(release_apk), "--confirm-play-generated"), "Confirm install/launch"),
+    ]:
+        rejected = subprocess.run(
+            list(bad_args),
+            cwd=ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            check=False,
+        )
+        require(rejected.returncode != 0, f"Play-generated APK evidence packet must reject bad args: {bad_args}")
+        require(expected_message in rejected.stdout, f"Play-generated APK evidence packet rejected bad args with unexpected output: {rejected.stdout}")
+
+    debug_apk = require_file("app/build/outputs/apk/debug/app-debug.apk")
+    rejected_debug = subprocess.run(
+        [
+            str(helper),
+            "--apk",
+            str(debug_apk),
+            "--confirm-play-generated",
+            "--installed-launched-on-emulator",
+        ],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        check=False,
+    )
+    require(rejected_debug.returncode != 0, "Play-generated APK evidence packet must reject debug APK")
+    require(
+        "APK package mismatch: 'com.qgrid.mobile.debug' != 'com.qgrid.mobile'" in rejected_debug.stdout,
+        f"Play-generated APK evidence packet rejected debug APK with unexpected output: {rejected_debug.stdout}",
+    )
+
+    spec = importlib.util.spec_from_file_location("line56_play_generated_apk_evidence_packet", helper)
+    require(spec is not None and spec.loader is not None, "Play-generated APK evidence packet helper could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    verifier = module.load_verifier_module()
+    result = verifier.verify_apk(release_apk)
+    lines = "\n".join(module.evidence_lines(result, module.LAUNCH_EMULATOR))
+    for marker in [
+        "Play-generated APK package is `com.qgrid.mobile`: com.qgrid.mobile.",
+        "SHA-256 dd971e778a0a87e79e1a44181d453b83807fb306ff48deacbafd4811368372f1",
+        "versionCode 1 and versionName 1.0.0",
+        "16 KB",
+        "16384",
+        "uncompressed",
+        "ZIP-aligned",
+        "extractNativeLibs=false",
+        "installed and launched on an Android emulator",
+    ]:
+        require(marker in lines, f"Play-generated APK evidence packet lines missing marker: {marker}")
+    for bad_value, expected_message in [
+        ("tester@example.com", "email addresses"),
+        ("https://private.example/apk", "URLs or private links"),
+        ("token=secret", "password, token, secret or API key assignments"),
+        ("storePassword=secret", "forbidden marker"),
+    ]:
+        try:
+            module.validate_no_forbidden_evidence(bad_value)
+        except module.PlayGeneratedApkEvidencePacketError as exc:
+            require(expected_message in str(exc), f"Play-generated APK evidence packet rejected bad evidence with unexpected message: {exc}")
+        else:
+            raise CheckFailure(f"Play-generated APK evidence packet must reject bad evidence: {bad_value}")
+
+
 def check_publication_readiness_helper() -> None:
     helper = require_file("tools/print_publication_readiness.py")
     require(os.access(helper, os.X_OK), "tools/print_publication_readiness.py must be executable")
@@ -5297,6 +5485,8 @@ def check_publication_readiness_helper() -> None:
             "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
             "./tools/print_closed_testing_evidence_packet.py --not-required",
             "./tools/print_closed_testing_evidence_packet.py --required-completed",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator",
             "./tools/print_privacy_contact_evidence_packet.py --contact-type support-email",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/print_pre_launch_review_evidence_packet.py",
@@ -5429,6 +5619,8 @@ def check_publication_readiness_helper() -> None:
         "command: ./tools/check_signing_backup_inputs.py",
         "command: ./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>",
         "Play-generated artifact review: 9 unresolved field(s).",
+        "command: ./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device",
+        "command: ./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator",
         "Play Console forms: 6 unresolved field(s).",
         "command: ./tools/print_play_console_forms_evidence_packet.py",
         "Testing track and final review: 8 unresolved field(s).",
@@ -5436,6 +5628,7 @@ def check_publication_readiness_helper() -> None:
         "command: ./tools/print_closed_testing_evidence_packet.py --required-completed",
         "command: ./tools/print_pre_launch_review_evidence_packet.py",
         "command: ./tools/print_store_listing_review_evidence_packet.py",
+        "command: ./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device",
         "publication_readiness_local_ready_external_pending",
     ]:
         require(marker in output, f"publication readiness output missing marker: {marker}")
@@ -6884,7 +7077,7 @@ def check_owner_release_inputs() -> None:
             "support/contact type",
             "use `play_store/closed_testing_handoff_ru.md` for tester task coverage, aggregate feedback topics and safe evidence phrases",
             "use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data",
-            "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`, exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`, `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/print_store_listing_review_evidence_packet.py` and `play_store/play_console_post_upload_evidence_ru.md`",
+            "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`, `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated` plus the matching install/launch flag, exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`, `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/print_store_listing_review_evidence_packet.py` and `play_store/play_console_post_upload_evidence_ru.md`",
             "closed-testing/production-access status",
             "pre-launch/policy review",
             "store-listing crop review",
@@ -6941,6 +7134,7 @@ def check_post_upload_evidence_handoff() -> None:
             "After the real backup is complete, keep the backup evidence line explicit and safe, for example: `yes, recorded without secrets`.",
             "The active-keystore backup line must explicitly mention `private/signing/qgrid-upload.p12` and `before AAB upload`",
             "Play-generated APK verification command: run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.",
+            "Play-generated APK evidence packet command: run `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device` or `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator` after verification, install and launch.",
             "Play-generated APK package is `com.qgrid.mobile`: not yet available locally.",
             "Play-generated APK signature verifies and certificate SHA-256 recorded: not yet available locally.",
             "Play-generated app label is `Линия 56`: not yet available locally.",
@@ -6956,6 +7150,7 @@ def check_post_upload_evidence_handoff() -> None:
             "The manifest privacy line must explicitly include `allowBackup=false` and `no debuggable`",
             "The native-library line must explicitly include `16 KB`, `16384`, `uncompressed`, `ZIP-aligned` and `extractNativeLibs=false`",
             "The install/launch line must explicitly say the Play-generated APK was `installed` and `launched` on an Android device or Android emulator",
+            "After Play-generated APK verification, install and launch, use `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device` or `./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator`, then copy only the safe Play-Generated APK Review Lines.",
             "App access completed as no restricted access/login/account: not yet available locally.",
             "Ads declaration completed as no ads: not yet available locally.",
             "Data Safety completed as no user data collected or shared: not yet available locally.",
@@ -7675,6 +7870,7 @@ def run_checks() -> None:
         check_play_upload_archive_helper,
         check_play_console_packet_helper,
         check_play_generated_apk_helper,
+        check_play_generated_apk_evidence_packet_helper,
         check_publication_readiness_helper,
         check_privacy_policy_url_helper,
         check_remote_release_helper,

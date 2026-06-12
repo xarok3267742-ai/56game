@@ -219,7 +219,11 @@ OWNER_ACTION_GROUPS = (
         "Play-generated artifact review",
         "Download or inspect Play-generated artifacts and prove package, signature, label, version, icon, permission, manifest privacy and native 16 KB page-size posture.",
         ("play_store/play_console_post_upload_evidence_ru.md",),
-        ("./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>",),
+        (
+            "./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator",
+        ),
         (
             "Play-generated APK package is `com.qgrid.mobile`",
             "Play-generated APK signature verifies and certificate SHA-256 recorded",
@@ -258,6 +262,8 @@ OWNER_ACTION_GROUPS = (
             "./tools/create_store_asset_review_sheet.py --write",
             "./tools/print_store_listing_review_evidence_packet.py",
             "./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device",
+            "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-emulator",
         ),
         (
             "Internal testing upload completed",
