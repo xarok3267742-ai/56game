@@ -205,6 +205,7 @@ Fields to resolve:
 Required posture:
 
 - Upload first through internal testing.
+- Internal-testing evidence must explicitly mention `internal testing` and that the AAB was uploaded or upload completed.
 - If the publisher account requires closed testing, complete the required tester/time gate before production.
 - Pre-launch report must have no blocking issues, no reproducible crashes and no unresolved policy warnings.
 - Store listing preview evidence must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and no damaging crops.

@@ -78,6 +78,7 @@ After completing Policy Forms, keep the evidence explicit and do not use a bare 
 - Play policy warnings: not yet available locally.
 - Store listing preview checked for damaging image crops: not yet available locally.
 
+After internal testing upload, the internal-testing line must explicitly mention `internal testing` and that the AAB was uploaded or upload completed; do not use a bare `yes`.
 After store-listing preview review, the preview-crop line must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and `no damaging crops`; do not use a bare `yes`.
 
 ## Stop-Release Notes

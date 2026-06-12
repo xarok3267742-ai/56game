@@ -444,9 +444,16 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         "Privacy policy URL is HTTPS",
         "Privacy policy URL is accessible without login",
         "Privacy policy URL is not PDF",
-        "Internal testing upload completed",
     }:
         validate_yes(label, value, file_label)
+    elif label == "Internal testing upload completed":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("internal testing",))
+        lowered = value.lower()
+        require(
+            "uploaded" in lowered or "upload completed" in lowered or "completed" in lowered,
+            f"{file_label} value for {label} must explicitly say the AAB was uploaded to internal testing: {value}",
+        )
     elif label == "Signing backup evidence file":
         validate_exact(label, value, file_label, "play_store/signing_backup_evidence_ru.md")
     elif label == "Signing backup input check command returned `signing_backup_input_ok`":
