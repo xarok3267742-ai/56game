@@ -38,6 +38,7 @@
 - Final local gate runner: `tools/run_final_local_gate.py`
 - Managed API 36 connected gate helper: `tools/run_api36_connected_gate.py`
 - Upload packet helper: `tools/print_upload_packet.py`
+- Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`
 - Store asset review sheet helper: `tools/create_store_asset_review_sheet.py`
 - Play upload archive helper: `tools/prepare_play_upload_archive.py`
   - Verify existing generated ZIP: run the helper with --verify-existing
@@ -60,6 +61,7 @@
 - Signing backup evidence and owner template: `play_store/signing_backup_evidence_ru.md`
 - Final local gate runner: `tools/run_final_local_gate.py`
 - Managed API 36 connected gate helper: `tools/run_api36_connected_gate.py`
+- Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`
 - Store asset review sheet: `play_store/store_asset_review_sheet.png`
 - Store asset review sheet helper: `tools/create_store_asset_review_sheet.py`
 - Play upload archive helper: `tools/prepare_play_upload_archive.py`

@@ -63,6 +63,7 @@ Equivalent expanded sequence:
 ./gradlew bundleRelease
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
+./tools/print_post_upload_evidence_packet.py
 ./tools/create_store_asset_review_sheet.py --dry-run
 ./tools/prepare_play_upload_archive.py --dry-run
 ./tools/prepare_play_upload_archive.py --verify-existing

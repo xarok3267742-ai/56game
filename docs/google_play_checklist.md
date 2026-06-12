@@ -68,6 +68,7 @@ Equivalent expanded sequence:
 ./gradlew bundleRelease
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
+./tools/print_post_upload_evidence_packet.py
 ./tools/create_store_asset_review_sheet.py --dry-run
 ./tools/prepare_play_upload_archive.py --dry-run
 ./tools/prepare_play_upload_archive.py --verify-existing
@@ -204,6 +205,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - When an API 36 emulator/device is available, prefer `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` so connected evidence is refreshed before the verifier; this optional connected path also cleans generated connected outputs, force-stops/kills the current production package `com.qgrid.mobile` plus known stale local package processes, and uninstalls known stale local debug/test packages on the selected serial, including `com.qgrid.mobile.debug` and `com.qgrid.mobile.debug.test`, before instrumentation starts.
 - To have the project manage the API 36 emulator itself, run `./tools/run_api36_connected_gate.py` and require `api36_connected_gate_ok`; add `--include-hosted-privacy` when network is available before upload. It targets `Medium_Phone_API_36` on `emulator-5560`, starts it with `-wipe-data` so stale debug/test APKs from older local projects cannot steal focus, retries the cleaned AVD once without `-wipe-data` if the emulator exits after the wipe reset before boot, and refuses to touch a different AVD on that serial.
 - Run `./tools/print_upload_packet.py` and require `upload_packet_ok` before uploading assets.
+- Run `./tools/print_post_upload_evidence_packet.py` and require `post_upload_evidence_packet_ok`; after the real Play Console upload, rerun it with `--upload-date <date/time>` and copy the safe upload artifact/internal-testing lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - Run `./tools/create_store_asset_review_sheet.py --dry-run` and review `play_store/store_asset_review_sheet.png` before upload to catch damaging crop or wrong-asset regressions locally.
 - Optionally run `./tools/prepare_play_upload_archive.py --write` to create `build/play_upload/line56_v1_google_play_upload_packet.zip`, then run `./tools/prepare_play_upload_archive.py --verify-existing`; unpack the ZIP for upload day and do not upload it itself to Play Console.
 - Run `./tools/print_play_console_packet.py` and require `play_console_packet_ok` before filling Play Console listing/App content forms.

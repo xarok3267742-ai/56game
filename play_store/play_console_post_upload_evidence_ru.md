@@ -13,6 +13,8 @@
 - First release track used: not yet available locally.
 - Upload date/time: not yet available locally.
 
+After the real Play Console upload, run `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and copy the safe upload artifact/internal-testing evidence lines from its output. Do not copy the placeholder upload date from the default no-argument output.
+
 ## Privacy And Contact
 
 - Public privacy policy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html.

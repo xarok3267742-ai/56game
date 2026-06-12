@@ -161,7 +161,10 @@ OWNER_ACTION_GROUPS = (
         "Upload artifact identity",
         "Upload the signed AAB through a testing track first and record exact artifact facts.",
         ("play_store/play_console_post_upload_evidence_ru.md",),
-        ("./tools/print_upload_packet.py",),
+        (
+            "./tools/print_upload_packet.py",
+            "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
+        ),
         (
             "Uploaded package name",
             "Uploaded version code",
@@ -242,6 +245,7 @@ OWNER_ACTION_GROUPS = (
         "Finish required testing, review Play warnings/pre-launch results and inspect store preview crops.",
         ("play_store/play_console_post_upload_evidence_ru.md",),
         (
+            "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
             "./tools/create_store_asset_review_sheet.py --write",
             "./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>",
         ),

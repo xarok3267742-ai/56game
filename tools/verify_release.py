@@ -14,7 +14,7 @@ The script intentionally checks facts that are easy to regress:
 - lightweight artifact and asset size budgets;
 - Play store asset dimensions/alpha;
 - upload manifest paths;
-- upload-packet helper consistency;
+- upload-packet and post-upload evidence helper consistency;
 - store asset review sheet helper consistency;
 - Play upload archive helper consistency;
 - Play Console packet helper consistency;
@@ -582,6 +582,7 @@ def check_agents_handoff() -> None:
             "./tools/run_api36_connected_gate.py --include-hosted-privacy",
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
+            "./tools/print_post_upload_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/create_store_asset_review_sheet.py --write",
             "./tools/prepare_play_upload_archive.py --dry-run",
@@ -634,6 +635,8 @@ def check_agents_handoff() -> None:
             "refuses to touch a different AVD on that serial.",
             "`./tools/print_upload_packet.py` is the read-only owner helper for upload day.",
             "requires the exact ordered upload path set and prints the Google Play upload packet plus the Do Not Upload list.",
+            "`./tools/print_post_upload_evidence_packet.py` is the read-only owner helper for upload-day evidence.",
+            "prints exact safe lines for the upload artifact identity and internal-testing upload fields",
             "`./tools/create_store_asset_review_sheet.py` is the local visual asset review helper.",
             "The sheet is internal evidence only and must not be uploaded to Play Console.",
             "`./tools/prepare_play_upload_archive.py` is the generated owner handoff archive helper.",
@@ -663,7 +666,7 @@ def check_agents_handoff() -> None:
             "No placeholder user-facing content remains.",
             "Store assets are present and verifier-approved.",
             "`./tools/run_final_local_gate.py` passes and prints `final_local_gate_ok`",
-            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local` and `./tools/check_signing_backup_inputs.py`.",
+            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local` and `./tools/check_signing_backup_inputs.py`.",
             "preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device",
             "Google Play checklist, release report and upload handoff are current.",
             "The full publication goal is not complete until manual external gates are done",
@@ -675,7 +678,7 @@ def check_agents_handoff() -> None:
     final_gate = agents.split("Final local gate before handoff:", 1)[1].split("Run `connectedDebugAndroidTest`", 1)[0]
     require("./tools/run_final_local_gate.py" in final_gate, "AGENTS.md final local gate must use run_final_local_gate.py")
     require(
-        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local` and `./tools/check_signing_backup_inputs.py` in order."
+        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local` and `./tools/check_signing_backup_inputs.py` in order."
         in final_gate,
         "AGENTS.md final local gate must document the runner command expansion",
     )
@@ -683,6 +686,7 @@ def check_agents_handoff() -> None:
         "./gradlew test lint assembleDebug assembleRelease bundleRelease",
         "./tools/verify_release.py",
         "./tools/print_upload_packet.py",
+        "./tools/print_post_upload_evidence_packet.py",
         "./tools/create_store_asset_review_sheet.py --dry-run",
         "./tools/prepare_play_upload_archive.py --dry-run",
         "./tools/prepare_play_upload_archive.py --verify-existing",
@@ -715,6 +719,7 @@ def check_readme_handoff() -> None:
             "./tools/run_api36_connected_gate.py --include-hosted-privacy",
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
+            "./tools/print_post_upload_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/create_store_asset_review_sheet.py --write",
             "./tools/prepare_play_upload_archive.py --dry-run",
@@ -762,6 +767,8 @@ def check_readme_handoff() -> None:
             "and stops only the emulator it started",
             "`--preserve-avd-data` is for diagnostics only",
             "`./tools/print_upload_packet.py` prints and verifies the exact ordered upload packet",
+            "`./tools/print_post_upload_evidence_packet.py` prints safe upload artifact and internal-testing evidence lines",
+            "rerun it with `--upload-date <date/time>` for a concrete upload-date line",
             "`./tools/create_store_asset_review_sheet.py --write` regenerates the internal visual review sheet",
             "Store asset review sheet лежит в `play_store/store_asset_review_sheet.png` and is internal review evidence only",
             "`./tools/prepare_play_upload_archive.py --write` creates a generated owner handoff ZIP under `build/play_upload`",
@@ -867,6 +874,7 @@ def check_google_play_checklist_handoff() -> None:
             "./gradlew bundleRelease",
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
+            "./tools/print_post_upload_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/prepare_play_upload_archive.py --dry-run",
             "./tools/prepare_play_upload_archive.py --verify-existing",
@@ -921,6 +929,8 @@ def check_google_play_checklist_handoff() -> None:
             "To have the project manage the API 36 emulator itself, run `./tools/run_api36_connected_gate.py` and require `api36_connected_gate_ok`",
             "add `--include-hosted-privacy` when network is available before upload",
             "Run `./tools/print_upload_packet.py` and require `upload_packet_ok` before uploading assets.",
+            "Run `./tools/print_post_upload_evidence_packet.py` and require `post_upload_evidence_packet_ok`",
+            "copy the safe upload artifact/internal-testing lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "Run `./tools/create_store_asset_review_sheet.py --dry-run` and review `play_store/store_asset_review_sheet.png` before upload",
             "Run `./tools/print_play_console_packet.py` and require `play_console_packet_ok` before filling Play Console listing/App content forms.",
             "Use `play_store/privacy_contact_handoff_ru.md` for privacy URL, support/contact field and safe evidence wording without recording the actual support email or URL.",
@@ -1169,6 +1179,7 @@ def check_release_plan_handoff() -> None:
             "./tools/run_final_local_gate.py",
             "Equivalent expanded sequence:",
             "./tools/print_upload_packet.py",
+            "./tools/print_post_upload_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/print_play_console_packet.py",
             "./tools/verify_play_generated_apk.py --dry-run",
@@ -1251,6 +1262,8 @@ def check_release_report_handoff() -> None:
             "Latest Play support/contact type evidence hardening",
             "Latest Play support/contact value-redaction evidence hardening",
             "Latest privacy/contact handoff hardening",
+            "Latest post-upload evidence packet hardening",
+            "Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`.",
             "Latest Play-generated version owner-evidence hardening",
             "Latest privacy helper negative-regression gate",
             "Latest signing-backup evidence hardening",
@@ -1446,6 +1459,7 @@ def check_completion_audit_handoff() -> None:
             "Latest Play support/contact type evidence hardening",
             "Latest Play support/contact value-redaction evidence hardening",
             "Latest privacy/contact handoff hardening",
+            "Latest post-upload evidence packet hardening",
             "Latest Play-generated version owner-evidence hardening",
             "Latest privacy helper negative-regression gate",
             "Latest signing-backup evidence hardening",
@@ -2604,6 +2618,10 @@ def check_asset_handoff() -> None:
         "upload manifest must include Play Console packet helper handoff",
     )
     require(
+        "Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`" in upload_manifest,
+        "upload manifest must include post-upload evidence packet helper handoff",
+    )
+    require(
         "Store asset review sheet helper: `tools/create_store_asset_review_sheet.py`" in upload_manifest,
         "upload manifest must include store asset review helper handoff",
     )
@@ -2966,6 +2984,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "Upload Artifact Identity",
             "play_store/play_console_post_upload_evidence_ru.md",
             "./tools/print_upload_packet.py",
+            "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
             "Package must be `com.qgrid.mobile`.",
             "versionCode must be `1`.",
             "versionName must be `1.0.0`.",
@@ -3015,6 +3034,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "Answer worksheet: `play_store/production_access_answers_ru.md`.",
             "Use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data, invite links or private tester URLs if Play Console asks for production-access application answers.",
             "Closed-testing handoff: `play_store/closed_testing_handoff_ru.md`.",
+            "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
             "./tools/create_store_asset_review_sheet.py --write",
             "Internal-testing evidence must explicitly mention `internal testing` and that the AAB was uploaded or upload completed.",
             "Use `play_store/closed_testing_handoff_ru.md` for tester task coverage, aggregate feedback topics and safe evidence phrases.",
@@ -3091,6 +3111,7 @@ def check_upload_runbook_handoff() -> None:
             "./gradlew bundleRelease",
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
+            "./tools/print_post_upload_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/print_play_console_packet.py",
             "./tools/print_publication_readiness.py",
@@ -3107,6 +3128,8 @@ def check_upload_runbook_handoff() -> None:
             "`./tools/run_final_local_gate.py` возвращает `final_local_gate_ok`.",
             "`./tools/verify_release.py` возвращает `release_verification_ok`.",
             "`./tools/print_upload_packet.py` возвращает `upload_packet_ok`.",
+            "`./tools/print_post_upload_evidence_packet.py` возвращает `post_upload_evidence_packet_ok`",
+            "copy the safe upload artifact/internal-testing evidence lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/create_store_asset_review_sheet.py --dry-run` возвращает `store_asset_review_sheet_dry_run_ok`",
             "visually review `play_store/store_asset_review_sheet.png` before upload",
             "`./tools/prepare_play_upload_archive.py --dry-run` возвращает `play_upload_archive_dry_run_ok`",
@@ -3196,6 +3219,7 @@ def check_upload_runbook_handoff() -> None:
             "Pre-launch report shows a reproducible app crash.",
             "After any local rebuild, rerun the full preflight and compare `play_store/upload_checksums.md` again before uploading.",
             "Evidence To Record After Upload",
+            "Safe upload artifact/internal-testing lines from `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`.",
             "Public privacy policy URL.",
             "Signing backup input check result from `./tools/check_signing_backup_inputs.py`.",
             "Signing backup evidence recorded in `play_store/signing_backup_evidence_ru.md`.",
@@ -3223,6 +3247,7 @@ def check_final_local_gate_runner() -> None:
             "(\"./gradlew\", \"test\", \"lint\", \"assembleDebug\", \"assembleRelease\", \"bundleRelease\")",
             "(\"./tools/verify_release.py\",)",
             "(\"./tools/print_upload_packet.py\",)",
+            "(\"./tools/print_post_upload_evidence_packet.py\",)",
             "(\"./tools/create_store_asset_review_sheet.py\", \"--dry-run\")",
             "(\"./tools/prepare_play_upload_archive.py\", \"--dry-run\")",
             "(\"./tools/prepare_play_upload_archive.py\", \"--verify-existing\")",
@@ -3282,6 +3307,7 @@ def check_final_local_gate_runner() -> None:
         "./gradlew test lint assembleDebug assembleRelease bundleRelease",
         "./tools/verify_release.py",
         "./tools/print_upload_packet.py",
+        "./tools/print_post_upload_evidence_packet.py",
         "./tools/create_store_asset_review_sheet.py --dry-run",
         "./tools/prepare_play_upload_archive.py --dry-run",
         "./tools/prepare_play_upload_archive.py --verify-existing",
@@ -3579,6 +3605,99 @@ def check_upload_packet_helper() -> None:
             raise CheckFailure("upload packet helper must reject a manifest without Do Not Upload entries")
     finally:
         module.MANIFEST_PATH = original_manifest_path
+
+
+def check_post_upload_evidence_packet_helper() -> None:
+    helper = require_file("tools/print_post_upload_evidence_packet.py")
+    require(os.access(helper, os.X_OK), "tools/print_post_upload_evidence_packet.py must be executable")
+    require_text_markers(
+        "tools/print_post_upload_evidence_packet.py",
+        [
+            "Print safe post-upload evidence lines for the owner.",
+            "This helper is intentionally read-only.",
+            "It does not claim that Play Console",
+            "from print_upload_packet import",
+            "AAB_PATH = \"app/build/outputs/bundle/release/app-release.aab\"",
+            "PACKAGE_NAME = \"com.qgrid.mobile\"",
+            "VERSION_CODE = \"1\"",
+            "VERSION_NAME = \"1.0.0\"",
+            "DEFAULT_TRACK = \"internal testing\"",
+            "UPLOAD_DATE_PLACEHOLDER = \"REPLACE_WITH_ACTUAL_UPLOAD_DATE_TIME\"",
+            "FORBIDDEN_EVIDENCE_MARKERS",
+            "def validate_no_forbidden_evidence(",
+            "def validate_upload_date(",
+            "--upload-date must include a full date such as 2026-06-12",
+            "def verified_aab_sha256(",
+            "verify_required_upload_paths(rows)",
+            "verify_rows(rows)",
+            "def evidence_lines(",
+            "Internal testing upload completed: internal testing upload completed; signed AAB was uploaded to internal testing.",
+            "Destination evidence file: play_store/play_console_post_upload_evidence_ru.md",
+            "Use these lines only after the signed AAB is actually uploaded through Play Console.",
+            "post_upload_evidence_packet_ok",
+        ],
+    )
+
+    output = subprocess.check_output(
+        [str(helper)],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Post-upload evidence packet",
+        "Source AAB: app/build/outputs/bundle/release/app-release.aab",
+        "Destination evidence file: play_store/play_console_post_upload_evidence_ru.md",
+        "Use these lines only after the signed AAB is actually uploaded through Play Console.",
+        "REPLACE_WITH_ACTUAL_UPLOAD_DATE_TIME",
+        "Uploaded package name: com.qgrid.mobile.",
+        "Uploaded version code: 1.",
+        "Uploaded version name: 1.0.0.",
+        "Uploaded AAB SHA-256: 3affd5cc6de7735d7cb9cc4f381e114caa0b20d6bfa933621d596d24dc2e3043.",
+        "First release track used: internal testing.",
+        "Internal testing upload completed: internal testing upload completed; signed AAB was uploaded to internal testing.",
+        "post_upload_evidence_packet_ok",
+    ]:
+        require(marker in output, f"post-upload evidence packet missing marker: {marker}")
+
+    dated_output = subprocess.check_output(
+        [str(helper), "--upload-date", "2026-06-12 14:30 local time"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    require("Upload date/time: 2026-06-12 14:30 local time." in dated_output, "post-upload evidence packet did not print concrete upload date")
+    require(
+        "REPLACE_WITH_ACTUAL_UPLOAD_DATE_TIME" not in dated_output,
+        "post-upload evidence packet must omit the date placeholder when --upload-date is provided",
+    )
+    require("post_upload_evidence_packet_ok" in dated_output, "post-upload evidence packet dated run did not finish ok")
+
+    spec = importlib.util.spec_from_file_location("line56_post_upload_evidence_packet", helper)
+    require(spec is not None and spec.loader is not None, "post-upload evidence packet helper could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    lines = module.evidence_lines(upload_date="2026-06-12 14:30 local time")
+    require("- Uploaded package name: com.qgrid.mobile." in lines, "post-upload helper generated wrong package line")
+    require(
+        "- Uploaded AAB SHA-256: 3affd5cc6de7735d7cb9cc4f381e114caa0b20d6bfa933621d596d24dc2e3043." in lines,
+        "post-upload helper generated wrong AAB SHA line",
+    )
+    require(
+        "- Internal testing upload completed: internal testing upload completed; signed AAB was uploaded to internal testing." in lines,
+        "post-upload helper generated wrong internal-testing line",
+    )
+    for bad_date, expected_message in [
+        ("pending", "must be a concrete date/time"),
+        ("2026", "must include a full date"),
+        ("2026-06-12 storePassword=secret", "forbidden marker"),
+    ]:
+        try:
+            module.validate_upload_date(bad_date)
+        except module.PostUploadEvidencePacketError as exc:
+            require(expected_message in str(exc), f"post-upload helper rejected bad upload date with unexpected message: {exc}")
+        else:
+            raise CheckFailure(f"post-upload helper must reject bad upload date: {bad_date}")
 
 
 def check_store_asset_review_sheet_helper() -> None:
@@ -4607,6 +4726,7 @@ def check_publication_readiness_helper() -> None:
             "Active upload keystore backed up before AAB upload",
             "Internal testing upload completed",
             "internal testing first",
+            "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
             "def expected_aab_sha256(",
             "def collect_evidence_status(",
             "def validate_post_upload_value(",
@@ -6066,8 +6186,8 @@ def check_owner_release_inputs() -> None:
             "Use `play_store/privacy_contact_handoff_ru.md` for the Play Console privacy URL, support/contact field and safe evidence wording without recording the actual support email or URL.",
             "use `play_store/closed_testing_handoff_ru.md` for tester task coverage, aggregate feedback topics and safe evidence phrases",
             "use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data",
+            "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and `play_store/play_console_post_upload_evidence_ru.md`",
             "production-access status",
-            "After upload, use `play_store/play_console_post_upload_evidence_ru.md` to record only safe external facts",
             "Before upload, use `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup facts.",
             "Do not record secrets or tester personal data.",
             "Do Not Change Without Rebuilding And Rechecking",
@@ -6097,6 +6217,8 @@ def check_post_upload_evidence_handoff() -> None:
             "Uploaded version code: not yet available locally; must be `1`.",
             "Uploaded version name: not yet available locally; must be `1.0.0`.",
             "Uploaded AAB SHA-256: not yet available locally; compare with `play_store/upload_checksums.md`.",
+            "After the real Play Console upload, run `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and copy the safe upload artifact/internal-testing evidence lines from its output.",
+            "Do not copy the placeholder upload date from the default no-argument output.",
             "Public privacy policy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html.",
             "Privacy policy URL check command returned `privacy_policy_url_ok`: privacy_policy_url_ok.",
             "Privacy policy URL is HTTPS: yes.",
@@ -6836,6 +6958,7 @@ def run_checks() -> None:
         check_final_local_gate_runner,
         check_api36_connected_gate_helper,
         check_upload_packet_helper,
+        check_post_upload_evidence_packet_helper,
         check_store_asset_review_sheet_helper,
         check_play_upload_archive_helper,
         check_play_console_packet_helper,

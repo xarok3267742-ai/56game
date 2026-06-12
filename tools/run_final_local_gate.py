@@ -4,8 +4,8 @@
 This script is intentionally local by default. It builds/tests the release
 candidate, optionally refreshes connected Android test evidence, then runs the
 read-only handoff helpers that verify upload assets, the store-asset review
-sheet, the optional upload archive, Play Console copy, Play-generated APK review
-posture, local privacy HTML and signing input hygiene. Use
+sheet, the optional upload archive, Play Console copy, post-upload evidence
+draft, Play-generated APK review posture, local privacy HTML and signing input hygiene. Use
 --include-hosted-privacy only for a pre-upload run that should also revalidate
 the recorded hosted privacy policy URL.
 """
@@ -52,6 +52,7 @@ PUBLICATION_READINESS_WITH_RECORDED_PRIVACY_COMMAND: tuple[str, ...] = (
 HANDOFF_COMMANDS: tuple[tuple[str, ...], ...] = (
     ("./tools/verify_release.py",),
     ("./tools/print_upload_packet.py",),
+    ("./tools/print_post_upload_evidence_packet.py",),
     ("./tools/create_store_asset_review_sheet.py", "--dry-run"),
     ("./tools/prepare_play_upload_archive.py", "--dry-run"),
     ("./tools/prepare_play_upload_archive.py", "--verify-existing"),

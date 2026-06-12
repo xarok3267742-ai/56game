@@ -29,6 +29,7 @@ Command:
 
 ```bash
 ./tools/print_upload_packet.py
+./tools/print_post_upload_evidence_packet.py --upload-date <date/time>
 ```
 
 Fields to resolve:
@@ -199,6 +200,7 @@ Closed-testing handoff: `play_store/closed_testing_handoff_ru.md`.
 Commands:
 
 ```bash
+./tools/print_post_upload_evidence_packet.py --upload-date <date/time>
 ./tools/create_store_asset_review_sheet.py --write
 ./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>
 ```

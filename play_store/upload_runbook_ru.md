@@ -39,6 +39,7 @@ Equivalent expanded sequence:
 ./gradlew bundleRelease
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
+./tools/print_post_upload_evidence_packet.py
 ./tools/create_store_asset_review_sheet.py --dry-run
 ./tools/prepare_play_upload_archive.py --dry-run
 ./tools/prepare_play_upload_archive.py --verify-existing
@@ -63,6 +64,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - `./tools/run_api36_connected_gate.py` возвращает `api36_connected_gate_ok`, если helper сам поднимает `Medium_Phone_API_36`, прогоняет connected final gate и безопасно останавливает только свой эмулятор; добавьте `--include-hosted-privacy`, когда сеть доступна и нужно включить recorded hosted privacy URL check в тот же managed run.
 - `./tools/verify_release.py` возвращает `release_verification_ok`.
 - `./tools/print_upload_packet.py` возвращает `upload_packet_ok`.
+- `./tools/print_post_upload_evidence_packet.py` возвращает `post_upload_evidence_packet_ok`; после реальной загрузки в Play Console запустите `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and copy the safe upload artifact/internal-testing evidence lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - `./tools/create_store_asset_review_sheet.py --dry-run` возвращает `store_asset_review_sheet_dry_run_ok`; visually review `play_store/store_asset_review_sheet.png` before upload and do not upload that sheet to Play Console.
 - `./tools/prepare_play_upload_archive.py --dry-run` возвращает `play_upload_archive_dry_run_ok`; `./tools/prepare_play_upload_archive.py --verify-existing` возвращает `play_upload_archive_existing_ok`; optional `./tools/prepare_play_upload_archive.py --write` создаёт generated owner handoff ZIP under `build/play_upload`, который нужно распаковать, а не загружать целиком в Play Console.
 - `./tools/print_play_console_packet.py` возвращает `play_console_packet_ok`.
@@ -223,6 +225,7 @@ After Play Console upload, record these owner-side facts in the release notes or
 
 - Uploaded AAB version code and version name.
 - Play Console track used first.
+- Safe upload artifact/internal-testing lines from `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`.
 - Public privacy policy URL.
 - Privacy policy URL check result from `./tools/check_privacy_policy_url.py --url <https-url>`.
 - Signing backup input check result from `./tools/check_signing_backup_inputs.py`.
