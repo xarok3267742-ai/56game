@@ -57,22 +57,17 @@ Use `./tools/run_upload_day_preflight.py --managed-api36-connected` when the pro
 Equivalent expanded sequence:
 
 ```bash
-./gradlew clean
-./gradlew test
-./gradlew assembleDebug
-./gradlew lint
-./gradlew assembleRelease
-./gradlew connectedDebugAndroidTest
-./gradlew bundleRelease
+./gradlew test lint assembleDebug assembleRelease bundleRelease
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
 ./tools/print_post_upload_evidence_packet.py
+./tools/print_developer_account_evidence_packet.py
 ./tools/print_closed_testing_evidence_packet.py --dry-run
 ./tools/print_privacy_contact_evidence_packet.py
 ./tools/print_play_console_forms_evidence_packet.py
 ./tools/print_pre_launch_review_evidence_packet.py
-./tools/print_store_listing_review_evidence_packet.py
 ./tools/create_store_asset_review_sheet.py --dry-run
+./tools/print_store_listing_review_evidence_packet.py
 ./tools/prepare_play_upload_archive.py --dry-run
 ./tools/prepare_play_upload_archive.py --verify-existing
 ./tools/print_play_console_packet.py

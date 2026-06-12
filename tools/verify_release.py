@@ -1320,8 +1320,10 @@ def check_release_plan_handoff() -> None:
             "Preferred single command:",
             "./tools/run_final_local_gate.py",
             "Equivalent expanded sequence:",
+            "./gradlew test lint assembleDebug assembleRelease bundleRelease",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_developer_account_evidence_packet.py",
             "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/print_pre_launch_review_evidence_packet.py",
@@ -1336,14 +1338,12 @@ def check_release_plan_handoff() -> None:
             "./tools/print_privacy_contact_evidence_packet.py --contact-type support-email",
             "privacy_contact_evidence_packet_ok",
             "copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`",
-            "./gradlew clean",
-            "./gradlew test",
-            "./gradlew assembleDebug",
-            "./gradlew lint",
-            "./gradlew connectedDebugAndroidTest",
-            "./gradlew bundleRelease",
             "./tools/verify_release.py",
         ],
+    )
+    require_equivalent_final_gate_sequence(
+        "docs/release_plan.md",
+        "release plan",
     )
 
 
@@ -1518,6 +1518,8 @@ def check_release_report_handoff() -> None:
             "`./tools/run_upload_day_preflight.py --release-tag v1.0.0-rc64` passed on 12 June 2026",
             "Latest Google Play checklist final-gate sequence sync hardening",
             "`tools/verify_release.py` reuses a single `FINAL_LOCAL_GATE_SEQUENCE` assertion for both the checklist and `play_store/upload_runbook_ru.md`",
+            "Latest release-plan final-gate sequence sync hardening",
+            "`tools/verify_release.py` now checks it through the shared `FINAL_LOCAL_GATE_SEQUENCE` assertion too",
             "verified 13 remote upload assets from `play_store/upload_checksums.md`",
             "remote forbidden-path/AAB scans",
             "Latest upload-runbook sequence sync hardening",
@@ -1727,6 +1729,8 @@ def check_completion_audit_handoff() -> None:
             "`./tools/run_upload_day_preflight.py --release-tag v1.0.0-rc64` passed on 12 June 2026",
             "Latest Google Play checklist final-gate sequence sync hardening",
             "`tools/verify_release.py` reuses a single `FINAL_LOCAL_GATE_SEQUENCE` assertion for both the checklist and `play_store/upload_runbook_ru.md`",
+            "Latest release-plan final-gate sequence sync hardening",
+            "`tools/verify_release.py` now checks it through the shared `FINAL_LOCAL_GATE_SEQUENCE` assertion too",
             "13 remote upload assets verified from `play_store/upload_checksums.md`",
             "Latest upload-runbook sequence sync hardening",
             "`tools/verify_release.py` now parses that fenced block and fails if the order or command set drifts from the final local gate",
