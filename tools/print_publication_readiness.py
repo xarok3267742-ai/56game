@@ -448,12 +448,6 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         "Support/contact mechanism matches `play_store/privacy_policy_ru.html`",
         "Active upload keystore backed up before AAB upload",
         "Play-generated version code/name match this release candidate",
-        "App access completed as no restricted access/login/account",
-        "Ads declaration completed as no ads",
-        "Data Safety completed as no user data collected or shared",
-        "Content rating completed as Games / Puzzle posture",
-        "Target audience completed as non-child-directed 13+ posture unless publisher intentionally chose a child-directed path",
-        "AI disclosure completed as no in-app generative AI features",
         "Internal testing upload completed",
     }:
         validate_yes(label, value, file_label)
@@ -503,6 +497,33 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         require(
             "device" in lowered or "emulator" in lowered,
             f"{file_label} value for {label} must mention an Android device or emulator: {value}",
+        )
+    elif label == "App access completed as no restricted access/login/account":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("no restricted access", "no login", "no account"))
+    elif label == "Ads declaration completed as no ads":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("no ads",))
+    elif label == "Data Safety completed as no user data collected or shared":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("no user data collected", "no user data shared"))
+    elif label == "Content rating completed as Games / Puzzle posture":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("Games", "Puzzle"))
+    elif label == "Target audience completed as non-child-directed 13+ posture unless publisher intentionally chose a child-directed path":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("13",))
+        lowered = value.lower()
+        require(
+            "non-child-directed" in lowered or "not child-directed" in lowered,
+            f"{file_label} value for {label} must explicitly say the release is non-child-directed: {value}",
+        )
+    elif label == "AI disclosure completed as no in-app generative AI features":
+        validate_no_negative_markers(label, value, file_label)
+        lowered = value.lower()
+        require(
+            "no in-app generative ai" in lowered or "no generative ai features" in lowered,
+            f"{file_label} value for {label} must explicitly say there are no in-app generative AI features: {value}",
         )
     elif label == "Closed testing required for this account":
         normalized = lower_value(value)

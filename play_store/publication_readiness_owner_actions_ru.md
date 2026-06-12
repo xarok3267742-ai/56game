@@ -170,6 +170,7 @@ Required posture:
 
 - No accounts, ads, analytics, crash SDK, billing, UGC, online interaction, gambling, medical/financial/government claims or data collection.
 - Target audience should stay 13+ and non-child-directed unless a new documented product decision changes the release path.
+- Evidence must not use bare `yes`; it must explicitly mention no restricted access/login/account, no ads, no user data collected/shared, Games / Puzzle content rating, 13+ non-child-directed target audience and no in-app generative AI features.
 
 ## 6. Testing Track And Final Review
 

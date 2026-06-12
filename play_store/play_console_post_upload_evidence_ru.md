@@ -62,6 +62,8 @@ The install/launch line must explicitly say the Play-generated APK was `installe
 - Target audience completed as non-child-directed 13+ posture unless publisher intentionally chose a child-directed path: not yet available locally.
 - AI disclosure completed as no in-app generative AI features: not yet available locally.
 
+After completing Policy Forms, keep the evidence explicit and do not use a bare `yes`: app access must mention `no restricted access`, `no login` and `no account`; ads must mention `no ads`; Data Safety must mention `no user data collected` and `no user data shared`; content rating must mention `Games` and `Puzzle`; target audience must mention `13+` and `non-child-directed`; AI disclosure must mention `no in-app generative AI features`.
+
 ## Testing And Review
 
 - Internal testing upload completed: not yet available locally.
