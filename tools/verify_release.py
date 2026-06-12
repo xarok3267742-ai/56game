@@ -661,7 +661,7 @@ def check_agents_handoff() -> None:
             "preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device",
             "Google Play checklist, release report and upload handoff are current.",
             "The full publication goal is not complete until manual external gates are done",
-            "entering the verified hosted privacy-policy URL in Play Console, populated Play Console support/contact fields for privacy inquiries, secure keystore backup, Play Console forms and required testing tracks.",
+            "entering the verified hosted privacy-policy URL in Play Console, populated Play Console support/contact fields for privacy inquiries, secure keystore backup, Play Console forms, required testing tracks and Play Console production access if required.",
         ],
     )
     agents = read("AGENTS.md")
@@ -760,7 +760,7 @@ def check_readme_handoff() -> None:
             "unpack it for upload day and do not upload the ZIP itself to Play Console",
             "`./tools/print_play_console_packet.py` prints and verifies the copy-ready Play Console listing/App content packet and manual owner gates.",
             "`./tools/print_publication_readiness.py` prints `publication_readiness_local_ready_external_pending`",
-            "while external Play Console URL-entry, support contact, signing backup and testing-track evidence is unresolved",
+            "while external Play Console URL-entry, support contact, signing backup, testing-track evidence and production-access evidence if required are unresolved",
             "groups unresolved owner actions by evidence file and required command",
             "`./tools/verify_play_generated_apk.py --dry-run` documents the Play-generated APK review posture",
             "run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` before rollout",
@@ -781,6 +781,7 @@ def check_readme_handoff() -> None:
             "signing_backup_input_ok",
             "Play Console forms",
             "required testing tracks",
+            "receive Play Console production access if required",
         ],
     )
 
@@ -889,6 +890,7 @@ def check_google_play_checklist_handoff() -> None:
             "Recommended non-child-directed answer is documented in `play_store/app_content_answers_ru.md`",
             "Upload the signed AAB to internal testing first.",
             "For applicable personal developer accounts, run the required closed testing track before production.",
+            "If that closed-testing requirement applies, apply for and receive Play Console production access before production rollout.",
             "Privacy policy is not publication-complete until the verified hosted URL is entered in Play Console and real Play Console support/contact fields are set.",
             "Owner release inputs are isolated in `play_store/owner_release_inputs.md`.",
             "Create app in Play Console.",
@@ -908,6 +910,7 @@ def check_google_play_checklist_handoff() -> None:
             "Run `./tools/create_store_asset_review_sheet.py --dry-run` and review `play_store/store_asset_review_sheet.png` before upload",
             "Run `./tools/print_play_console_packet.py` and require `play_console_packet_ok` before filling Play Console listing/App content forms.",
             "Use `play_store/publication_readiness_owner_actions_ru.md` to resolve the external owner-action groups before production rollout.",
+            "Apply for and receive Play Console production access if the publisher account requires it.",
             "After Play Console creates downloadable APK artifacts from the uploaded AAB, run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` and require `play_generated_apk_verify_ok`, `signer certificate SHA-256: ...`, `store icon pixel matches: ...`, `application icon linked store icon: ...`, `round icon linked store icon: ...`, `allowBackup: false` and `debuggable: absent` or `debuggable: false`.",
             "Run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok` before backing up signing files and uploading the AAB.",
             "After pushing the release handoff to GitHub, run `./tools/verify_remote_release.py --tag <release-tag>` and require `remote_release_ok`",
@@ -917,6 +920,7 @@ def check_google_play_checklist_handoff() -> None:
             "Record safe signing-backup evidence in `play_store/signing_backup_evidence_ru.md`.",
             "Record safe post-upload evidence in `play_store/play_console_post_upload_evidence_ru.md`.",
             "Promote to production only after manual gates are complete.",
+            "Publication is still gated by entering the privacy URL in Play Console, populated Play Console support/contact fields, signing-key backup, testing-track evidence, production-access approval if required and Play Console actions.",
         ],
     )
 
@@ -1118,6 +1122,7 @@ def check_release_plan_handoff() -> None:
             "Upload AAB to internal testing.",
             "Resolve `play_store/owner_release_inputs.md` and complete Play Console policy/listing forms.",
             "Run closed testing if account type requires it.",
+            "Apply for and receive Play Console production access if required.",
             "`play_store/upload_manifest.md`",
             "`play_store/upload_runbook_ru.md`",
             "`play_store/play_console_post_upload_evidence_ru.md`",
@@ -1205,6 +1210,7 @@ def check_release_report_handoff() -> None:
             "Latest Play pre-launch/policy evidence hardening",
             "Latest closed-testing evidence consistency hardening",
             "Latest production-access owner evidence hardening",
+            "Latest production-access handoff alignment hardening",
             "Latest owner evidence secret-pattern hardening",
             "Latest post-upload evidence handoff hardening",
             "Latest owner backup-evidence specificity hardening",
@@ -1396,6 +1402,7 @@ def check_completion_audit_handoff() -> None:
             "Latest closed-testing tester-duration evidence hardening",
             "Latest Play pre-launch/policy evidence hardening",
             "Latest production-access owner evidence hardening",
+            "Latest production-access handoff alignment hardening",
             "Latest owner evidence secret-pattern hardening",
             "Latest post-upload evidence handoff hardening",
             "Latest owner backup-evidence specificity hardening",
@@ -2575,6 +2582,10 @@ def check_asset_handoff() -> None:
         "upload manifest must include Play upload archive helper handoff",
     )
     require(
+        "receive Play Console production access if required" in upload_manifest,
+        "upload manifest final manual gate must mention production access if required",
+    )
+    require(
         "`build/play_upload/line56_v1_google_play_upload_packet.zip` - generated owner handoff archive only; unpack it and upload the individual files, not the ZIP itself."
         in do_not_upload_section,
         "upload manifest must keep generated upload archive out of Play uploads",
@@ -3083,6 +3094,7 @@ def check_upload_runbook_handoff() -> None:
             "Signing backup: `private/signing/qgrid-upload.p12` and `keystore.properties`",
             "Safe signing-backup evidence template: `play_store/signing_backup_evidence_ru.md`.",
             "closed testing with 12 opted-in testers for 14 continuous days if required by account type",
+            "Play Console production access granted/approved if that path applies",
             "Источник owner gates: `play_store/owner_release_inputs.md`.",
             "Owner-action breakdown for upload day: `play_store/publication_readiness_owner_actions_ru.md`.",
             "Package name: `com.qgrid.mobile`.",
@@ -3125,7 +3137,8 @@ def check_upload_runbook_handoff() -> None:
             "Upload the signed AAB to internal testing.",
             "Inspect Play-generated APKs for package, app name, version, APK signature, signer certificate SHA-256, store-icon pixel match, application/round icon linkage, permissions, `allowBackup=false`, no debuggable release manifest and native 16 KB page-size posture.",
             "Run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.",
-            "Promote to production only after owner gates, testing tracks and review warnings are complete.",
+            "Apply for and receive Play Console production access if closed testing is required for the publisher account.",
+            "Promote to production only after owner gates, testing tracks, production-access status and review warnings are complete.",
             "Stop Conditions",
             "Play Console package is not `com.qgrid.mobile`.",
             "Pre-launch report shows a reproducible app crash.",
@@ -3135,6 +3148,7 @@ def check_upload_runbook_handoff() -> None:
             "Signing backup input check result from `./tools/check_signing_backup_inputs.py`.",
             "Signing backup evidence recorded in `play_store/signing_backup_evidence_ru.md`.",
             "Support/contact field used for privacy inquiries.",
+            "Production access status if required for the account.",
             "Use `play_store/play_console_post_upload_evidence_ru.md` as the safe evidence template.",
             "This evidence is external to the repository",
         ],
@@ -4047,6 +4061,7 @@ def check_play_console_packet_helper() -> None:
             "Google Play Console packet",
             "App content posture",
             "Manual owner gates",
+            "Receive Play Console production access if the publisher account requires it.",
             "play_console_packet_ok",
         ],
     )
@@ -4065,6 +4080,7 @@ def check_play_console_packet_helper() -> None:
     require("Manual owner gates" in output, "Play Console helper did not print manual owner gates")
     require("./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html" in output, "Play Console helper did not print hosted privacy URL check")
     require("play_store/signing_backup_evidence_ru.md" in output, "Play Console helper did not print signing backup evidence path")
+    require("Receive Play Console production access if the publisher account requires it." in output, "Play Console helper did not print production-access owner gate")
     require("play_console_packet_ok" in output, "Play Console helper did not finish with play_console_packet_ok")
 
     spec = importlib.util.spec_from_file_location("line56_play_console_packet", helper)
@@ -5656,6 +5672,7 @@ def check_play_console_submission_handoff() -> None:
             "Publish the privacy policy on a public HTTPS URL.",
             "Back up `private/signing/qgrid-upload.p12` and `keystore.properties` before upload.",
             "Run required internal/closed testing tracks for the publisher account type.",
+            "Apply for and receive Play Console production access if the publisher account requires it.",
             "Re-run `./tools/run_final_local_gate.py` and require `final_local_gate_ok` immediately before uploading.",
         ],
     )
@@ -5705,7 +5722,8 @@ def check_app_content_answers_handoff() -> None:
             "Avoid tags or claims: casino, gambling, betting, money, education for children, school, kids, multiplayer, online.",
             "First upload target: Internal testing.",
             "Personal account created after 13 November 2023: plan for at least 12 opted-in testers for 14 continuous days before production availability.",
-            "Production rollout: only after Play Console policy forms, generated artifact review, privacy URL and testing track requirements are complete.",
+            "Production access: apply for and receive Play Console production access if required after the closed-testing criteria are met.",
+            "Production rollout: only after Play Console policy forms, generated artifact review, privacy URL, testing track requirements and production-access status are complete.",
         ],
     )
 
@@ -5768,6 +5786,9 @@ def check_owner_release_inputs() -> None:
             "`play_store/signing_backup_evidence_ru.md`",
             "Play account testing path",
             "closed testing with 12 opted-in testers for 14 continuous days if required by account type",
+            "Play Console production access granted/approved if required",
+            "Play Console testing tracks / Dashboard production access request",
+            "`play_store/publication_readiness_owner_actions_ru.md`",
             "Final generated-artifact review",
             "APK signature/certificate fingerprint",
             "manifest privacy/debug posture",
@@ -5786,6 +5807,7 @@ def check_owner_release_inputs() -> None:
             "./tools/verify_release.py",
             "./gradlew connectedDebugAndroidTest",
             "publication is still blocked externally",
+            "receives Play Console production access if required",
         ],
     )
 

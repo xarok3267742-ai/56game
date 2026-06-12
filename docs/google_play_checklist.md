@@ -169,13 +169,14 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Install generated APKs on at least one small/medium Android device or emulator.
 - Re-run the first-launch, home, level selection, gameplay, win, settings, restart and no-internet smoke flows.
 - For applicable personal developer accounts, run the required closed testing track before production.
+- If that closed-testing requirement applies, apply for and receive Play Console production access before production rollout.
 - Review the completed TalkBack exploratory evidence in `docs/accessibility_notes.md`; repeat on a physical device after Play-generated APK install if the publisher wants an audio/speech-quality check.
 
 ## Known Limitations
 
 - Privacy policy is not publication-complete until the verified hosted URL is entered in Play Console and real Play Console support/contact fields are set.
 - Play Console forms are not completed locally because account access is external.
-- Closed testing cannot be completed locally because it depends on account type and testers.
+- Closed testing and production-access approval cannot be completed locally because they depend on account type, testers and Play review.
 - Owner release inputs are isolated in `play_store/owner_release_inputs.md`.
 - TalkBack exploratory QA is complete on `Medium_Phone_API_36` Play Store AVD with Android Accessibility Suite; headless AVD audio/speech quality was not judged by ear.
 - Dedicated large/tablet screenshots are captured in `play_store/screenshots/tablet`; Play Console generated APK review still remains manual after upload.
@@ -211,10 +212,11 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Complete content rating using `play_store/content_rating_notes.md`.
 - Complete target audience and app content declarations using `play_store/app_content_answers_ru.md`.
 - Run internal/closed testing as required.
+- Apply for and receive Play Console production access if the publisher account requires it.
 - Review generated APKs and pre-launch report.
 - Record safe post-upload evidence in `play_store/play_console_post_upload_evidence_ru.md`.
 - Promote to production only after manual gates are complete.
 
 ## Release Build Status
 
-Signed release AAB exists and verifies locally. Store icon, feature graphic, phone screenshots, large/tablet screenshots, listing copy, data-safety notes, content-rating notes, hosted privacy-policy HTML, upload manifest, Play Console field handoff, signing-backup evidence and owner template, and release report are present. Publication is still gated by entering the privacy URL in Play Console, populated Play Console support/contact fields, signing-key backup and Play Console actions.
+Signed release AAB exists and verifies locally. Store icon, feature graphic, phone screenshots, large/tablet screenshots, listing copy, data-safety notes, content-rating notes, hosted privacy-policy HTML, upload manifest, Play Console field handoff, signing-backup evidence and owner template, and release report are present. Publication is still gated by entering the privacy URL in Play Console, populated Play Console support/contact fields, signing-key backup, testing-track evidence, production-access approval if required and Play Console actions.

@@ -102,4 +102,5 @@ If the publisher chooses to target children under 13, this handoff is no longer 
 - First upload target: Internal testing.
 - Then: Closed testing if required by the publisher account type.
 - Personal account created after 13 November 2023: plan for at least 12 opted-in testers for 14 continuous days before production availability.
-- Production rollout: only after Play Console policy forms, generated artifact review, privacy URL and testing track requirements are complete. Local TalkBack exploratory QA is covered in `docs/accessibility_notes.md`.
+- Production access: apply for and receive Play Console production access if required after the closed-testing criteria are met.
+- Production rollout: only after Play Console policy forms, generated artifact review, privacy URL, testing track requirements and production-access status are complete. Local TalkBack exploratory QA is covered in `docs/accessibility_notes.md`.

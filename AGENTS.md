@@ -223,4 +223,4 @@ The project is locally ready when:
 - `./gradlew connectedDebugAndroidTest` passes on an available emulator/device, preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device, or an exact environment reason is documented.
 - Google Play checklist, release report and upload handoff are current.
 
-The full publication goal is not complete until manual external gates are done: entering the verified hosted privacy-policy URL in Play Console, populated Play Console support/contact fields for privacy inquiries, secure keystore backup, Play Console forms and required testing tracks.
+The full publication goal is not complete until manual external gates are done: entering the verified hosted privacy-policy URL in Play Console, populated Play Console support/contact fields for privacy inquiries, secure keystore backup, Play Console forms, required testing tracks and Play Console production access if required.

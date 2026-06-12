@@ -109,4 +109,5 @@ The app is a simple numeric puzzle, but the publisher must choose target age gro
 - Publish the privacy policy on a public HTTPS URL.
 - Back up `private/signing/qgrid-upload.p12` and `keystore.properties` before upload.
 - Run required internal/closed testing tracks for the publisher account type.
+- Apply for and receive Play Console production access if the publisher account requires it.
 - Re-run `./tools/run_final_local_gate.py` and require `final_local_gate_ok` immediately before uploading.

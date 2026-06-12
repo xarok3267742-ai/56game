@@ -205,6 +205,7 @@ def print_packet(listing_values: dict[str, str]) -> None:
     print("- Populate Play Console support/contact fields used by the privacy policy inquiry mechanism.")
     print("- Complete secure signing backup using play_store/signing_backup_evidence_ru.md.")
     print("- Upload first to internal testing; run closed testing if the publisher account requires it.")
+    print("- Receive Play Console production access if the publisher account requires it.")
     print("- Record safe post-upload facts in play_store/play_console_post_upload_evidence_ru.md.")
     print()
     print("play_console_packet_ok")

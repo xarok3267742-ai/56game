@@ -84,6 +84,6 @@
 
 ## Final Manual Gate
 
-Before production rollout, verify generated APKs in Play Console, complete policy forms, run required testing tracks and confirm the privacy policy URL is public.
+Before production rollout, verify generated APKs in Play Console, complete policy forms, run required testing tracks, receive Play Console production access if required and confirm the privacy policy URL is public.
 
 If the AAB, icon, feature graphic or phone/tablet screenshots are rebuilt or recaptured, keep `play_store/upload_checksums.md` in sync and rerun `./tools/verify_release.py`. For store screenshots and feature graphic, use `tools/capture_store_screenshots.py`; it updates the checksum manifest automatically after a successful capture.

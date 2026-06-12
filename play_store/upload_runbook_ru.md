@@ -84,7 +84,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - Play Console support/contact fields: рабочий email или support URL.
 - Public privacy policy URL: HTTPS, без логина, не PDF, без credentials/query/fragments, не placeholder/reserved host, DNS resolves only to public global IP addresses, не редактируемый читателями; hosted normalized text must match `play_store/privacy_policy_ru.html`.
 - Signing backup: `private/signing/qgrid-upload.p12` and `keystore.properties` сохранены в secure owner-controlled storage after `./tools/check_signing_backup_inputs.py` returned `signing_backup_input_ok`.
-- Testing path: internal testing first; closed testing with 12 opted-in testers for 14 continuous days if required by account type.
+- Testing path: internal testing first; closed testing with 12 opted-in testers for 14 continuous days if required by account type, then Play Console production access granted/approved if that path applies.
 - Final generated-artifact review owner: человек, который проверит Play-generated APKs, policy warnings and pre-launch report.
 
 Источник owner gates: `play_store/owner_release_inputs.md`. Safe signing-backup evidence template: `play_store/signing_backup_evidence_ru.md`.
@@ -192,7 +192,8 @@ Recommended order:
 5. Repeat first-launch, home, game, win, settings, restart and no-internet smoke flows.
 6. Review Play pre-launch report and policy warnings.
 7. Run closed testing if required by the publisher account type.
-8. Promote to production only after owner gates, testing tracks and review warnings are complete.
+8. Apply for and receive Play Console production access if closed testing is required for the publisher account.
+9. Promote to production only after owner gates, testing tracks, production-access status and review warnings are complete.
 
 ## 8. Stop Conditions
 
@@ -220,6 +221,7 @@ After Play Console upload, record these owner-side facts in the release notes or
 - Signing backup evidence recorded in `play_store/signing_backup_evidence_ru.md`.
 - Support/contact field used for privacy inquiries.
 - Whether closed testing is required for the account.
+- Production access status if required for the account.
 - Pre-launch report result.
 - Any Play warnings and their resolution.
 
