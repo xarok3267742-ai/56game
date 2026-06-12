@@ -674,11 +674,18 @@ def validate_signing_backup_value(label: str, value: str, file_label: str) -> No
             f"{file_label} value for {label} must name a secure owner-controlled storage type such as password manager or encrypted offline backup: {value}",
         )
     elif label == "Responsible owner":
-        validate_non_empty(label, value, file_label)
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("release owner", "owner tracker"))
     elif label == "Backup date/time":
         validate_date_like(label, value, file_label)
     elif label == "Backup record location in owner tracker or password manager":
-        validate_non_empty(label, value, file_label)
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("backup record",))
+        lowered = value.lower()
+        require(
+            "owner tracker" in lowered or "password manager" in lowered,
+            f"{file_label} value for {label} must point to an owner tracker or password manager backup record without secrets: {value}",
+        )
     else:
         validate_non_empty(label, value, file_label)
 

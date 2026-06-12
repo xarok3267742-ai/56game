@@ -117,6 +117,8 @@ Required posture:
 - Backup completion evidence must explicitly mention `private/signing/qgrid-upload.p12`, `keystore.properties` and `before Play upload`.
 - Storage-type evidence must explicitly mention `owner-controlled`, `secure` and a concrete storage type such as password manager or encrypted offline backup.
 - Evidence must explicitly say backup evidence was recorded without secrets, two owner-controlled secure copies exist and recovery was tested without exposing secrets.
+- Responsible-owner evidence must use a role-based `release owner` reference recorded in an `owner tracker`.
+- Backup-record location must mention an `owner tracker` or `password manager` backup record without storage access details.
 
 ## 4. Play-Generated Artifact Review
 

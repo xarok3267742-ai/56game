@@ -43,6 +43,8 @@ When replacing the pending backup lines after a real backup, keep the values saf
 - For storage type, use wording like `owner-controlled secure password manager plus encrypted offline backup`.
 - For secure copies, use wording like `yes, two owner-controlled secure copies exist`.
 - For recovery, use wording like `yes, recovery tested without exposing secrets`.
+- For responsible owner, use a role-based safe reference like `release owner recorded in owner tracker`.
+- For backup record location, mention an `owner tracker` or `password manager` backup record without recording storage access details.
 
 ## Backup Evidence To Record
 
