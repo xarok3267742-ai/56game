@@ -74,7 +74,7 @@ Required posture:
 - URL must be public HTTPS, without credentials, query parameters or fragments.
 - Hosted text must match `play_store/privacy_policy_ru.html`.
 - The policy inquiry mechanism must use the populated Google Play listing support/contact field.
-- Evidence must not use bare `yes`; it must explicitly say the Play Console support/contact field is populated with a real support contact for privacy inquiries, name the safe contact type as support email or support website URL without recording the actual contact value, and state that the privacy policy inquiry mechanism uses the Google Play listing support contact.
+- Evidence must not use bare `yes`; it must explicitly say the Play Console support/contact field is populated with a real support contact for privacy inquiries, name the safe contact type as support email or support website URL without recording the actual email address or URL, and state that the privacy policy inquiry mechanism uses the Google Play listing support contact.
 
 ## 3. Signing Backup
 
