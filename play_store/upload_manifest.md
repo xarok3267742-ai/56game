@@ -27,6 +27,7 @@
 - App content answers: `play_store/app_content_answers_ru.md`
 - Closed testing handoff: `play_store/closed_testing_handoff_ru.md`
 - Production access answers: `play_store/production_access_answers_ru.md`
+- Privacy/contact handoff: `play_store/privacy_contact_handoff_ru.md`
 - Owner release inputs: `play_store/owner_release_inputs.md`
 - Publication readiness owner actions: `play_store/publication_readiness_owner_actions_ru.md`
 - Upload runbook: `play_store/upload_runbook_ru.md`
@@ -52,6 +53,7 @@
 - Owner-controlled manual inputs: `play_store/owner_release_inputs.md`
 - Closed testing handoff: `play_store/closed_testing_handoff_ru.md`
 - Production access answers: `play_store/production_access_answers_ru.md`
+- Privacy/contact handoff: `play_store/privacy_contact_handoff_ru.md`
 - Publication readiness owner actions: `play_store/publication_readiness_owner_actions_ru.md`
 - Upload runbook: `play_store/upload_runbook_ru.md`
 - Post-upload evidence template: `play_store/play_console_post_upload_evidence_ru.md`

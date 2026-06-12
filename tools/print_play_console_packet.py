@@ -19,6 +19,7 @@ SUBMISSION_PATH = ROOT / "play_store/play_console_submission_ru.md"
 APP_CONTENT_PATH = ROOT / "play_store/app_content_answers_ru.md"
 CLOSED_TESTING_PATH = ROOT / "play_store/closed_testing_handoff_ru.md"
 PRODUCTION_ACCESS_PATH = ROOT / "play_store/production_access_answers_ru.md"
+PRIVACY_CONTACT_PATH = ROOT / "play_store/privacy_contact_handoff_ru.md"
 DATA_SAFETY_PATH = ROOT / "play_store/data_safety_ru.md"
 CONTENT_RATING_PATH = ROOT / "play_store/content_rating_notes.md"
 OWNER_INPUTS_PATH = ROOT / "play_store/owner_release_inputs.md"
@@ -141,6 +142,18 @@ def verify_policy_handoff() -> None:
         ),
     )
     require_markers(
+        PRIVACY_CONTACT_PATH,
+        (
+            "Privacy Contact Handoff - RU",
+            "Google Play Console Help `User Data`",
+            "https://support.google.com/googleplay/android-developer/answer/10144311?hl=en",
+            "Hosted privacy policy URL: `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html`.",
+            "Play Console support/contact field populated: Play Console support/contact field populated with a real support contact email for privacy inquiries.",
+            "Support/contact mechanism matches `play_store/privacy_policy_ru.html`: privacy policy inquiry mechanism uses the Google Play listing support contact.",
+            "do not record the actual support email or URL",
+        ),
+    )
+    require_markers(
         DATA_SAFETY_PATH,
         (
             "Данные пользователя не собираются.",
@@ -192,6 +205,7 @@ def verify_policy_handoff() -> None:
             "Signing backup input check command returned `signing_backup_input_ok`: recorded locally on 6 June 2026.",
             "Public privacy policy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html.",
             "Privacy policy URL check command returned `privacy_policy_url_ok`: privacy_policy_url_ok.",
+            "Use `play_store/privacy_contact_handoff_ru.md` for exact safe evidence phrases. Do not record the actual support email address or support website URL.",
             "Internal testing upload completed: not yet available locally.",
         ),
     )
@@ -230,6 +244,7 @@ def print_packet(listing_values: dict[str, str]) -> None:
     print("- Enter privacy policy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html")
     print("- Recheck before entry: ./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html")
     print("- Populate Play Console support/contact fields used by the privacy policy inquiry mechanism.")
+    print("- Use play_store/privacy_contact_handoff_ru.md for privacy/contact safe evidence wording.")
     print("- Complete secure signing backup using play_store/signing_backup_evidence_ru.md.")
     print("- Upload first to internal testing; run closed testing if the publisher account requires it.")
     print("- Use play_store/closed_testing_handoff_ru.md for closed-test tester instructions and safe evidence phrases.")
@@ -250,6 +265,7 @@ def main() -> int:
                 "Version code: `1`",
                 "Version name: `1.0.0`",
                 "Field-by-field source: `play_store/app_content_answers_ru.md`.",
+                "Use `play_store/privacy_contact_handoff_ru.md` for privacy URL, support/contact field and safe evidence wording without recording the actual support email or URL.",
                 "Use `play_store/closed_testing_handoff_ru.md` for closed-test tester instructions, aggregate feedback topics and safe evidence phrases if closed testing is required.",
                 "Final Manual Gates",
                 "Re-run `./tools/run_final_local_gate.py` and require `final_local_gate_ok` immediately before uploading.",

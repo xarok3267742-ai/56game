@@ -10,6 +10,7 @@ Use this checklist before entering the privacy policy URL in Play Console.
 ## Required Manual Inputs
 
 - Working support email or support website URL.
+- Safe support/contact evidence wording from `play_store/privacy_contact_handoff_ru.md`; do not record the actual support email or URL in repository evidence.
 - Public HTTPS hosting location.
 
 ## Hosting Requirements
@@ -30,9 +31,10 @@ Use this checklist before entering the privacy policy URL in Play Console.
 1. Open the final HTTPS URL in a clean browser profile or incognito window.
 2. Confirm the page loads without authentication, cookies banner blockers, paywall or redirect loop.
 3. Confirm the Google Play store listing has a working support email or support website, because the hosted policy uses that listing contact as the privacy inquiry mechanism.
-4. Confirm the page text still says Android backup is disabled.
-5. Run `./tools/check_privacy_policy_url.py --url <https-url>` and require `privacy_policy_url_ok`; the helper also checks valid UTF-8, HTML content, public HTTPS, no credentials/query/fragments, no placeholder/reserved host, public-global DNS resolution, non-PDF final URL, exact normalized-text match with `play_store/privacy_policy_ru.html` and no script/tracker/widget markers.
-6. Add that URL to Play Console App content > Privacy Policy.
+4. Confirm `play_store/privacy_contact_handoff_ru.md` safe evidence phrases are used in `play_store/play_console_post_upload_evidence_ru.md` without recording the actual support email or URL.
+5. Confirm the page text still says Android backup is disabled.
+6. Run `./tools/check_privacy_policy_url.py --url <https-url>` and require `privacy_policy_url_ok`; the helper also checks valid UTF-8, HTML content, public HTTPS, no credentials/query/fragments, no placeholder/reserved host, public-global DNS resolution, non-PDF final URL, exact normalized-text match with `play_store/privacy_policy_ru.html` and no script/tracker/widget markers.
+7. Add that URL to Play Console App content > Privacy Policy.
 
 Local source preflight:
 

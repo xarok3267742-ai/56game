@@ -106,6 +106,7 @@ The app is a simple numeric puzzle, but the publisher must choose target age gro
 
 - Resolve owner inputs from `play_store/owner_release_inputs.md`.
 - Fill the Play Console support/contact fields used by the privacy policy inquiry mechanism.
+- Use `play_store/privacy_contact_handoff_ru.md` for privacy URL, support/contact field and safe evidence wording without recording the actual support email or URL.
 - Publish the privacy policy on a public HTTPS URL.
 - Back up `private/signing/qgrid-upload.p12` and `keystore.properties` before upload.
 - Run required internal/closed testing tracks for the publisher account type.

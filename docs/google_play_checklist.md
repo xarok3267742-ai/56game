@@ -10,6 +10,7 @@
 - Field-by-field App content answers: `play_store/app_content_answers_ru.md`
 - Closed-testing handoff: `play_store/closed_testing_handoff_ru.md`
 - Production access answer worksheet: `play_store/production_access_answers_ru.md`
+- Privacy/contact handoff: `play_store/privacy_contact_handoff_ru.md`
 - Owner-controlled release inputs: `play_store/owner_release_inputs.md`
 - Publication readiness owner actions: `play_store/publication_readiness_owner_actions_ru.md`
 - Metadata gate: `tools/verify_release.py` enforces app name <= 30 chars, short description <= 80 chars, full description <= 4000 chars, release notes <= 500 chars, no placeholder markers and exact sync between `listing_ru.md` and `play_console_submission_ru.md`.
@@ -119,6 +120,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Manual gate: populate the Play Console support/contact fields because the policy uses the Google Play listing support contact as its privacy inquiry mechanism.
 - Hosted public HTTPS URL: `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html`.
 - Manual gate: enter the hosted URL in Play Console and keep the Play Console support/contact fields populated with a real support contact.
+- Privacy/contact handoff source: `play_store/privacy_contact_handoff_ru.md`; use it for safe support/contact evidence wording without recording the actual support email or URL.
 - Current status: policy source text is hosted and verified, but publication is not complete until Play Console support/contact fields and the Play Console privacy-policy field are populated.
 
 ## Data Safety Notes
@@ -212,6 +214,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - After pushing the release handoff to GitHub, run `./tools/verify_remote_release.py --tag <release-tag>` and require `remote_release_ok`; it verifies `origin/main`, the annotated remote release tag, every remote upload asset checksum from `play_store/upload_checksums.md`, rejects extra remote `.aab` files outside `app/build/outputs/bundle/release/app-release.aab`, checks remote forbidden-path hygiene, verifies `origin/gh-pages` privacy-policy presence and validates the recorded hosted privacy URL.
 - Record safe signing-backup evidence in `play_store/signing_backup_evidence_ru.md`.
 - Enter the verified public privacy policy URL `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` in Play Console.
+- Use `play_store/privacy_contact_handoff_ru.md` for privacy URL, support/contact field and safe evidence wording without recording the actual support email or URL.
 - Before entering the URL, run `./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` and require `privacy_policy_url_ok`; the hosted policy must be public HTTPS, no credentials/query/fragments, non-PDF, valid UTF-8, free of script/tracker/widget markers and text-identical to the current local `play_store/privacy_policy_ru.html` after whitespace normalization.
 - Complete Data Safety using `play_store/data_safety_ru.md`.
 - Complete content rating using `play_store/content_rating_notes.md`.

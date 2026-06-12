@@ -54,7 +54,7 @@ Action: validate the hosted privacy policy URL, enter it in Play Console and pop
 
 Evidence file: `play_store/play_console_post_upload_evidence_ru.md`.
 
-Closed-testing handoff: `play_store/closed_testing_handoff_ru.md`.
+Privacy/contact handoff: `play_store/privacy_contact_handoff_ru.md`.
 
 Commands:
 
@@ -79,6 +79,7 @@ Required posture:
 - Hosted text must match `play_store/privacy_policy_ru.html`.
 - The policy inquiry mechanism must use the populated Google Play listing support/contact field.
 - Evidence must not use bare `yes`; it must explicitly say the Play Console support/contact field is populated with a real support contact for privacy inquiries, name the safe contact type as support email or support website URL without recording the actual email address or URL, and state that the privacy policy inquiry mechanism uses the Google Play listing support contact.
+- Use `play_store/privacy_contact_handoff_ru.md` for exact safe evidence phrases and stop conditions.
 
 ## 3. Signing Backup
 
@@ -192,6 +193,8 @@ Required posture:
 Action: finish required testing, review Play warnings/pre-launch results and inspect store preview crops.
 
 Evidence file: `play_store/play_console_post_upload_evidence_ru.md`.
+
+Closed-testing handoff: `play_store/closed_testing_handoff_ru.md`.
 
 Commands:
 

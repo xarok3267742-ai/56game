@@ -83,6 +83,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 
 - Play Console support/contact fields: рабочий email или support URL.
 - Public privacy policy URL: HTTPS, без логина, не PDF, без credentials/query/fragments, не placeholder/reserved host, DNS resolves only to public global IP addresses, не редактируемый читателями; hosted normalized text must match `play_store/privacy_policy_ru.html`.
+- Privacy/contact handoff: `play_store/privacy_contact_handoff_ru.md`; use it for safe support/contact evidence wording without recording the actual support email or URL.
 - Signing backup: `private/signing/qgrid-upload.p12` and `keystore.properties` сохранены в secure owner-controlled storage after `./tools/check_signing_backup_inputs.py` returned `signing_backup_input_ok`.
 - Testing path: internal testing first; closed testing with 12 opted-in testers for 14 continuous days if required by account type, then Play Console production access granted/approved if that path applies. Use `play_store/closed_testing_handoff_ru.md` for tester instructions, aggregate feedback topics and safe evidence wording.
 - Final generated-artifact review owner: человек, который проверит Play-generated APKs, policy warnings and pre-launch report.
@@ -124,6 +125,7 @@ Production-access answer worksheet: `play_store/production_access_answers_ru.md`
 - Content Rating: `play_store/content_rating_notes.md`.
 - Privacy policy HTML source: `play_store/privacy_policy_ru.html`.
 - Privacy hosting checklist: `play_store/privacy_policy_hosting_checklist.md`.
+- Privacy/contact evidence handoff: `play_store/privacy_contact_handoff_ru.md`.
 - Before entering the URL in Play Console, run `./tools/check_privacy_policy_url.py --url <https-url>` and require `privacy_policy_url_ok`; the hosted page must be public HTTPS, no credentials/query/fragments, not a placeholder/reserved host, DNS-resolved only to public global IP addresses, non-PDF, valid UTF-8, free of script/tracker/widget markers and text-identical to the current local policy HTML after whitespace normalization.
 
 Ключевые ответы:
@@ -226,6 +228,7 @@ After Play Console upload, record these owner-side facts in the release notes or
 - Signing backup input check result from `./tools/check_signing_backup_inputs.py`.
 - Signing backup evidence recorded in `play_store/signing_backup_evidence_ru.md`.
 - Support/contact field used for privacy inquiries.
+- Use `play_store/privacy_contact_handoff_ru.md` to record only safe support/contact type evidence, not the actual support email or URL.
 - Whether closed testing is required for the account.
 - Production access status if required for the account.
 - Pre-launch report result.
