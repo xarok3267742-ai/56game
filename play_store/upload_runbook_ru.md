@@ -43,11 +43,7 @@
 Equivalent expanded sequence:
 
 ```bash
-./gradlew test
-./gradlew assembleDebug
-./gradlew lint
-./gradlew assembleRelease
-./gradlew bundleRelease
+./gradlew test lint assembleDebug assembleRelease bundleRelease
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
 ./tools/print_post_upload_evidence_packet.py
@@ -56,13 +52,14 @@ Equivalent expanded sequence:
 ./tools/print_privacy_contact_evidence_packet.py
 ./tools/print_play_console_forms_evidence_packet.py
 ./tools/print_pre_launch_review_evidence_packet.py
-./tools/print_store_listing_review_evidence_packet.py
 ./tools/create_store_asset_review_sheet.py --dry-run
+./tools/print_store_listing_review_evidence_packet.py
 ./tools/prepare_play_upload_archive.py --dry-run
 ./tools/prepare_play_upload_archive.py --verify-existing
 ./tools/print_play_console_packet.py
 ./tools/print_publication_readiness.py
 ./tools/verify_play_generated_apk.py --dry-run
+./tools/print_play_generated_apk_evidence_packet.py --dry-run
 ./tools/check_privacy_policy_url.py --local
 ./tools/check_signing_backup_inputs.py
 ./tools/print_signing_backup_evidence_packet.py

@@ -1480,6 +1480,8 @@ def check_release_report_handoff() -> None:
             "`./tools/run_upload_day_preflight.py --release-tag v1.0.0-rc63` passed on 12 June 2026",
             "verified 13 remote upload assets from `play_store/upload_checksums.md`",
             "remote forbidden-path/AAB scans",
+            "Latest upload-runbook sequence sync hardening",
+            "`tools/verify_release.py` now parses that fenced block and fails if the order or command set drifts from the final local gate",
             "Debug APK: `app/build/outputs/apk/debug/app-debug.apk`, package `com.qgrid.mobile.debug`, 19,833,279 bytes.",
             "Signed Release AAB: `app/build/outputs/bundle/release/app-release.aab`, 2,930,928 bytes.",
             "Upload runbook: `play_store/upload_runbook_ru.md`.",
@@ -1684,6 +1686,8 @@ def check_completion_audit_handoff() -> None:
             "Latest current-tag upload-day preflight for `v1.0.0-rc63`",
             "`./tools/run_upload_day_preflight.py --release-tag v1.0.0-rc63` passed on 12 June 2026",
             "13 remote upload assets verified from `play_store/upload_checksums.md`",
+            "Latest upload-runbook sequence sync hardening",
+            "`tools/verify_release.py` now parses that fenced block and fails if the order or command set drifts from the final local gate",
             "Latest publication-readiness negative-regression gate",
             "Latest closed-testing evidence consistency hardening",
             "Play Console developer identity/profile confirmation and `com.qgrid.mobile` package-name registration require account access and cannot be completed locally.",
@@ -3303,6 +3307,28 @@ def check_upload_manifest() -> None:
 
 
 def check_upload_runbook_handoff() -> None:
+    expected_final_gate_sequence = [
+        "./gradlew test lint assembleDebug assembleRelease bundleRelease",
+        "./tools/verify_release.py",
+        "./tools/print_upload_packet.py",
+        "./tools/print_post_upload_evidence_packet.py",
+        "./tools/print_developer_account_evidence_packet.py",
+        "./tools/print_closed_testing_evidence_packet.py --dry-run",
+        "./tools/print_privacy_contact_evidence_packet.py",
+        "./tools/print_play_console_forms_evidence_packet.py",
+        "./tools/print_pre_launch_review_evidence_packet.py",
+        "./tools/create_store_asset_review_sheet.py --dry-run",
+        "./tools/print_store_listing_review_evidence_packet.py",
+        "./tools/prepare_play_upload_archive.py --dry-run",
+        "./tools/prepare_play_upload_archive.py --verify-existing",
+        "./tools/print_play_console_packet.py",
+        "./tools/print_publication_readiness.py",
+        "./tools/verify_play_generated_apk.py --dry-run",
+        "./tools/print_play_generated_apk_evidence_packet.py --dry-run",
+        "./tools/check_privacy_policy_url.py --local",
+        "./tools/check_signing_backup_inputs.py",
+        "./tools/print_signing_backup_evidence_packet.py",
+    ]
     require_text_markers(
         "play_store/upload_runbook_ru.md",
         [
@@ -3310,10 +3336,7 @@ def check_upload_runbook_handoff() -> None:
             "Локальный Preflight Перед Загрузкой",
             "./tools/run_final_local_gate.py",
             "Equivalent expanded sequence:",
-            "./gradlew test",
-            "./gradlew assembleDebug",
-            "./gradlew lint",
-            "./gradlew bundleRelease",
+            "./gradlew test lint assembleDebug assembleRelease bundleRelease",
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
@@ -3463,6 +3486,18 @@ def check_upload_runbook_handoff() -> None:
             "Use `play_store/play_console_post_upload_evidence_ru.md` as the safe evidence template.",
             "This evidence is external to the repository",
         ],
+    )
+    upload_runbook = read("play_store/upload_runbook_ru.md")
+    sequence_match = re.search(
+        r"Equivalent expanded sequence:\n\n```bash\n(?P<sequence>.*?)\n```",
+        upload_runbook,
+        re.S,
+    )
+    require(sequence_match is not None, "upload runbook must contain the equivalent expanded sequence fenced bash block")
+    actual_sequence = [line.strip() for line in sequence_match.group("sequence").splitlines() if line.strip()]
+    require(
+        actual_sequence == expected_final_gate_sequence,
+        "upload runbook equivalent expanded sequence must exactly match the default final local gate command order",
     )
 
 
