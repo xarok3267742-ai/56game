@@ -50,6 +50,28 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_NATIVE_LOAD_ALIGNMENT = 16 * 1024
+FINAL_LOCAL_GATE_SEQUENCE = [
+    "./gradlew test lint assembleDebug assembleRelease bundleRelease",
+    "./tools/verify_release.py",
+    "./tools/print_upload_packet.py",
+    "./tools/print_post_upload_evidence_packet.py",
+    "./tools/print_developer_account_evidence_packet.py",
+    "./tools/print_closed_testing_evidence_packet.py --dry-run",
+    "./tools/print_privacy_contact_evidence_packet.py",
+    "./tools/print_play_console_forms_evidence_packet.py",
+    "./tools/print_pre_launch_review_evidence_packet.py",
+    "./tools/create_store_asset_review_sheet.py --dry-run",
+    "./tools/print_store_listing_review_evidence_packet.py",
+    "./tools/prepare_play_upload_archive.py --dry-run",
+    "./tools/prepare_play_upload_archive.py --verify-existing",
+    "./tools/print_play_console_packet.py",
+    "./tools/print_publication_readiness.py",
+    "./tools/verify_play_generated_apk.py --dry-run",
+    "./tools/print_play_generated_apk_evidence_packet.py --dry-run",
+    "./tools/check_privacy_policy_url.py --local",
+    "./tools/check_signing_backup_inputs.py",
+    "./tools/print_signing_backup_evidence_packet.py",
+]
 
 
 class CheckFailure(Exception):
@@ -69,6 +91,21 @@ def require_file(path: str) -> Path:
     file_path = ROOT / path
     require(file_path.is_file(), f"missing file: {path}")
     return file_path
+
+
+def require_equivalent_final_gate_sequence(path: str, label: str) -> None:
+    source = read(path)
+    sequence_match = re.search(
+        r"Equivalent expanded sequence:\n\n```bash\n(?P<sequence>.*?)\n```",
+        source,
+        re.S,
+    )
+    require(sequence_match is not None, f"{label} must contain the equivalent expanded sequence fenced bash block")
+    actual_sequence = [line.strip() for line in sequence_match.group("sequence").splitlines() if line.strip()]
+    require(
+        actual_sequence == FINAL_LOCAL_GATE_SEQUENCE,
+        f"{label} equivalent expanded sequence must exactly match the default final local gate command order",
+    )
 
 
 def elf_load_alignments(entry_name: str, data: bytes) -> list[int]:
@@ -941,10 +978,7 @@ def check_google_play_checklist_handoff() -> None:
             "Before Play upload, run `./tools/check_signing_backup_inputs.py` and require `signing_backup_input_ok`.",
             "Before Play upload, back up the keystore and credentials in secure owner-controlled storage, keep at least two owner-controlled secure copies, test recovery without exposing secrets and record only safe evidence in `play_store/signing_backup_evidence_ru.md`.",
             "./tools/run_final_local_gate.py",
-            "./gradlew test",
-            "./gradlew assembleDebug",
-            "./gradlew lint",
-            "./gradlew bundleRelease",
+            "./gradlew test lint assembleDebug assembleRelease bundleRelease",
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
@@ -1053,6 +1087,10 @@ def check_google_play_checklist_handoff() -> None:
             "Promote to production only after manual gates are complete.",
             "Publication is still gated by Play Console developer account/package registration evidence, entering the privacy URL in Play Console, populated Play Console support/contact fields, signing-key backup, testing-track evidence, production-access approval if required and Play Console actions.",
         ],
+    )
+    require_equivalent_final_gate_sequence(
+        "docs/google_play_checklist.md",
+        "Google Play checklist",
     )
 
 
@@ -1478,6 +1516,8 @@ def check_release_report_handoff() -> None:
             "Play Console developer identity verification, developer profile/contact completion and `com.qgrid.mobile` package-name registration",
             "Remote upload-day preflight evidence for `v1.0.0-rc64`",
             "`./tools/run_upload_day_preflight.py --release-tag v1.0.0-rc64` passed on 12 June 2026",
+            "Latest Google Play checklist final-gate sequence sync hardening",
+            "`tools/verify_release.py` reuses a single `FINAL_LOCAL_GATE_SEQUENCE` assertion for both the checklist and `play_store/upload_runbook_ru.md`",
             "verified 13 remote upload assets from `play_store/upload_checksums.md`",
             "remote forbidden-path/AAB scans",
             "Latest upload-runbook sequence sync hardening",
@@ -1685,6 +1725,8 @@ def check_completion_audit_handoff() -> None:
             "Publication readiness now has explicit external evidence fields for Play Console developer identity verification, developer profile/contact completion and `com.qgrid.mobile` package-name registration",
             "Remote upload-day preflight evidence for `v1.0.0-rc64`",
             "`./tools/run_upload_day_preflight.py --release-tag v1.0.0-rc64` passed on 12 June 2026",
+            "Latest Google Play checklist final-gate sequence sync hardening",
+            "`tools/verify_release.py` reuses a single `FINAL_LOCAL_GATE_SEQUENCE` assertion for both the checklist and `play_store/upload_runbook_ru.md`",
             "13 remote upload assets verified from `play_store/upload_checksums.md`",
             "Latest upload-runbook sequence sync hardening",
             "`tools/verify_release.py` now parses that fenced block and fails if the order or command set drifts from the final local gate",
@@ -3307,28 +3349,6 @@ def check_upload_manifest() -> None:
 
 
 def check_upload_runbook_handoff() -> None:
-    expected_final_gate_sequence = [
-        "./gradlew test lint assembleDebug assembleRelease bundleRelease",
-        "./tools/verify_release.py",
-        "./tools/print_upload_packet.py",
-        "./tools/print_post_upload_evidence_packet.py",
-        "./tools/print_developer_account_evidence_packet.py",
-        "./tools/print_closed_testing_evidence_packet.py --dry-run",
-        "./tools/print_privacy_contact_evidence_packet.py",
-        "./tools/print_play_console_forms_evidence_packet.py",
-        "./tools/print_pre_launch_review_evidence_packet.py",
-        "./tools/create_store_asset_review_sheet.py --dry-run",
-        "./tools/print_store_listing_review_evidence_packet.py",
-        "./tools/prepare_play_upload_archive.py --dry-run",
-        "./tools/prepare_play_upload_archive.py --verify-existing",
-        "./tools/print_play_console_packet.py",
-        "./tools/print_publication_readiness.py",
-        "./tools/verify_play_generated_apk.py --dry-run",
-        "./tools/print_play_generated_apk_evidence_packet.py --dry-run",
-        "./tools/check_privacy_policy_url.py --local",
-        "./tools/check_signing_backup_inputs.py",
-        "./tools/print_signing_backup_evidence_packet.py",
-    ]
     require_text_markers(
         "play_store/upload_runbook_ru.md",
         [
@@ -3487,17 +3507,9 @@ def check_upload_runbook_handoff() -> None:
             "This evidence is external to the repository",
         ],
     )
-    upload_runbook = read("play_store/upload_runbook_ru.md")
-    sequence_match = re.search(
-        r"Equivalent expanded sequence:\n\n```bash\n(?P<sequence>.*?)\n```",
-        upload_runbook,
-        re.S,
-    )
-    require(sequence_match is not None, "upload runbook must contain the equivalent expanded sequence fenced bash block")
-    actual_sequence = [line.strip() for line in sequence_match.group("sequence").splitlines() if line.strip()]
-    require(
-        actual_sequence == expected_final_gate_sequence,
-        "upload runbook equivalent expanded sequence must exactly match the default final local gate command order",
+    require_equivalent_final_gate_sequence(
+        "play_store/upload_runbook_ru.md",
+        "upload runbook",
     )
 
 
