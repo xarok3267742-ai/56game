@@ -474,11 +474,15 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         validate_contains_all(label, value, file_label, ("private/signing/qgrid-upload.p12", "before AAB upload"))
     elif label == "Play Console support/contact field populated":
         validate_no_negative_markers(label, value, file_label)
-        validate_contains_all(label, value, file_label, ("Play Console", "support", "contact"))
+        validate_contains_all(label, value, file_label, ("Play Console", "support", "contact", "real support contact"))
         lowered = value.lower()
         require(
             "populated" in lowered or "filled" in lowered or "entered" in lowered or "set" in lowered,
             f"{file_label} value for {label} must explicitly say the Play Console support/contact field was populated: {value}",
+        )
+        require(
+            "privacy inquiry" in lowered or "privacy inquiries" in lowered,
+            f"{file_label} value for {label} must explicitly say the Play Console support/contact field uses a real support contact for privacy inquiries: {value}",
         )
     elif label == "Support/contact mechanism matches `play_store/privacy_policy_ru.html`":
         validate_no_negative_markers(label, value, file_label)
