@@ -444,8 +444,6 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         "Privacy policy URL is HTTPS",
         "Privacy policy URL is accessible without login",
         "Privacy policy URL is not PDF",
-        "Play Console support/contact field populated",
-        "Support/contact mechanism matches `play_store/privacy_policy_ru.html`",
         "Active upload keystore backed up before AAB upload",
         "Play-generated version code/name match this release candidate",
         "Internal testing upload completed",
@@ -466,6 +464,17 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
             "without secrets" in lowered or "without exposing secrets" in lowered,
             f"{file_label} value for {label} must explicitly say evidence was recorded without secrets: {value}",
         )
+    elif label == "Play Console support/contact field populated":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("Play Console", "support", "contact"))
+        lowered = value.lower()
+        require(
+            "populated" in lowered or "filled" in lowered or "entered" in lowered or "set" in lowered,
+            f"{file_label} value for {label} must explicitly say the Play Console support/contact field was populated: {value}",
+        )
+    elif label == "Support/contact mechanism matches `play_store/privacy_policy_ru.html`":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("Google Play listing", "support contact", "privacy policy"))
     elif label == "Play-generated APK package is `com.qgrid.mobile`":
         validate_exact(label, value, file_label, "com.qgrid.mobile")
     elif label == "Play-generated APK signature verifies and certificate SHA-256 recorded":
