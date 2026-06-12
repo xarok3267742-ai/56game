@@ -484,6 +484,10 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
             "privacy inquiry" in lowered or "privacy inquiries" in lowered,
             f"{file_label} value for {label} must explicitly say the Play Console support/contact field uses a real support contact for privacy inquiries: {value}",
         )
+        require(
+            "email" in lowered or "support website" in lowered or "support url" in lowered,
+            f"{file_label} value for {label} must name the safe support contact type as support email or support website URL without recording the actual contact value: {value}",
+        )
     elif label == "Support/contact mechanism matches `play_store/privacy_policy_ru.html`":
         validate_no_negative_markers(label, value, file_label)
         validate_contains_all(label, value, file_label, ("Google Play listing", "support contact", "privacy policy", "inquiry mechanism"))
