@@ -4,8 +4,8 @@
 This helper is intentionally read-only. It separates the locally verified
 release candidate from the external Google Play publication gates that cannot
 be proven from this repository: Play Console privacy URL entry, support contact,
-signing backup, Play Console forms, testing tracks and Play-generated artifact
-review.
+developer account/profile and package-name registration, signing backup, Play
+Console forms, testing tracks and Play-generated artifact review.
 """
 
 from __future__ import annotations
@@ -28,6 +28,8 @@ PRIVACY_URL_CHECK = ROOT / "tools/check_privacy_policy_url.py"
 
 REQUIRED_OWNER_GATES = (
     "Public privacy policy URL",
+    "Play Console developer account identity verified",
+    "Play Console package name `com.qgrid.mobile` registered",
     "Play Console support/contact field populated",
     "Active upload keystore backed up before AAB upload",
     "App access completed as no restricted access/login/account",
@@ -98,6 +100,9 @@ POST_UPLOAD_LABELS = (
     "Uploaded AAB SHA-256",
     "First release track used",
     "Upload date/time",
+    "Play Console developer account identity verified",
+    "Play Console developer profile contact information completed",
+    "Play Console package name `com.qgrid.mobile` registered",
     "Public privacy policy URL",
     "Privacy policy URL check command returned `privacy_policy_url_ok`",
     "Privacy policy URL is HTTPS",
@@ -172,6 +177,17 @@ OWNER_ACTION_GROUPS = (
             "Uploaded AAB SHA-256",
             "First release track used",
             "Upload date/time",
+        ),
+    ),
+    (
+        "Developer account and package registration",
+        "Verify the Play Console developer account identity/profile and create or register package name `com.qgrid.mobile` before upload.",
+        ("play_store/play_console_post_upload_evidence_ru.md",),
+        ("./tools/print_developer_account_evidence_packet.py",),
+        (
+            "Play Console developer account identity verified",
+            "Play Console developer profile contact information completed",
+            "Play Console package name `com.qgrid.mobile` registered",
         ),
     ),
     (
@@ -458,6 +474,38 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         )
     elif label == "Upload date/time":
         validate_date_like(label, value, file_label)
+    elif label == "Play Console developer account identity verified":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("Play Console", "developer", "identity"))
+        lowered = value.lower()
+        require(
+            "verified" in lowered or "verification completed" in lowered,
+            f"{file_label} value for {label} must explicitly say Play Console developer identity verification is completed: {value}",
+        )
+    elif label == "Play Console developer profile contact information completed":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("Play Console", "developer profile", "contact"))
+        lowered = value.lower()
+        require(
+            "completed" in lowered or "filled" in lowered or "populated" in lowered,
+            f"{file_label} value for {label} must explicitly say Play Console developer profile/contact information is completed: {value}",
+        )
+        require(
+            re.search(r"\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b", value) is None,
+            f"{file_label} value for {label} must not record an actual developer contact email address: {value}",
+        )
+        require(
+            re.search(r"https?://|www\.", value, re.I) is None,
+            f"{file_label} value for {label} must not record an actual developer contact URL: {value}",
+        )
+    elif label == "Play Console package name `com.qgrid.mobile` registered":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("Play Console", "package name", "com.qgrid.mobile"))
+        lowered = value.lower()
+        require(
+            "registered" in lowered or "created" in lowered,
+            f"{file_label} value for {label} must explicitly say package name com.qgrid.mobile was registered or the Play Console app was created: {value}",
+        )
     elif label == "Public privacy policy URL":
         validate_public_https_url(label, value, file_label)
     elif label == "Privacy policy URL check command returned `privacy_policy_url_ok`":
@@ -941,6 +989,7 @@ def print_status(
     print_owner_action_breakdown(unresolved)
     print("Required owner actions before production")
     print("----------------------------------------")
+    print("- Verify Play Console developer identity/profile and register/create package name `com.qgrid.mobile`.")
     print("- Enter the verified hosted privacy policy URL in Play Console.")
     print("- Populate Play Console support/contact fields used by the policy inquiry mechanism.")
     print("- Back up `private/signing/qgrid-upload.p12` and `keystore.properties` in secure owner-controlled storage.")
@@ -966,6 +1015,7 @@ def main() -> int:
             print("=============================")
             print("- validate owner release inputs")
             print("- validate upload/post-upload/signing evidence handoff files")
+            print("- validate Play Console developer account/profile and package-name registration evidence")
             print("- validate exact recorded evidence values against package/version/checksum/privacy/signing expectations")
             print("- list owner-controlled external gates that remain `not yet available locally`")
             print("- group unresolved owner actions by evidence file and required command")

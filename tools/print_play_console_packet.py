@@ -176,6 +176,7 @@ def verify_policy_handoff() -> None:
         OWNER_INPUTS_PATH,
         (
             "Production package: `com.qgrid.mobile`.",
+            "Play Console developer account and package registration",
             "Privacy policy URL",
             "Signing backup",
             "Play account testing path",
@@ -202,6 +203,8 @@ def verify_policy_handoff() -> None:
         POST_UPLOAD_EVIDENCE_PATH,
         (
             "Play Console Post-Upload Evidence - RU",
+            "Play Console developer account identity verified: not yet available locally.",
+            "Play Console package name `com.qgrid.mobile` registered: not yet available locally.",
             "Signing backup input check command returned `signing_backup_input_ok`: recorded locally on 6 June 2026.",
             "Public privacy policy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html.",
             "Privacy policy URL check command returned `privacy_policy_url_ok`: privacy_policy_url_ok.",
@@ -241,6 +244,7 @@ def print_packet(listing_values: dict[str, str]) -> None:
     print()
     print("Manual owner gates")
     print("------------------")
+    print("- Verify Play Console developer identity/profile and register or create package name com.qgrid.mobile.")
     print("- Enter privacy policy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html")
     print("- Recheck before entry: ./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html")
     print("- Populate Play Console support/contact fields used by the privacy policy inquiry mechanism.")

@@ -15,6 +15,14 @@
 
 After the real Play Console upload, run `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and copy the safe upload artifact/internal-testing evidence lines from its output. Do not copy the placeholder upload date from the default no-argument output.
 
+## Developer Account And Package Registration
+
+- Play Console developer account identity verified: not yet available locally.
+- Play Console developer profile contact information completed: not yet available locally.
+- Play Console package name `com.qgrid.mobile` registered: not yet available locally.
+
+After the owner confirms the Play Console developer account is identity-verified, the developer profile/contact information is complete and the package name `com.qgrid.mobile` is registered or the Play Console app is created, run `./tools/print_developer_account_evidence_packet.py` and copy only the safe Developer Account Lines. Do not record legal names, addresses, account tokens, actual contact values, private URLs or invite links.
+
 ## Privacy And Contact
 
 - Public privacy policy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html.

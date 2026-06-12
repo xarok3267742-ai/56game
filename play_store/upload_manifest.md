@@ -40,6 +40,7 @@
 - Upload-day preflight helper: `tools/run_upload_day_preflight.py`
 - Upload packet helper: `tools/print_upload_packet.py`
 - Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`
+- Developer account evidence packet helper: `tools/print_developer_account_evidence_packet.py`
 - Closed-testing evidence packet helper: `tools/print_closed_testing_evidence_packet.py`
 - Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`
 - Play Console forms evidence packet helper: `tools/print_play_console_forms_evidence_packet.py`
@@ -71,6 +72,7 @@
 - Managed API 36 connected gate helper: `tools/run_api36_connected_gate.py`
 - Upload-day preflight helper: `tools/run_upload_day_preflight.py`
 - Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`
+- Developer account evidence packet helper: `tools/print_developer_account_evidence_packet.py`
 - Closed-testing evidence packet helper: `tools/print_closed_testing_evidence_packet.py`
 - Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`
 - Play Console forms evidence packet helper: `tools/print_play_console_forms_evidence_packet.py`
@@ -108,6 +110,6 @@
 
 ## Final Manual Gate
 
-Before production rollout, verify generated APKs in Play Console, complete policy forms, run required testing tracks, receive Play Console production access if required and confirm the privacy policy URL is public.
+Before production rollout, verify Play Console developer identity/profile and package-name registration, verify generated APKs in Play Console, complete policy forms, run required testing tracks, receive Play Console production access if required and confirm the privacy policy URL is public.
 
 If the AAB, icon, feature graphic or phone/tablet screenshots are rebuilt or recaptured, keep `play_store/upload_checksums.md` in sync and rerun `./tools/verify_release.py`. For store screenshots and feature graphic, use `tools/capture_store_screenshots.py`; it updates the checksum manifest automatically after a successful capture.

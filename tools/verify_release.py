@@ -583,6 +583,7 @@ def check_agents_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_developer_account_evidence_packet.py",
             "./tools/print_closed_testing_evidence_packet.py --dry-run",
             "./tools/print_closed_testing_evidence_packet.py --not-required",
             "./tools/print_closed_testing_evidence_packet.py --required-completed",
@@ -695,7 +696,7 @@ def check_agents_handoff() -> None:
             "No placeholder user-facing content remains.",
             "Store assets are present and verifier-approved.",
             "`./tools/run_final_local_gate.py` passes and prints `final_local_gate_ok`",
-            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/print_play_generated_apk_evidence_packet.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
+            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_developer_account_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/print_play_generated_apk_evidence_packet.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
             "preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device",
             "Google Play checklist, release report and upload handoff are current.",
             "The full publication goal is not complete until manual external gates are done",
@@ -707,7 +708,7 @@ def check_agents_handoff() -> None:
     final_gate = agents.split("Final local gate before handoff:", 1)[1].split("Run `connectedDebugAndroidTest`", 1)[0]
     require("./tools/run_final_local_gate.py" in final_gate, "AGENTS.md final local gate must use run_final_local_gate.py")
     require(
-        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/print_play_generated_apk_evidence_packet.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
+        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_developer_account_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/print_play_generated_apk_evidence_packet.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
         in final_gate,
         "AGENTS.md final local gate must document the runner command expansion",
     )
@@ -716,6 +717,7 @@ def check_agents_handoff() -> None:
         "./tools/verify_release.py",
         "./tools/print_upload_packet.py",
         "./tools/print_post_upload_evidence_packet.py",
+        "./tools/print_developer_account_evidence_packet.py",
         "./tools/print_closed_testing_evidence_packet.py --dry-run",
         "./tools/print_privacy_contact_evidence_packet.py",
         "./tools/print_play_console_forms_evidence_packet.py",
@@ -816,6 +818,8 @@ def check_readme_handoff() -> None:
             "`./tools/print_upload_packet.py` prints and verifies the exact ordered upload packet",
             "`./tools/print_post_upload_evidence_packet.py` prints safe upload artifact and internal-testing evidence lines",
             "rerun it with `--upload-date <date/time>` for a concrete upload-date line",
+            "`./tools/print_developer_account_evidence_packet.py` prints safe Play Console developer account/profile and package-name registration evidence lines",
+            "do not record legal names, addresses, account tokens, contact values or private URLs",
             "`./tools/print_closed_testing_evidence_packet.py --dry-run` prints the safe closed-testing evidence mode choices",
             "use exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`",
             "`./tools/print_privacy_contact_evidence_packet.py` prints safe privacy URL and support/contact evidence lines",
@@ -832,7 +836,7 @@ def check_readme_handoff() -> None:
             "unpack it for upload day and do not upload the ZIP itself to Play Console",
             "`./tools/print_play_console_packet.py` prints and verifies the copy-ready Play Console listing/App content packet and manual owner gates.",
             "`./tools/print_publication_readiness.py` prints `publication_readiness_local_ready_external_pending`",
-            "while external Play Console URL-entry, support contact, signing backup, testing-track evidence and production-access evidence if required are unresolved",
+            "while external Play Console developer account/package registration, URL-entry, support contact, signing backup, testing-track evidence and production-access evidence if required are unresolved",
             "groups unresolved owner actions by evidence file and required command",
             "`./tools/verify_play_generated_apk.py --dry-run` documents the Play-generated APK review posture",
             "run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` before rollout",
@@ -852,6 +856,7 @@ def check_readme_handoff() -> None:
             "`gameState.level`",
             "TalkBack exploratory pass",
             "Перед публикацией",
+            "подтвердить Play Console developer account/profile and package-name registration for `com.qgrid.mobile`",
             "ввести проверенный hosted privacy URL `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` в Play Console",
             "`./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html`",
             "signing_backup_input_ok",
@@ -866,10 +871,14 @@ def check_google_play_sources() -> None:
     require_text_markers(
         "docs/google_play_sources.md",
         [
-            "Checked on 11 June 2026",
+            "Checked on 12 June 2026",
             "Latest source spot-check on 6 June 2026 after the ImageGen icon replacement",
             "Latest source spot-check on 11 June 2026",
+            "Latest source spot-check on 12 June 2026",
             "https://support.google.com/googleplay/android-developer/answer/16926792?hl=en",
+            "https://support.google.com/googleplay/android-developer/answer/17105854?hl=en",
+            "https://support.google.com/googleplay/android-developer/answer/13628312?hl=en",
+            "https://support.google.com/googleplay/android-developer/answer/16471116?hl=en",
             "https://support.google.com/googleplay/android-developer/answer/11926878?hl=en",
             "https://developer.android.com/guide/practices/page-sizes",
             "https://developer.android.com/guide/app-bundle/app-bundle-format",
@@ -893,6 +902,8 @@ def check_google_play_sources() -> None:
             "Google Play dynamically applies its own rounded mask and shadow",
             "apps that do not access personal and sensitive user data still must submit a privacy policy",
             "at least 12 opted-in testers for 14 continuous days",
+            "verified developers and registered package names",
+            "package-name registration for `com.qgrid.mobile`",
             "no Contacts data access, no Location data access, no Health apps scope, no prediction market feature and no News app scope",
         ],
     )
@@ -911,6 +922,7 @@ def check_google_play_checklist_handoff() -> None:
             "Privacy/contact handoff: `play_store/privacy_contact_handoff_ru.md`",
             "Owner-controlled release inputs: `play_store/owner_release_inputs.md`",
             "Publication readiness owner actions: `play_store/publication_readiness_owner_actions_ru.md`",
+            "Developer account/package evidence helper: `tools/print_developer_account_evidence_packet.py`",
             "Upload runbook: `play_store/upload_runbook_ru.md`",
             "Post-upload evidence template: `play_store/play_console_post_upload_evidence_ru.md`",
             "Signing backup evidence and owner template: `play_store/signing_backup_evidence_ru.md`",
@@ -918,7 +930,8 @@ def check_google_play_checklist_handoff() -> None:
             "Debug package: `com.qgrid.mobile.debug`",
             "`targetSdk`: 36",
             "Native 16 KB page-size posture: current signed AAB has 8 packaged `.so` files",
-            "Official source audit: rechecked on 11 June 2026 in `docs/google_play_sources.md`",
+            "Official source audit: rechecked on 12 June 2026 in `docs/google_play_sources.md`",
+            "Developer account/package registration gate: owner must verify Play Console developer identity/profile",
             "Format: Android App Bundle",
             "Signed AAB path: `app/build/outputs/bundle/release/app-release.aab`",
             "Current local upload keystore: `private/signing/qgrid-upload.p12`",
@@ -935,6 +948,7 @@ def check_google_play_checklist_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_developer_account_evidence_packet.py",
             "./tools/print_closed_testing_evidence_packet.py --dry-run",
             "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
@@ -983,8 +997,10 @@ def check_google_play_checklist_handoff() -> None:
             "Use `play_store/closed_testing_handoff_ru.md` for closed-test tester instructions, aggregate feedback topics and safe evidence phrases if the publisher account requires closed testing.",
             "If that closed-testing requirement applies, apply for and receive Play Console production access before production rollout.",
             "Privacy policy is not publication-complete until the verified hosted URL is entered in Play Console and real Play Console support/contact fields are set.",
+            "Play Console developer account/profile verification and package-name registration are external owner-controlled gates.",
             "Owner release inputs are isolated in `play_store/owner_release_inputs.md`.",
             "Create app in Play Console.",
+            "Confirm Play Console developer identity/account verification is complete",
             "Confirm package name: `com.qgrid.mobile`.",
             "Confirm version code `1` and version name `1.0.0` in the uploaded artifact.",
             "Do not upload generated release APK outputs from app/build/outputs/apk/release; the Play upload artifact for this project is the signed AAB.",
@@ -1000,6 +1016,8 @@ def check_google_play_checklist_handoff() -> None:
             "Run `./tools/print_upload_packet.py` and require `upload_packet_ok` before uploading assets.",
             "Run `./tools/print_post_upload_evidence_packet.py` and require `post_upload_evidence_packet_ok`",
             "copy the safe upload artifact/internal-testing lines into `play_store/play_console_post_upload_evidence_ru.md`",
+            "Run `./tools/print_developer_account_evidence_packet.py` and require `developer_account_evidence_packet_ok`",
+            "copy only the safe Developer Account Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "Run `./tools/print_closed_testing_evidence_packet.py --dry-run` and require `closed_testing_evidence_packet_dry_run_ok`",
             "copy only the safe Testing Track Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "Run `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` and require `privacy_contact_evidence_packet_ok`",
@@ -1033,7 +1051,7 @@ def check_google_play_checklist_handoff() -> None:
             "Record safe Play pre-launch/policy review evidence from `./tools/print_pre_launch_review_evidence_packet.py`",
             "Record safe store-listing preview crop evidence from `./tools/print_store_listing_review_evidence_packet.py`",
             "Promote to production only after manual gates are complete.",
-            "Publication is still gated by entering the privacy URL in Play Console, populated Play Console support/contact fields, signing-key backup, testing-track evidence, production-access approval if required and Play Console actions.",
+            "Publication is still gated by Play Console developer account/package registration evidence, entering the privacy URL in Play Console, populated Play Console support/contact fields, signing-key backup, testing-track evidence, production-access approval if required and Play Console actions.",
         ],
     )
 
@@ -1456,6 +1474,8 @@ def check_release_report_handoff() -> None:
             "Latest optional connected final-gate execution",
             "`./tools/run_final_local_gate.py --include-connected --connected-serial emulator-5560` passed on `Medium_Phone_API_36(AVD) - 16`",
             "Latest managed API 36 connected-gate helper hardening",
+            "Latest Play developer-account gate hardening on 12 June 2026",
+            "Play Console developer identity verification, developer profile/contact completion and `com.qgrid.mobile` package-name registration",
             "Debug APK: `app/build/outputs/apk/debug/app-debug.apk`, package `com.qgrid.mobile.debug`, 19,833,279 bytes.",
             "Signed Release AAB: `app/build/outputs/bundle/release/app-release.aab`, 2,930,928 bytes.",
             "Upload runbook: `play_store/upload_runbook_ru.md`.",
@@ -1467,14 +1487,15 @@ def check_release_report_handoff() -> None:
             "Managed API 36 connected gate helper: `tools/run_api36_connected_gate.py`.",
             "Upload packet helper: `tools/print_upload_packet.py`.",
             "Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`.",
+            "Developer account evidence packet helper: `tools/print_developer_account_evidence_packet.py`.",
             "Play Console forms evidence packet helper: `tools/print_play_console_forms_evidence_packet.py`.",
             "Play Console packet helper: `tools/print_play_console_packet.py`.",
             "Privacy policy URL helper: `tools/check_privacy_policy_url.py`.",
             "Signing backup input helper: `tools/check_signing_backup_inputs.py`.",
             "Signing backup evidence packet helper: `tools/print_signing_backup_evidence_packet.py`.",
             "Latest privacy-policy placeholder-removal hardening",
-            "Need manual Play Console forms, owner inputs, entering the verified privacy policy URL in Play Console, populated Play Console support/contact fields, testing-track evidence and production-access approval if required.",
-            "Публикация в Google Play still requires entering the verified privacy URL in Play Console, populated Play Console support/contact fields, keystore backup, Play Console forms, testing-track evidence and production-access approval if required.",
+            "Need manual Play Console developer identity/profile confirmation, `com.qgrid.mobile` package-name registration, Play Console forms, owner inputs, entering the verified privacy policy URL in Play Console, populated Play Console support/contact fields, testing-track evidence and production-access approval if required.",
+            "Публикация в Google Play still requires Play Console developer identity/profile confirmation, `com.qgrid.mobile` package-name registration, entering the verified privacy URL in Play Console, populated Play Console support/contact fields, keystore backup, Play Console forms, testing-track evidence and production-access approval if required.",
         ],
     )
 
@@ -1654,8 +1675,11 @@ def check_completion_audit_handoff() -> None:
             "Latest optional connected final-gate execution",
             "`./tools/run_final_local_gate.py --include-connected --connected-serial emulator-5560` passed on `Medium_Phone_API_36(AVD) - 16`",
             "Latest managed API 36 connected-gate helper hardening",
+            "Latest Play developer-account gate hardening on 12 June 2026",
+            "Publication readiness now has explicit external evidence fields for Play Console developer identity verification, developer profile/contact completion and `com.qgrid.mobile` package-name registration",
             "Latest publication-readiness negative-regression gate",
             "Latest closed-testing evidence consistency hardening",
+            "Play Console developer identity/profile confirmation and `com.qgrid.mobile` package-name registration require account access and cannot be completed locally.",
             "Privacy policy text and HTML are hosted at `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` and passed `privacy_policy_url_ok`, but final publication still needs that URL entered in Play Console plus populated Play Console support/contact fields.",
             "Play Console forms are not completed because they require account access.",
             "Closed testing and any required Play Console production-access approval cannot be completed locally; account type, testers and Play review are external.",
@@ -1664,7 +1688,7 @@ def check_completion_audit_handoff() -> None:
             "## Current Verdict",
             "strong signed code release candidate",
             "not yet a fully publication-complete Google Play product",
-            "Play Console privacy URL entry, Play Console support/contact fields, signing backup, testing-track evidence, production-access approval if required and Play Console/account actions remain outside the local codebase",
+            "Play Console developer identity/profile confirmation, `com.qgrid.mobile` package-name registration, Play Console privacy URL entry, Play Console support/contact fields, signing backup, testing-track evidence, production-access approval if required and other Play Console/account actions remain outside the local codebase",
         ],
     )
 
@@ -2746,6 +2770,10 @@ def check_asset_handoff() -> None:
         "upload manifest must include post-upload evidence packet helper handoff",
     )
     require(
+        "Developer account evidence packet helper: `tools/print_developer_account_evidence_packet.py`" in upload_manifest,
+        "upload manifest must include developer account evidence packet helper handoff",
+    )
+    require(
         "Closed-testing evidence packet helper: `tools/print_closed_testing_evidence_packet.py`" in upload_manifest,
         "upload manifest must include closed-testing evidence packet helper handoff",
     )
@@ -3137,6 +3165,14 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "versionCode must be `1`.",
             "versionName must be `1.0.0`.",
             "First track must be internal testing; record closed testing separately if the publisher account requires it.",
+            "Developer Account And Package Registration",
+            "./tools/print_developer_account_evidence_packet.py",
+            "Play Console developer account identity verified.",
+            "Play Console developer profile contact information completed.",
+            "Play Console package name `com.qgrid.mobile` registered.",
+            "Developer-account evidence must explicitly say Play Console developer identity verification is completed.",
+            "Package evidence must explicitly say the Play Console package name `com.qgrid.mobile` is registered or the Play Console app was created.",
+            "Evidence must not record legal names, addresses, account tokens, actual contact values, private URLs or invite links.",
             "Privacy Policy And Play Contact",
             "Privacy/contact handoff: `play_store/privacy_contact_handoff_ru.md`.",
             "./tools/check_privacy_policy_url.py --local",
@@ -3295,6 +3331,8 @@ def check_upload_runbook_handoff() -> None:
             "`./tools/print_upload_packet.py` возвращает `upload_packet_ok`.",
             "`./tools/print_post_upload_evidence_packet.py` возвращает `post_upload_evidence_packet_ok`",
             "copy the safe upload artifact/internal-testing evidence lines into `play_store/play_console_post_upload_evidence_ru.md`",
+            "`./tools/print_developer_account_evidence_packet.py` возвращает `developer_account_evidence_packet_ok`",
+            "copy only the safe Developer Account Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/print_closed_testing_evidence_packet.py --dry-run` возвращает `closed_testing_evidence_packet_dry_run_ok`",
             "copy only the safe Testing Track Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` возвращает `privacy_contact_evidence_packet_ok`",
@@ -3334,6 +3372,7 @@ def check_upload_runbook_handoff() -> None:
             "Store icon, feature graphic, phone screenshots and large/tablet screenshots совпадают с `play_store/upload_manifest.md`.",
             "`keystore.properties`, `local.properties`, `private/signing/*.p12`, common signing-key extensions (`*.jks`, `*.keystore`, `*.pem`, `*.pk8`, `*.key`) and APK/AAB/APKS/IDSIG files case-insensitively игнорируются `.gitignore`, проверяются через `git check-ignore` in `tools/verify_release.py`, fail release verification if tracked in Git and не добавляются в публичные материалы.",
             "Owner Inputs До Создания Релиза",
+            "Play Console developer account/profile: identity/account verification completed",
             "Play Console support/contact fields",
             "Public privacy policy URL: HTTPS, без логина, не PDF, без credentials/query/fragments",
             "Privacy/contact handoff: `play_store/privacy_contact_handoff_ru.md`; use it for safe support/contact evidence wording without recording the actual support email or URL.",
@@ -3348,6 +3387,7 @@ def check_upload_runbook_handoff() -> None:
             "Источник owner gates: `play_store/owner_release_inputs.md`.",
             "Owner-action breakdown for upload day: `play_store/publication_readiness_owner_actions_ru.md`.",
             "Package name: `com.qgrid.mobile`.",
+            "create/register exactly this package in Play Console",
             "Version code: `1`.",
             "Version name: `1.0.0`.",
             "App content field-by-field answers: `play_store/app_content_answers_ru.md`.",
@@ -3435,6 +3475,7 @@ def check_final_local_gate_runner() -> None:
             "(\"./tools/verify_release.py\",)",
             "(\"./tools/print_upload_packet.py\",)",
             "(\"./tools/print_post_upload_evidence_packet.py\",)",
+            "(\"./tools/print_developer_account_evidence_packet.py\",)",
             "(\"./tools/print_closed_testing_evidence_packet.py\", \"--dry-run\")",
             "(\"./tools/print_privacy_contact_evidence_packet.py\",)",
             "(\"./tools/print_play_console_forms_evidence_packet.py\",)",
@@ -3502,6 +3543,7 @@ def check_final_local_gate_runner() -> None:
         "./tools/verify_release.py",
         "./tools/print_upload_packet.py",
         "./tools/print_post_upload_evidence_packet.py",
+        "./tools/print_developer_account_evidence_packet.py",
         "./tools/print_closed_testing_evidence_packet.py --dry-run",
         "./tools/print_privacy_contact_evidence_packet.py",
         "./tools/print_play_console_forms_evidence_packet.py",
@@ -3997,6 +4039,70 @@ def check_post_upload_evidence_packet_helper() -> None:
             require(expected_message in str(exc), f"post-upload helper rejected bad upload date with unexpected message: {exc}")
         else:
             raise CheckFailure(f"post-upload helper must reject bad upload date: {bad_date}")
+
+
+def check_developer_account_evidence_packet_helper() -> None:
+    helper = require_file("tools/print_developer_account_evidence_packet.py")
+    require(os.access(helper, os.X_OK), "tools/print_developer_account_evidence_packet.py must be executable")
+    require_text_markers(
+        "tools/print_developer_account_evidence_packet.py",
+        [
+            "Print safe Play Console developer account evidence lines for the owner.",
+            "This helper is intentionally read-only.",
+            "DESTINATION_EVIDENCE = \"play_store/play_console_post_upload_evidence_ru.md\"",
+            "PACKAGE_NAME = \"com.qgrid.mobile\"",
+            "FORBIDDEN_EVIDENCE_MARKERS",
+            "def validate_no_forbidden_evidence(",
+            "must not contain personal email addresses",
+            "must not contain private URLs or invite links",
+            "def evidence_lines(",
+            "Play Console developer account identity verified",
+            "Play Console developer profile contact information completed",
+            "Play Console package name `{PACKAGE_NAME}` registered",
+            "Developer Account Lines",
+            "developer_account_evidence_packet_ok",
+        ],
+    )
+    output = subprocess.check_output(
+        [str(helper)],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Developer account evidence packet",
+        "Destination evidence file: play_store/play_console_post_upload_evidence_ru.md",
+        "Use these lines only after Play Console developer identity/profile and package-name registration are actually confirmed.",
+        "Play Console developer account identity verified: Play Console developer account identity verification completed for the release account.",
+        "Play Console developer profile contact information completed: Play Console developer profile/contact information completed; no private contact value recorded.",
+        "Play Console package name `com.qgrid.mobile` registered: Play Console package name `com.qgrid.mobile` registered in the release account.",
+        "developer_account_evidence_packet_ok",
+    ]:
+        require(marker in output, f"developer account evidence packet missing marker: {marker}")
+
+    spec = importlib.util.spec_from_file_location("line56_developer_account_evidence_packet", helper)
+    require(spec is not None and spec.loader is not None, "developer account evidence packet helper could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    lines = "\n".join(module.evidence_lines())
+    for marker in [
+        "developer account identity verification completed",
+        "developer profile/contact information completed",
+        "package name `com.qgrid.mobile` registered in the release account",
+    ]:
+        require(marker in lines, f"developer account evidence lines missing marker: {marker}")
+    for bad_value, expected_message in [
+        ("owner@example.com", "personal email addresses"),
+        ("https://play.google.com/console/private", "private URLs"),
+        ("token=secret", "password, token, secret or API key assignments"),
+        ("storePassword=secret", "forbidden marker"),
+    ]:
+        try:
+            module.validate_no_forbidden_evidence(bad_value)
+        except module.DeveloperAccountEvidencePacketError as exc:
+            require(expected_message in str(exc), f"developer account evidence packet rejected bad evidence with unexpected message: {exc}")
+        else:
+            raise CheckFailure(f"developer account evidence packet must reject bad evidence: {bad_value}")
 
 
 def check_closed_testing_evidence_packet_helper() -> None:
@@ -4954,6 +5060,7 @@ def check_play_console_packet_helper() -> None:
             "Google Play Console packet",
             "App content posture",
             "Manual owner gates",
+            "Verify Play Console developer identity/profile and register or create package name com.qgrid.mobile.",
             "Use play_store/privacy_contact_handoff_ru.md for privacy/contact safe evidence wording.",
             "Use play_store/closed_testing_handoff_ru.md for closed-test tester instructions and safe evidence phrases.",
             "Receive Play Console production access if the publisher account requires it.",
@@ -4974,6 +5081,10 @@ def check_play_console_packet_helper() -> None:
     require("App content posture" in output, "Play Console helper did not print App content posture")
     require("Data Safety: no user data collected or shared." in output, "Play Console helper did not print data safety posture")
     require("Manual owner gates" in output, "Play Console helper did not print manual owner gates")
+    require(
+        "Verify Play Console developer identity/profile and register or create package name com.qgrid.mobile." in output,
+        "Play Console helper did not print developer account/package owner gate",
+    )
     require("./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html" in output, "Play Console helper did not print hosted privacy URL check")
     require("play_store/signing_backup_evidence_ru.md" in output, "Play Console helper did not print signing backup evidence path")
     require(
@@ -5578,9 +5689,12 @@ def check_publication_readiness_helper() -> None:
             "Public privacy policy URL",
             "Play Console support/contact field populated",
             "Active upload keystore backed up before AAB upload",
+            "Play Console developer account identity verified",
+            "Play Console package name `com.qgrid.mobile` registered",
             "Internal testing upload completed",
             "internal testing first",
             "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
+            "./tools/print_developer_account_evidence_packet.py",
             "./tools/print_closed_testing_evidence_packet.py --not-required",
             "./tools/print_closed_testing_evidence_packet.py --required-completed",
             "./tools/print_play_generated_apk_evidence_packet.py --apk <path-to-play-generated.apk> --confirm-play-generated --installed-launched-on-device",
@@ -5608,6 +5722,11 @@ def check_publication_readiness_helper() -> None:
             "must be a positive confirmation without negative status markers",
             "must explicitly say evidence was recorded without secrets",
             "must explicitly say the AAB was uploaded to internal testing",
+            "must explicitly say Play Console developer identity verification is completed",
+            "must explicitly say Play Console developer profile/contact information is completed",
+            "must explicitly say package name com.qgrid.mobile was registered or the Play Console app was created",
+            "must not record an actual developer contact email address",
+            "must not record an actual developer contact URL",
             "must explicitly say signing inputs were backed up before Play upload",
             "must name a secure owner-controlled storage type such as password manager or encrypted offline backup",
             "must point to an owner tracker or password manager backup record without secrets",
@@ -5666,6 +5785,7 @@ def check_publication_readiness_helper() -> None:
             "Owner action breakdown",
             "group unresolved owner actions by evidence file and required command",
             "Upload artifact identity",
+            "Developer account and package registration",
             "Privacy policy and Play contact",
             "Signing backup",
             "Play-generated artifact review",
@@ -5705,9 +5825,14 @@ def check_publication_readiness_helper() -> None:
         "Publication readiness",
         "Local release candidate: READY",
         "Production rollout status: NOT READY",
+        "Play Console developer account identity verified: not yet available locally",
+        "Play Console package name `com.qgrid.mobile` registered: not yet available locally",
         "Play Console support/contact field populated: not yet available locally",
         "Active upload keystore backed up before AAB upload: not yet available locally",
         "Owner action breakdown",
+        "Developer account and package registration: 3 unresolved field(s).",
+        "action: Verify the Play Console developer account identity/profile and create or register package name `com.qgrid.mobile` before upload.",
+        "command: ./tools/print_developer_account_evidence_packet.py",
         "Privacy policy and Play contact: 2 unresolved field(s).",
         "action: Validate the hosted privacy policy URL, enter it in Play Console and populate Play Console support/contact fields.",
         "command: ./tools/check_privacy_policy_url.py --url <https-url>",
@@ -5753,6 +5878,48 @@ def check_publication_readiness_helper() -> None:
         ("Uploaded AAB SHA-256", "0" * 64, "unexpected value"),
         ("First release track used", "production", "internal testing first"),
         ("First release track used", "closed testing", "internal testing first"),
+        ("Play Console developer account identity verified", "yes", "missing"),
+        (
+            "Play Console developer account identity verified",
+            "Play Console developer account identity pending",
+            "negative status markers",
+        ),
+        (
+            "Play Console developer account identity verified",
+            "Play Console developer account identity checked",
+            "identity verification is completed",
+        ),
+        ("Play Console developer profile contact information completed", "yes", "missing"),
+        (
+            "Play Console developer profile contact information completed",
+            "Play Console developer profile contact information pending",
+            "negative status markers",
+        ),
+        (
+            "Play Console developer profile contact information completed",
+            "Play Console developer profile/contact information completed: owner@example.com",
+            "actual developer contact email",
+        ),
+        (
+            "Play Console developer profile contact information completed",
+            "Play Console developer profile/contact information completed: https://console.example/private",
+            "actual developer contact URL",
+        ),
+        (
+            "Play Console package name `com.qgrid.mobile` registered",
+            "Play Console package name checked",
+            "missing",
+        ),
+        (
+            "Play Console package name `com.qgrid.mobile` registered",
+            "Play Console package name com.qgrid.mobile pending",
+            "negative status markers",
+        ),
+        (
+            "Play Console package name `com.qgrid.mobile` registered",
+            "Play Console package name com.qgrid.mobile selected",
+            "registered or the Play Console app was created",
+        ),
         ("Closed testing status if required", "completed required closed testing", "12 opted-in testers"),
         (
             "Closed testing status if required",
@@ -6016,6 +6183,9 @@ def check_publication_readiness_helper() -> None:
             "Uploaded AAB SHA-256": expected_sha,
             "First release track used": "internal testing",
             "Upload date/time": "2026-06-06 12:30",
+            "Play Console developer account identity verified": "Play Console developer account identity verification completed for the release account",
+            "Play Console developer profile contact information completed": "Play Console developer profile/contact information completed; no private contact value recorded",
+            "Play Console package name `com.qgrid.mobile` registered": "Play Console package name `com.qgrid.mobile` registered in the release account",
             "Public privacy policy URL": "https://privacy.qgrid.app/line56",
             "Privacy policy URL check command returned `privacy_policy_url_ok`": "privacy_policy_url_ok",
             "Privacy policy URL is HTTPS": "yes",
@@ -7148,6 +7318,10 @@ def check_owner_release_inputs() -> None:
             "Data Safety posture: no user data collected, no user data shared.",
             "select `13-15`, `16-17`, and `18 and over`",
             "do not select child age groups",
+            "Play Console developer account and package registration",
+            "Developer identity/account verification completed",
+            "package name `com.qgrid.mobile` created or registered in Play Console",
+            "`./tools/print_developer_account_evidence_packet.py`",
             "Support contact",
             "Working owner email or support website URL",
             "`play_store/privacy_contact_handoff_ru.md`",
@@ -7171,7 +7345,9 @@ def check_owner_release_inputs() -> None:
             "Use `play_store/upload_runbook_ru.md` as the owner-facing sequence for the upload day.",
             "Do Not Upload list, release-track order, stop conditions and post-upload evidence to record.",
             "Use `play_store/privacy_contact_handoff_ru.md` and `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` for the Play Console privacy URL, support/contact field and safe evidence wording without recording the actual support email or URL.",
+            "Use `./tools/print_developer_account_evidence_packet.py` after the owner confirms Play Console developer identity/profile and package-name registration.",
             "./tools/print_privacy_contact_evidence_packet.py --contact-type support-email",
+            "developer account/package registration",
             "support/contact type",
             "use `play_store/closed_testing_handoff_ru.md` for tester task coverage, aggregate feedback topics and safe evidence phrases",
             "use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data",
@@ -7191,6 +7367,7 @@ def check_owner_release_inputs() -> None:
             "./tools/verify_release.py",
             "./gradlew connectedDebugAndroidTest",
             "publication is still blocked externally",
+            "creates or registers package name `com.qgrid.mobile`",
             "receives Play Console production access if required",
         ],
     )
@@ -7211,6 +7388,12 @@ def check_post_upload_evidence_handoff() -> None:
             "Uploaded AAB SHA-256: not yet available locally; compare with `play_store/upload_checksums.md`.",
             "After the real Play Console upload, run `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and copy the safe upload artifact/internal-testing evidence lines from its output.",
             "Do not copy the placeholder upload date from the default no-argument output.",
+            "Developer Account And Package Registration",
+            "Play Console developer account identity verified: not yet available locally.",
+            "Play Console developer profile contact information completed: not yet available locally.",
+            "Play Console package name `com.qgrid.mobile` registered: not yet available locally.",
+            "run `./tools/print_developer_account_evidence_packet.py` and copy only the safe Developer Account Lines",
+            "Do not record legal names, addresses, account tokens, actual contact values, private URLs or invite links.",
             "Public privacy policy URL: https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html.",
             "Privacy policy URL check command returned `privacy_policy_url_ok`: privacy_policy_url_ok.",
             "Privacy policy URL is HTTPS: yes.",
@@ -7960,6 +8143,7 @@ def run_checks() -> None:
         check_upload_day_preflight_helper,
         check_upload_packet_helper,
         check_post_upload_evidence_packet_helper,
+        check_developer_account_evidence_packet_helper,
         check_closed_testing_evidence_packet_helper,
         check_privacy_contact_evidence_packet_helper,
         check_play_console_forms_evidence_packet_helper,

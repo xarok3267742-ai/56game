@@ -49,7 +49,32 @@ Required posture:
 - AAB SHA-256 must match `play_store/upload_checksums.md`.
 - First track must be internal testing; record closed testing separately if the publisher account requires it.
 
-## 2. Privacy Policy And Play Contact
+## 2. Developer Account And Package Registration
+
+Action: verify the Play Console developer account identity/profile and create or register package name `com.qgrid.mobile` before upload.
+
+Evidence file: `play_store/play_console_post_upload_evidence_ru.md`.
+
+Command:
+
+```bash
+./tools/print_developer_account_evidence_packet.py
+```
+
+Fields to resolve:
+
+- Play Console developer account identity verified.
+- Play Console developer profile contact information completed.
+- Play Console package name `com.qgrid.mobile` registered.
+
+Required posture:
+
+- Developer-account evidence must explicitly say Play Console developer identity verification is completed.
+- Developer-profile evidence must explicitly say Play Console developer profile/contact information is completed.
+- Package evidence must explicitly say the Play Console package name `com.qgrid.mobile` is registered or the Play Console app was created.
+- Evidence must not record legal names, addresses, account tokens, actual contact values, private URLs or invite links.
+
+## 3. Privacy Policy And Play Contact
 
 Action: validate the hosted privacy policy URL, enter it in Play Console and populate Play Console support/contact fields.
 
@@ -83,7 +108,7 @@ Required posture:
 - Evidence must not use bare `yes`; it must explicitly say the Play Console support/contact field is populated with a real support contact for privacy inquiries, name the safe contact type as support email or support website URL without recording the actual email address or URL, and state that the privacy policy inquiry mechanism uses the Google Play listing support contact.
 - Use `play_store/privacy_contact_handoff_ru.md` for exact safe evidence phrases and stop conditions.
 
-## 3. Signing Backup
+## 4. Signing Backup
 
 Action: back up the active upload keystore and credentials before Play upload, then record safe owner evidence.
 
@@ -128,7 +153,7 @@ Required posture:
 - Responsible-owner evidence must use a role-based `release owner` reference recorded in an `owner tracker`.
 - Backup-record location must mention an `owner tracker` or `password manager` backup record without storage access details.
 
-## 4. Play-Generated Artifact Review
+## 5. Play-Generated Artifact Review
 
 Action: download or inspect Play-generated artifacts and prove package, signature, label, version, icon, permission, manifest privacy and native 16 KB page-size posture.
 
@@ -164,7 +189,7 @@ Required posture:
 - After the downloaded Play-generated APK is verified, installed and launched, copy only the safe Play-Generated APK Review Lines from `./tools/print_play_generated_apk_evidence_packet.py`.
 - Stop rollout if package, label, version, icon, permissions, manifest privacy or native 16 KB page-size posture differ from the local release candidate.
 
-## 5. Play Console Forms
+## 6. Play Console Forms
 
 Action: complete App content, ads, Data Safety, content rating, target audience and AI disclosure forms.
 
@@ -199,7 +224,7 @@ Required posture:
 - Target audience should stay 13+ and non-child-directed unless a new documented product decision changes the release path.
 - Evidence must not use bare `yes`; it must explicitly mention no restricted access/login/account, no ads, no user data collected/shared, Games / Puzzle content rating, 13+ non-child-directed target audience and no in-app generative AI features.
 
-## 6. Testing Track And Final Review
+## 7. Testing Track And Final Review
 
 Action: finish required testing, review Play warnings/pre-launch results and inspect store preview crops.
 

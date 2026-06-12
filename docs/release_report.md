@@ -335,6 +335,7 @@
 - Latest managed API36 connected gate after dirty-emulator cleanup: `./tools/run_api36_connected_gate.py` passed after the final local runner gained stale package/process cleanup. The helper booted clean `Medium_Phone_API_36` on `emulator-5560`, ran `connectedDebugAndroidTest` 10/10 with 0 skipped and 0 failed tests, then returned `release_verification_ok`, `play_upload_archive_existing_ok`, `publication_readiness_local_ready_external_pending`, `final_local_gate_ok` and `api36_connected_gate_ok`.
 - Latest serial-scoped API36 connected final-gate refresh: `./tools/run_final_local_gate.py --include-connected --connected-serial emulator-5554` passed on an already-running `Medium_Phone_API_36` / API 36 emulator. The optional connected path cleaned generated connected outputs, verified stale local packages/processes were absent, ran `connectedDebugAndroidTest` 10/10 with 0 skipped and 0 failed tests, refreshed `app/build/outputs/androidTest-results/connected/debug/TEST-Medium_Phone_API_36(AVD) - 16-_app-.xml`, then returned `release_verification_ok`, `upload_packet_ok`, `play_upload_archive_existing_ok`, `play_console_packet_ok`, `publication_readiness_local_ready_external_pending`, `privacy_policy_local_ok`, `signing_backup_input_ok` and `final_local_gate_ok`.
 - Latest full upload-day preflight for `v1.0.0-rc60`: `./tools/run_upload_day_preflight.py --managed-api36-connected --release-tag v1.0.0-rc60` passed on 12 June 2026. The run booted a clean managed API 36 AVD, completed `connectedDebugAndroidTest` 10/10 with 0 skipped and 0 failed tests, returned `release_verification_ok`, `final_local_gate_ok`, `api36_connected_gate_ok`, regenerated `play_store/store_asset_review_sheet.png`, wrote and verified `build/play_upload/line56_v1_google_play_upload_packet.zip`, rechecked publication readiness as `publication_readiness_local_ready_external_pending`, verified the hosted privacy URL and finished with `remote_release_ok` plus `upload_day_preflight_ok`.
+- Latest Play developer-account gate hardening on 12 June 2026: official Google Play policy sources were spot-checked again, including the 28 May 2026 Developer Program Policy update for Android developer verification and package-name requirements. `tools/print_developer_account_evidence_packet.py` now prints only safe evidence lines after the owner confirms Play Console developer identity verification, developer profile/contact completion and `com.qgrid.mobile` package-name registration. `tools/print_publication_readiness.py`, `tools/run_final_local_gate.py`, `tools/print_play_console_packet.py`, owner handoff docs and `tools/verify_release.py` now treat those account/package facts as external publication gates.
 
 ## Build Artifacts
 
@@ -356,7 +357,7 @@
 - Post-upload evidence template: `play_store/play_console_post_upload_evidence_ru.md`.
 - Signing backup evidence and owner template: `play_store/signing_backup_evidence_ru.md`.
 - Upload checksums: `play_store/upload_checksums.md`.
-- Generated owner handoff archive: `build/play_upload/line56_v1_google_play_upload_packet.zip`, 4,357,875 bytes, SHA-256 `c5ba9f695d4ebd54ed43d28dafdb98fc617570af5370d86a110e86a9e5745651`; unpack for upload day, do not upload the ZIP itself.
+- Generated owner handoff archive: `build/play_upload/line56_v1_google_play_upload_packet.zip`, 4,358,652 bytes, SHA-256 `ff04619198aafce69dd33659eb8529812f8fc9cc9b6d5ca1f55181b9597bcfc8`; unpack for upload day, do not upload the ZIP itself.
 - Play Console field handoff: `play_store/play_console_submission_ru.md`.
 - App content answer sheet: `play_store/app_content_answers_ru.md`.
 - Owner release inputs: `play_store/owner_release_inputs.md`.
@@ -370,6 +371,7 @@
 - Upload-day preflight helper: `tools/run_upload_day_preflight.py`.
 - Upload packet helper: `tools/print_upload_packet.py`.
 - Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`.
+- Developer account evidence packet helper: `tools/print_developer_account_evidence_packet.py`.
 - Closed-testing evidence packet helper: `tools/print_closed_testing_evidence_packet.py`.
 - Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`.
 - Play Console forms evidence packet helper: `tools/print_play_console_forms_evidence_packet.py`.
@@ -391,8 +393,8 @@ Release AAB generated and signed with a locally generated upload keystore. `./to
 
 ## Остаточные риски
 
-- Need manual Play Console forms, owner inputs, entering the verified privacy policy URL in Play Console, populated Play Console support/contact fields, testing-track evidence and production-access approval if required.
+- Need manual Play Console developer identity/profile confirmation, `com.qgrid.mobile` package-name registration, Play Console forms, owner inputs, entering the verified privacy policy URL in Play Console, populated Play Console support/contact fields, testing-track evidence and production-access approval if required.
 
 ## Готовность
 
-Кодовый MVP, signed AAB, store icon, feature graphic, screenshots, hosted privacy policy, privacy/data-safety notes, Play Console field handoff, owner-input checklist and Android build pipeline are ready as a stronger release candidate. Публикация в Google Play still requires entering the verified privacy URL in Play Console, populated Play Console support/contact fields, keystore backup, Play Console forms, testing-track evidence and production-access approval if required.
+Кодовый MVP, signed AAB, store icon, feature graphic, screenshots, hosted privacy policy, privacy/data-safety notes, Play Console field handoff, owner-input checklist and Android build pipeline are ready as a stronger release candidate. Публикация в Google Play still requires Play Console developer identity/profile confirmation, `com.qgrid.mobile` package-name registration, entering the verified privacy URL in Play Console, populated Play Console support/contact fields, keystore backup, Play Console forms, testing-track evidence and production-access approval if required.

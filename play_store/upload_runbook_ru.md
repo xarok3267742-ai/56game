@@ -51,6 +51,7 @@ Equivalent expanded sequence:
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
 ./tools/print_post_upload_evidence_packet.py
+./tools/print_developer_account_evidence_packet.py
 ./tools/print_closed_testing_evidence_packet.py --dry-run
 ./tools/print_privacy_contact_evidence_packet.py
 ./tools/print_play_console_forms_evidence_packet.py
@@ -83,6 +84,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - `./tools/verify_release.py` возвращает `release_verification_ok`.
 - `./tools/print_upload_packet.py` возвращает `upload_packet_ok`.
 - `./tools/print_post_upload_evidence_packet.py` возвращает `post_upload_evidence_packet_ok`; после реальной загрузки в Play Console запустите `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and copy the safe upload artifact/internal-testing evidence lines into `play_store/play_console_post_upload_evidence_ru.md`.
+- `./tools/print_developer_account_evidence_packet.py` возвращает `developer_account_evidence_packet_ok`; после реального подтверждения Play Console developer identity/profile and package-name registration copy only the safe Developer Account Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - `./tools/print_closed_testing_evidence_packet.py --dry-run` возвращает `closed_testing_evidence_packet_dry_run_ok`; after Play Console confirms the account path, run exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed` and copy only the safe Testing Track Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` возвращает `privacy_contact_evidence_packet_ok`; после реального заполнения Play Console support/contact field copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - `./tools/print_play_console_forms_evidence_packet.py` возвращает `play_console_forms_evidence_packet_ok`; после реального заполнения Play Console policy forms copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`.
@@ -108,6 +110,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 
 До upload владелец должен закрыть:
 
+- Play Console developer account/profile: identity/account verification completed, developer profile/contact information completed and package name `com.qgrid.mobile` created or registered in Play Console; record only safe evidence through `./tools/print_developer_account_evidence_packet.py`.
 - Play Console support/contact fields: рабочий email или support URL.
 - Public privacy policy URL: HTTPS, без логина, не PDF, без credentials/query/fragments, не placeholder/reserved host, DNS resolves only to public global IP addresses, не редактируемый читателями; hosted normalized text must match `play_store/privacy_policy_ru.html`.
 - Privacy/contact handoff: `play_store/privacy_contact_handoff_ru.md`; use it for safe support/contact evidence wording without recording the actual support email or URL.
@@ -128,6 +131,7 @@ Production-access answer worksheet: `play_store/production_access_answers_ru.md`
 В Play Console создать app:
 
 - App name: `Линия 56`.
+- Package name: `com.qgrid.mobile`; create/register exactly this package in Play Console.
 - Default language: Russian (`ru-RU`).
 - App or game: Game.
 - Category: Puzzle.

@@ -13,6 +13,7 @@
 - Privacy/contact handoff: `play_store/privacy_contact_handoff_ru.md`
 - Owner-controlled release inputs: `play_store/owner_release_inputs.md`
 - Publication readiness owner actions: `play_store/publication_readiness_owner_actions_ru.md`
+- Developer account/package evidence helper: `tools/print_developer_account_evidence_packet.py`
 - Metadata gate: `tools/verify_release.py` enforces app name <= 30 chars, short description <= 80 chars, full description <= 4000 chars, release notes <= 500 chars, no placeholder markers and exact sync between `listing_ru.md` and `play_console_submission_ru.md`.
 - Default language: Russian (`ru-RU`)
 - Category: Games / Puzzle
@@ -29,7 +30,8 @@
 - `compileSdk`: 36
 - `targetSdk`: 36, above the current Android 15/API 35 submission requirement documented in `docs/google_play_sources.md`
 - Native 16 KB page-size posture: current signed AAB has 8 packaged `.so` files and `tools/verify_release.py` verifies every ELF `PT_LOAD` alignment is at least 16,384 bytes; `tools/verify_play_generated_apk.py` additionally checks downloaded/generated APK native libraries are uncompressed, 16 KB ZIP-aligned and paired with `extractNativeLibs=false`.
-- Official source audit: rechecked on 11 June 2026 in `docs/google_play_sources.md`; no local product change was required.
+- Official source audit: rechecked on 12 June 2026 in `docs/google_play_sources.md`; no local product change was required.
+- Developer account/package registration gate: owner must verify Play Console developer identity/profile and register or create package name `com.qgrid.mobile`; record only safe evidence through `./tools/print_developer_account_evidence_packet.py`.
 - Format: Android App Bundle
 - Signed AAB path: `app/build/outputs/bundle/release/app-release.aab`
 - Upload manifest: `play_store/upload_manifest.md`
@@ -72,6 +74,7 @@ Equivalent expanded sequence:
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
 ./tools/print_post_upload_evidence_packet.py
+./tools/print_developer_account_evidence_packet.py
 ./tools/print_closed_testing_evidence_packet.py --dry-run
 ./tools/print_privacy_contact_evidence_packet.py
 ./tools/print_play_console_forms_evidence_packet.py
@@ -194,6 +197,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 ## Known Limitations
 
 - Privacy policy is not publication-complete until the verified hosted URL is entered in Play Console and real Play Console support/contact fields are set.
+- Play Console developer account/profile verification and package-name registration are external owner-controlled gates.
 - Play Console forms are not completed locally because account access is external.
 - Closed testing and production-access approval cannot be completed locally because they depend on account type, testers and Play review.
 - Owner release inputs are isolated in `play_store/owner_release_inputs.md`.
@@ -203,6 +207,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 ## Manual Play Console Actions
 
 - Create app in Play Console.
+- Confirm Play Console developer identity/account verification is complete, developer profile/contact information is complete and package name `com.qgrid.mobile` is registered or created in Play Console.
 - Confirm package name: `com.qgrid.mobile`.
 - Confirm version code `1` and version name `1.0.0` in the uploaded artifact.
 - Resolve owner inputs from `play_store/owner_release_inputs.md`.
@@ -218,6 +223,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - For the owner upload-day bundle pass, run `./tools/run_upload_day_preflight.py` and require `upload_day_preflight_ok`; use `--managed-api36-connected` when the project-owned API 36 AVD should refresh connected evidence, and `--release-tag <release-tag>` after a tagged push to include `./tools/verify_remote_release.py --tag <release-tag>`.
 - Run `./tools/print_upload_packet.py` and require `upload_packet_ok` before uploading assets.
 - Run `./tools/print_post_upload_evidence_packet.py` and require `post_upload_evidence_packet_ok`; after the real Play Console upload, rerun it with `--upload-date <date/time>` and copy the safe upload artifact/internal-testing lines into `play_store/play_console_post_upload_evidence_ru.md`.
+- Run `./tools/print_developer_account_evidence_packet.py` and require `developer_account_evidence_packet_ok`; after Play Console developer identity/profile and package-name registration are actually confirmed, copy only the safe Developer Account Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - Run `./tools/print_closed_testing_evidence_packet.py --dry-run` and require `closed_testing_evidence_packet_dry_run_ok`; after Play Console confirms the account path, run exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed` and copy only the safe Testing Track Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - Run `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` and require `privacy_contact_evidence_packet_ok`; after the Play Console support/contact field is actually populated, copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - Run `./tools/print_play_console_forms_evidence_packet.py` and require `play_console_forms_evidence_packet_ok`; after the matching Play Console policy forms are actually completed, copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`.
@@ -254,4 +260,4 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 
 ## Release Build Status
 
-Signed release AAB exists and verifies locally. Store icon, feature graphic, phone screenshots, large/tablet screenshots, listing copy, data-safety notes, content-rating notes, hosted privacy-policy HTML, upload manifest, Play Console field handoff, signing-backup evidence and owner template, and release report are present. Publication is still gated by entering the privacy URL in Play Console, populated Play Console support/contact fields, signing-key backup, testing-track evidence, production-access approval if required and Play Console actions.
+Signed release AAB exists and verifies locally. Store icon, feature graphic, phone screenshots, large/tablet screenshots, listing copy, data-safety notes, content-rating notes, hosted privacy-policy HTML, upload manifest, Play Console field handoff, signing-backup evidence and owner template, and release report are present. Publication is still gated by Play Console developer account/package registration evidence, entering the privacy URL in Play Console, populated Play Console support/contact fields, signing-key backup, testing-track evidence, production-access approval if required and Play Console actions.
