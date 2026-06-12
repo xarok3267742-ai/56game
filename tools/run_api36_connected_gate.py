@@ -11,6 +11,11 @@ of continuing to boot, so the helper retries once without -wipe-data after that 
 If the connected final gate later loses the managed emulator after boot, the
 helper restarts the cleaned AVD once without -wipe-data and reruns the connected
 gate; ordinary connected test failures are not retried.
+If the requested AVD is already running on another serial, the helper fails
+before starting a second copy because Android Emulator rejects that by default.
+If Android Test Platform reports an incomplete instrumentation process crash
+from the managed emulator, the helper treats it as transient emulator
+infrastructure loss and retries once.
 """
 
 from __future__ import annotations
@@ -29,6 +34,8 @@ DEFAULT_SERIAL = "emulator-5560"
 DEFAULT_PORT = 5560
 DEFAULT_BOOT_TIMEOUT_SECONDS = 180
 DEFAULT_LOG = Path("/tmp/line56_api36_connected_gate.log")
+CONNECTED_RESULTS_DIR = ROOT / "app/build/outputs/androidTest-results/connected/debug"
+INSTRUMENTATION_PROCESS_CRASH_MARKER = "Instrumentation run failed due to Process crashed"
 
 
 def parse_args() -> argparse.Namespace:
@@ -107,6 +114,19 @@ def serial_state(serial: str) -> str | None:
     return adb_devices().get(serial)
 
 
+def running_matching_avds(target_avd: str, target_serial: str) -> list[str]:
+    matches: list[str] = []
+    for serial, state in adb_devices().items():
+        if serial == target_serial or state != "device":
+            continue
+        try:
+            if avd_name(serial) == target_avd:
+                matches.append(serial)
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            continue
+    return matches
+
+
 def avd_name(serial: str) -> str:
     output = run_text(adb_command(serial, "emu", "avd", "name"), timeout=15)
     return output.splitlines()[0].strip()
@@ -148,6 +168,22 @@ def connected_gate_lost_managed_emulator(serial: str, process: subprocess.Popen[
     state = serial_state(serial)
     process_exited = process is not None and process.poll() is not None
     return state != "device" or process_exited
+
+
+def connected_instrumentation_process_crashed(since: float) -> bool:
+    if not CONNECTED_RESULTS_DIR.is_dir():
+        return False
+    for path in CONNECTED_RESULTS_DIR.rglob("*"):
+        if path.suffix not in {".xml", ".textproto", ".log"}:
+            continue
+        try:
+            if path.stat().st_mtime < since:
+                continue
+            if INSTRUMENTATION_PROCESS_CRASH_MARKER in path.read_text(encoding="utf-8", errors="ignore"):
+                return True
+        except OSError:
+            continue
+    return False
 
 
 def log_tail(path: Path, lines: int = 80) -> str:
@@ -225,9 +261,11 @@ def main() -> int:
         print(f"- start {args.avd} on {args.serial} if needed{wipe_note}")
         if not args.preserve_avd_data:
             print("- if -wipe-data exits after reset before boot, retry the cleaned AVD once without -wipe-data")
+        print("- refuse to start a second copy if the requested AVD is already running on another serial")
         hosted_privacy = " --include-hosted-privacy" if args.include_hosted_privacy else ""
         print(f"- ./tools/run_final_local_gate.py --include-connected --connected-serial {args.serial}{hosted_privacy}")
         print("- if the connected final gate loses the managed emulator, restart the cleaned AVD once without -wipe-data and rerun that gate")
+        print("- if the managed run reports an incomplete instrumentation process crash, restart the cleaned AVD once without -wipe-data and rerun that gate")
         print("- stop only the emulator started by this helper unless --keep-emulator is set")
         print("api36_connected_gate_dry_run_ok")
         return 0
@@ -237,6 +275,12 @@ def main() -> int:
     try:
         state = serial_state(args.serial)
         if state is None:
+            matching_serials = running_matching_avds(args.avd, args.serial)
+            if matching_serials:
+                running = ", ".join(sorted(matching_serials))
+                raise RuntimeError(
+                    f"{args.avd} is already running on {running}; stop that emulator first or rerun with matching --serial/--port"
+                )
             process = start_emulator(args.avd, args.port, args.emulator_log, wipe_data=not args.preserve_avd_data)
             started_by_helper = True
         elif state != "device":
@@ -255,10 +299,14 @@ def main() -> int:
             print("wipe-data boot exited before boot; retrying cleaned AVD without -wipe-data")
             process = start_emulator(args.avd, args.port, args.emulator_log, wipe_data=False)
             wait_for_boot(args.serial, args.avd, args.boot_timeout, process, args.emulator_log)
+        gate_started_at = time.time()
         exit_code = run_gate(args.serial, include_hosted_privacy=args.include_hosted_privacy)
         if exit_code != 0:
-            if started_by_helper and connected_gate_lost_managed_emulator(args.serial, process):
-                print("connected final gate lost API 36 emulator; retrying once with freshly booted AVD without -wipe-data")
+            if started_by_helper and (
+                connected_gate_lost_managed_emulator(args.serial, process) or
+                connected_instrumentation_process_crashed(gate_started_at)
+            ):
+                print("connected final gate lost API 36 emulator or hit incomplete instrumentation process crash; retrying once with freshly booted AVD without -wipe-data")
                 stop_started_emulator(args.serial, process)
                 process = start_emulator(args.avd, args.port, args.emulator_log, wipe_data=False)
                 wait_for_boot(args.serial, args.avd, args.boot_timeout, process, args.emulator_log)
