@@ -207,6 +207,7 @@ Commands:
 
 ```bash
 ./tools/print_post_upload_evidence_packet.py --upload-date <date/time>
+./tools/print_pre_launch_review_evidence_packet.py
 ./tools/create_store_asset_review_sheet.py --write
 ./tools/print_store_listing_review_evidence_packet.py
 ./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>
@@ -233,6 +234,7 @@ Required posture:
 - Use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data, invite links or private tester URLs if Play Console asks for production-access application answers.
 - Pre-launch report must have no blocking issues, no reproducible crashes and no unresolved policy warnings.
 - Pre-launch/policy evidence must explicitly mention `Play Console pre-launch report`, `no reproducible crashes` and `Play policy warnings`.
+- Use `./tools/print_pre_launch_review_evidence_packet.py` after the Play Console pre-launch report and policy warnings are actually reviewed, then copy only the safe Pre-Launch Review Lines.
 - Store listing preview evidence must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and no damaging crops.
 - Use `./tools/print_store_listing_review_evidence_packet.py` after the Play Console store listing preview and current review sheet are actually checked, then copy only the safe Store Preview Lines.
 

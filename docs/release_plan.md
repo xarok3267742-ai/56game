@@ -66,6 +66,7 @@ Equivalent expanded sequence:
 ./tools/print_post_upload_evidence_packet.py
 ./tools/print_privacy_contact_evidence_packet.py
 ./tools/print_play_console_forms_evidence_packet.py
+./tools/print_pre_launch_review_evidence_packet.py
 ./tools/print_store_listing_review_evidence_packet.py
 ./tools/create_store_asset_review_sheet.py --dry-run
 ./tools/prepare_play_upload_archive.py --dry-run
