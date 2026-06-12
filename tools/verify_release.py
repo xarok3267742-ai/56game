@@ -3594,7 +3594,9 @@ def check_api36_connected_gate_helper() -> None:
             "stale debug/test APKs from older local projects cannot steal focus",
             "retries once without -wipe-data after that clean reset",
             "process_exited_before_boot(",
+            "connected_gate_lost_managed_emulator(",
             "wipe-data boot exited before boot; retrying cleaned AVD without -wipe-data",
+            "connected final gate lost API 36 emulator; retrying once with freshly booted AVD without -wipe-data",
             "serial must match --port",
             "refusing to use or stop it",
             "wait_for_boot(",
@@ -3620,6 +3622,7 @@ def check_api36_connected_gate_helper() -> None:
         "- start Medium_Phone_API_36 on emulator-5560 if needed with -wipe-data",
         "- if -wipe-data exits after reset before boot, retry the cleaned AVD once without -wipe-data",
         "- ./tools/run_final_local_gate.py --include-connected --connected-serial emulator-5560",
+        "- if the connected final gate loses the managed emulator, restart the cleaned AVD once without -wipe-data and rerun that gate",
         "- stop only the emulator started by this helper unless --keep-emulator is set",
         "api36_connected_gate_dry_run_ok",
     ]:

@@ -8,6 +8,9 @@ that emulator running. When the helper starts the AVD, it wipes the AVD data by
 default so stale debug/test APKs from older local projects cannot steal focus
 during instrumentation. Some emulator builds exit after the wipe reset instead
 of continuing to boot, so the helper retries once without -wipe-data after that clean reset.
+If the connected final gate later loses the managed emulator after boot, the
+helper restarts the cleaned AVD once without -wipe-data and reruns the connected
+gate; ordinary connected test failures are not retried.
 """
 
 from __future__ import annotations
@@ -141,6 +144,12 @@ def process_exited_before_boot(exc: Exception) -> bool:
     return "emulator exited before boot" in str(exc)
 
 
+def connected_gate_lost_managed_emulator(serial: str, process: subprocess.Popen[bytes] | None) -> bool:
+    state = serial_state(serial)
+    process_exited = process is not None and process.poll() is not None
+    return state != "device" or process_exited
+
+
 def log_tail(path: Path, lines: int = 80) -> str:
     if not path.is_file():
         return "<missing emulator log>"
@@ -218,6 +227,7 @@ def main() -> int:
             print("- if -wipe-data exits after reset before boot, retry the cleaned AVD once without -wipe-data")
         hosted_privacy = " --include-hosted-privacy" if args.include_hosted_privacy else ""
         print(f"- ./tools/run_final_local_gate.py --include-connected --connected-serial {args.serial}{hosted_privacy}")
+        print("- if the connected final gate loses the managed emulator, restart the cleaned AVD once without -wipe-data and rerun that gate")
         print("- stop only the emulator started by this helper unless --keep-emulator is set")
         print("api36_connected_gate_dry_run_ok")
         return 0
@@ -247,6 +257,15 @@ def main() -> int:
             wait_for_boot(args.serial, args.avd, args.boot_timeout, process, args.emulator_log)
         exit_code = run_gate(args.serial, include_hosted_privacy=args.include_hosted_privacy)
         if exit_code != 0:
+            if started_by_helper and connected_gate_lost_managed_emulator(args.serial, process):
+                print("connected final gate lost API 36 emulator; retrying once with freshly booted AVD without -wipe-data")
+                stop_started_emulator(args.serial, process)
+                process = start_emulator(args.avd, args.port, args.emulator_log, wipe_data=False)
+                wait_for_boot(args.serial, args.avd, args.boot_timeout, process, args.emulator_log)
+                exit_code = run_gate(args.serial, include_hosted_privacy=args.include_hosted_privacy)
+                if exit_code == 0:
+                    print("api36_connected_gate_ok")
+                    return 0
             return exit_code
         print("api36_connected_gate_ok")
         return 0
