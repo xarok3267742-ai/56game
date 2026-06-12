@@ -72,6 +72,7 @@ Equivalent expanded sequence:
 ./tools/verify_play_generated_apk.py --dry-run
 ./tools/check_privacy_policy_url.py --local
 ./tools/check_signing_backup_inputs.py
+./tools/print_signing_backup_evidence_packet.py
 ```
 
 After the owner hosts the privacy policy, run:

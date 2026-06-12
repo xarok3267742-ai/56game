@@ -71,6 +71,7 @@ Never commit signing files, passwords, private keys, `local.properties`, APKs, A
 ./tools/verify_play_generated_apk.py --dry-run
 ./tools/check_privacy_policy_url.py --local
 ./tools/check_signing_backup_inputs.py
+./tools/print_signing_backup_evidence_packet.py
 ./tools/verify_remote_release.py
 ```
 
@@ -87,7 +88,7 @@ Final local gate before handoff:
 ./tools/run_final_local_gate.py
 ```
 
-The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local` and `./tools/check_signing_backup_inputs.py` in order. Add `--include-hosted-privacy` for a networked pre-upload run that replaces the publication-readiness step with `./tools/print_publication_readiness.py --check-recorded-privacy-url`.
+The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order. Add `--include-hosted-privacy` for a networked pre-upload run that replaces the publication-readiness step with `./tools/print_publication_readiness.py --check-recorded-privacy-url`.
 
 Run `connectedDebugAndroidTest` when an emulator/device is available. For a one-command owner preflight on an available API 36 device, use `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` so connected evidence is refreshed before `./tools/verify_release.py`. To let the project start and stop its own API 36 AVD safely, use `./tools/run_api36_connected_gate.py`; add `--include-hosted-privacy` for the networked upload-day version. It targets `Medium_Phone_API_36` on `emulator-5560`, wipes that project-owned AVD data on managed start to avoid stale debug/test APK interference, and refuses to touch a different AVD on that serial.
 
@@ -213,6 +214,8 @@ In `--verify-existing` mode it verifies the generated ZIP exactly matches curren
 
 `./tools/check_signing_backup_inputs.py` validates the ignored local signing inputs before backup without printing password values. Use `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup evidence.
 
+`./tools/print_signing_backup_evidence_packet.py` is the read-only owner helper for signing-backup evidence. It validates the local signing inputs, prints safe local preflight lines, prints exact backup evidence lines for `play_store/signing_backup_evidence_ru.md`, and prints the matching post-upload backup lines for `play_store/play_console_post_upload_evidence_ru.md`; run it with `--backup-date <date/time>` after the real owner-controlled backup to produce a concrete backup-date line.
+
 `./tools/verify_remote_release.py` is the networked post-push GitHub release helper. It fetches `origin/main` and `origin/gh-pages`, requires the remote release branch to match local `HEAD`, can verify an explicit `--tag <release-tag>` is an annotated tag and peels to local `HEAD`, verifies every remote upload asset bytes/SHA-256 from `play_store/upload_checksums.md`, rejects any extra remote `.aab` files outside `app/build/outputs/bundle/release/app-release.aab`, scans remote trees case-insensitively for signing/install artifacts including `.p12`, `.jks`, `.keystore`, `.pem`, `.pk8`, `.key`, APK/APKS/IDSIG and private directories, and validates the recorded hosted privacy policy URL.
 
 When changing release-facing behavior, update the verifier if the new invariant can be checked locally.
@@ -225,7 +228,7 @@ The project is locally ready when:
 - UI looks like a finished mobile product, not a prototype.
 - No placeholder user-facing content remains.
 - Store assets are present and verifier-approved.
-- `./tools/run_final_local_gate.py` passes and prints `final_local_gate_ok`; this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local` and `./tools/check_signing_backup_inputs.py`.
+- `./tools/run_final_local_gate.py` passes and prints `final_local_gate_ok`; this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.
 - `./gradlew connectedDebugAndroidTest` passes on an available emulator/device, preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device, or an exact environment reason is documented.
 - Google Play checklist, release report and upload handoff are current.
 

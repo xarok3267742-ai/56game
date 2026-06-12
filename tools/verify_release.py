@@ -18,7 +18,7 @@ The script intentionally checks facts that are easy to regress:
 - store asset review sheet helper consistency;
 - Play upload archive helper consistency;
 - Play Console packet helper consistency;
-- signing-backup input helper consistency;
+- signing-backup input and evidence packet helper consistency;
 - upload artifact checksums and byte sizes, including phone/tablet screenshots;
 - store metadata lengths and Play Console handoff consistency;
 - privacy, data-safety and content-rating handoff consistency;
@@ -592,6 +592,7 @@ def check_agents_handoff() -> None:
             "./tools/verify_play_generated_apk.py --dry-run",
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_signing_backup_inputs.py",
+            "./tools/print_signing_backup_evidence_packet.py",
             "./tools/verify_remote_release.py",
             "Run `connectedDebugAndroidTest` when an emulator/device is available.",
             "`app/src/main/java/com/qgrid/mobile/game`: pure Kotlin models, level generation, solver and reducer. No Android dependencies here.",
@@ -654,6 +655,9 @@ def check_agents_handoff() -> None:
             "`./tools/check_privacy_policy_url.py --url <https-url>` before entering the URL in Play Console.",
             "`./tools/check_signing_backup_inputs.py` validates the ignored local signing inputs before backup without printing password values.",
             "Use `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup evidence.",
+            "`./tools/print_signing_backup_evidence_packet.py` is the read-only owner helper for signing-backup evidence.",
+            "prints exact backup evidence lines for `play_store/signing_backup_evidence_ru.md`",
+            "prints the matching post-upload backup lines for `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/verify_remote_release.py` is the networked post-push GitHub release helper.",
             "requires the remote release branch to match local `HEAD`",
             "can verify an explicit `--tag <release-tag>` is an annotated tag and peels to local `HEAD`",
@@ -666,7 +670,7 @@ def check_agents_handoff() -> None:
             "No placeholder user-facing content remains.",
             "Store assets are present and verifier-approved.",
             "`./tools/run_final_local_gate.py` passes and prints `final_local_gate_ok`",
-            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local` and `./tools/check_signing_backup_inputs.py`.",
+            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
             "preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device",
             "Google Play checklist, release report and upload handoff are current.",
             "The full publication goal is not complete until manual external gates are done",
@@ -678,7 +682,7 @@ def check_agents_handoff() -> None:
     final_gate = agents.split("Final local gate before handoff:", 1)[1].split("Run `connectedDebugAndroidTest`", 1)[0]
     require("./tools/run_final_local_gate.py" in final_gate, "AGENTS.md final local gate must use run_final_local_gate.py")
     require(
-        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local` and `./tools/check_signing_backup_inputs.py` in order."
+        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
         in final_gate,
         "AGENTS.md final local gate must document the runner command expansion",
     )
@@ -695,6 +699,7 @@ def check_agents_handoff() -> None:
         "./tools/verify_play_generated_apk.py --dry-run",
         "./tools/check_privacy_policy_url.py --local",
         "./tools/check_signing_backup_inputs.py",
+        "./tools/print_signing_backup_evidence_packet.py",
     ]:
         require(command in final_gate, f"AGENTS.md final local gate missing command: {command}")
 
@@ -730,6 +735,7 @@ def check_readme_handoff() -> None:
             "./tools/verify_play_generated_apk.py --dry-run",
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_signing_backup_inputs.py",
+            "./tools/print_signing_backup_evidence_packet.py",
             "./tools/verify_remote_release.py",
             "Release AAB собран: `app/build/outputs/bundle/release/app-release.aab`",
             "Production package остаётся нейтральным: `com.qgrid.mobile`; debug package: `com.qgrid.mobile.debug`.",
@@ -781,6 +787,8 @@ def check_readme_handoff() -> None:
             "`./tools/verify_play_generated_apk.py --dry-run` documents the Play-generated APK review posture",
             "run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` before rollout",
             "`./tools/check_signing_backup_inputs.py` verifies the active ignored signing inputs without printing password values.",
+            "`./tools/print_signing_backup_evidence_packet.py` prints safe signing-backup evidence lines",
+            "after the real owner-controlled backup, rerun it with `--backup-date <date/time>` for a concrete backup-date line.",
             "After pushing, `./tools/verify_remote_release.py --tag <release-tag>` verifies `origin/main`, the annotated remote release tag, every remote upload asset checksum from `play_store/upload_checksums.md`, rejects extra remote `.aab` files outside `app/build/outputs/bundle/release/app-release.aab`, checks case-insensitive remote signing/install artifact hygiene, verifies `origin/gh-pages` privacy-policy presence and validates the recorded hosted privacy URL.",
             "10/10 тестов",
             "replay результата через `Повторить`",
@@ -883,6 +891,7 @@ def check_google_play_checklist_handoff() -> None:
             "./tools/verify_play_generated_apk.py --dry-run",
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_signing_backup_inputs.py",
+            "./tools/print_signing_backup_evidence_packet.py",
             "./gradlew connectedDebugAndroidTest",
             "Latest local status on 6 June 2026",
             "store screenshot recapture passed after the ImageGen icon replacement",
@@ -931,6 +940,8 @@ def check_google_play_checklist_handoff() -> None:
             "Run `./tools/print_upload_packet.py` and require `upload_packet_ok` before uploading assets.",
             "Run `./tools/print_post_upload_evidence_packet.py` and require `post_upload_evidence_packet_ok`",
             "copy the safe upload artifact/internal-testing lines into `play_store/play_console_post_upload_evidence_ru.md`",
+            "Run `./tools/print_signing_backup_evidence_packet.py` and require `signing_backup_evidence_packet_ok`",
+            "copy only the safe signing-backup lines into `play_store/signing_backup_evidence_ru.md` and `play_store/play_console_post_upload_evidence_ru.md`",
             "Run `./tools/create_store_asset_review_sheet.py --dry-run` and review `play_store/store_asset_review_sheet.png` before upload",
             "Run `./tools/print_play_console_packet.py` and require `play_console_packet_ok` before filling Play Console listing/App content forms.",
             "Use `play_store/privacy_contact_handoff_ru.md` for privacy URL, support/contact field and safe evidence wording without recording the actual support email or URL.",
@@ -1185,6 +1196,7 @@ def check_release_plan_handoff() -> None:
             "./tools/verify_play_generated_apk.py --dry-run",
             "./tools/check_privacy_policy_url.py --local",
             "./tools/check_signing_backup_inputs.py",
+            "./tools/print_signing_backup_evidence_packet.py",
             "./gradlew clean",
             "./gradlew test",
             "./gradlew assembleDebug",
@@ -1268,6 +1280,7 @@ def check_release_report_handoff() -> None:
             "Latest privacy helper negative-regression gate",
             "Latest signing-backup evidence hardening",
             "Latest signing-backup negative-regression gate",
+            "Latest signing-backup evidence packet hardening",
             "Latest signing-backup completion evidence hardening",
             "Latest signing-backup storage evidence hardening",
             "Latest signing-backup owner-record evidence hardening",
@@ -1360,6 +1373,7 @@ def check_release_report_handoff() -> None:
             "Play Console packet helper: `tools/print_play_console_packet.py`.",
             "Privacy policy URL helper: `tools/check_privacy_policy_url.py`.",
             "Signing backup input helper: `tools/check_signing_backup_inputs.py`.",
+            "Signing backup evidence packet helper: `tools/print_signing_backup_evidence_packet.py`.",
             "Latest privacy-policy placeholder-removal hardening",
             "Need manual Play Console forms, owner inputs, entering the verified privacy policy URL in Play Console, populated Play Console support/contact fields, testing-track evidence and production-access approval if required.",
             "Публикация в Google Play still requires entering the verified privacy URL in Play Console, populated Play Console support/contact fields, keystore backup, Play Console forms, testing-track evidence and production-access approval if required.",
@@ -1464,6 +1478,7 @@ def check_completion_audit_handoff() -> None:
             "Latest privacy helper negative-regression gate",
             "Latest signing-backup evidence hardening",
             "Latest signing-backup negative-regression gate",
+            "Latest signing-backup evidence packet hardening",
             "Latest signing-backup completion evidence hardening",
             "Latest signing-backup storage evidence hardening",
             "Latest signing-backup owner-record evidence hardening",
@@ -2622,6 +2637,10 @@ def check_asset_handoff() -> None:
         "upload manifest must include post-upload evidence packet helper handoff",
     )
     require(
+        "Signing backup evidence packet helper: `tools/print_signing_backup_evidence_packet.py`" in upload_manifest,
+        "upload manifest must include signing backup evidence packet helper handoff",
+    )
+    require(
         "Store asset review sheet helper: `tools/create_store_asset_review_sheet.py`" in upload_manifest,
         "upload manifest must include store asset review helper handoff",
     )
@@ -3000,6 +3019,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "Signing Backup",
             "play_store/signing_backup_evidence_ru.md",
             "./tools/check_signing_backup_inputs.py",
+            "./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>",
             "`./tools/check_signing_backup_inputs.py` must return `signing_backup_input_ok`.",
             "Active-keystore backup evidence must explicitly mention `private/signing/qgrid-upload.p12` and `before AAB upload`.",
             "Backup completion evidence must explicitly mention `private/signing/qgrid-upload.p12`, `keystore.properties` and `before Play upload`.",
@@ -3116,6 +3136,7 @@ def check_upload_runbook_handoff() -> None:
             "./tools/print_play_console_packet.py",
             "./tools/print_publication_readiness.py",
             "./tools/check_signing_backup_inputs.py",
+            "./tools/print_signing_backup_evidence_packet.py",
             "./tools/run_final_local_gate.py --include-connected --connected-serial <serial>",
             "При доступном API 36 устройстве `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` тоже возвращает `final_local_gate_ok`",
             "force-stops `com.qgrid.mobile`",
@@ -3145,6 +3166,8 @@ def check_upload_runbook_handoff() -> None:
             "--require-production-ready",
             "`./tools/check_privacy_policy_url.py --local` возвращает `privacy_policy_local_ok` and prints the canonical privacy text SHA-256 for owner comparison.",
             "`./tools/check_signing_backup_inputs.py` возвращает `signing_backup_input_ok`.",
+            "`./tools/print_signing_backup_evidence_packet.py` возвращает `signing_backup_evidence_packet_ok`",
+            "copy only the safe signing-backup lines into `play_store/signing_backup_evidence_ru.md` and `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/verify_remote_release.py --tag <release-tag>` возвращает `remote_release_ok`",
             "annotated remote release tag",
             "every remote upload asset checksum from `play_store/upload_checksums.md`",
@@ -3222,6 +3245,7 @@ def check_upload_runbook_handoff() -> None:
             "Safe upload artifact/internal-testing lines from `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`.",
             "Public privacy policy URL.",
             "Signing backup input check result from `./tools/check_signing_backup_inputs.py`.",
+            "Safe signing-backup lines from `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>`.",
             "Signing backup evidence recorded in `play_store/signing_backup_evidence_ru.md`.",
             "Support/contact field used for privacy inquiries.",
             "Use `play_store/privacy_contact_handoff_ru.md` to record only safe support/contact type evidence, not the actual support email or URL.",
@@ -3256,6 +3280,7 @@ def check_final_local_gate_runner() -> None:
             "(\"./tools/verify_play_generated_apk.py\", \"--dry-run\")",
             "(\"./tools/check_privacy_policy_url.py\", \"--local\")",
             "(\"./tools/check_signing_backup_inputs.py\",)",
+            "(\"./tools/print_signing_backup_evidence_packet.py\",)",
             "--dry-run",
             "--include-connected",
             "--connected-serial",
@@ -3316,6 +3341,7 @@ def check_final_local_gate_runner() -> None:
         "./tools/verify_play_generated_apk.py --dry-run",
         "./tools/check_privacy_policy_url.py --local",
         "./tools/check_signing_backup_inputs.py",
+        "./tools/print_signing_backup_evidence_packet.py",
     ]:
         require(command in output, f"final local gate dry-run missing command: {command}")
     require("final_local_gate_dry_run_ok" in output, "final local gate dry-run did not finish with final_local_gate_dry_run_ok")
@@ -4727,6 +4753,7 @@ def check_publication_readiness_helper() -> None:
             "Internal testing upload completed",
             "internal testing first",
             "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
+            "./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>",
             "def expected_aab_sha256(",
             "def collect_evidence_status(",
             "def validate_post_upload_value(",
@@ -4851,6 +4878,7 @@ def check_publication_readiness_helper() -> None:
         "Signing backup: 9 unresolved field(s).",
         "evidence: play_store/play_console_post_upload_evidence_ru.md, play_store/signing_backup_evidence_ru.md",
         "command: ./tools/check_signing_backup_inputs.py",
+        "command: ./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>",
         "Play-generated artifact review: 9 unresolved field(s).",
         "Testing track and final review: 8 unresolved field(s).",
         "publication_readiness_local_ready_external_pending",
@@ -5792,6 +5820,113 @@ def check_signing_backup_helper() -> None:
             raise CheckFailure(f"signing helper must reject bad signing properties: {bad_properties}")
 
 
+def check_signing_backup_evidence_packet_helper() -> None:
+    helper = require_file("tools/print_signing_backup_evidence_packet.py")
+    require(os.access(helper, os.X_OK), "tools/print_signing_backup_evidence_packet.py must be executable")
+    require_text_markers(
+        "tools/print_signing_backup_evidence_packet.py",
+        [
+            "Print safe signing-backup evidence lines for the owner.",
+            "This helper is intentionally read-only.",
+            "from check_signing_backup_inputs import",
+            "BACKUP_DATE_PLACEHOLDER = \"REPLACE_WITH_ACTUAL_BACKUP_DATE_TIME\"",
+            "DEFAULT_STORAGE_TYPE = \"owner-controlled secure password manager plus encrypted offline backup\"",
+            "DEFAULT_RESPONSIBLE_OWNER = \"release owner recorded in owner tracker\"",
+            "DEFAULT_RECORD_LOCATION = \"backup record stored in owner tracker without secrets\"",
+            "FORBIDDEN_EVIDENCE_MARKERS",
+            "def validate_no_forbidden_evidence(",
+            "def validate_backup_date(",
+            "--backup-date must include a full date such as 2026-06-12",
+            "def validate_storage_type(",
+            "def validate_responsible_owner(",
+            "def validate_record_location(",
+            "def local_preflight_lines(",
+            "def signing_backup_lines(",
+            "def post_upload_lines(",
+            "Destination evidence file: play_store/signing_backup_evidence_ru.md",
+            "Destination post-upload evidence file: play_store/play_console_post_upload_evidence_ru.md",
+            "signing_backup_evidence_packet_ok",
+        ],
+    )
+    output = subprocess.check_output(
+        [str(helper)],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Signing backup evidence packet",
+        "Source preflight: ./tools/check_signing_backup_inputs.py",
+        "Destination evidence file: play_store/signing_backup_evidence_ru.md",
+        "Destination post-upload evidence file: play_store/play_console_post_upload_evidence_ru.md",
+        "REPLACE_WITH_ACTUAL_BACKUP_DATE_TIME",
+        "Command returned `signing_backup_input_ok`: signing_backup_input_ok.",
+        "Active upload keystore exists and is owner-only: `private/signing/qgrid-upload.p12`, mode `0o600`.",
+        "`keystore.properties` exists and is owner-only: mode `0o600`.",
+        "`keystore.properties` points to `private/signing/qgrid-upload.p12`: `private/signing/qgrid-upload.p12`.",
+        "`keystore.properties` uses key alias `qgrid_upload`: `qgrid_upload`.",
+        "`storePassword` and `keyPassword` fields are present; values were not printed or recorded: present; values were not printed and not recorded.",
+        "Backup completed before Play upload: backup completed for `private/signing/qgrid-upload.p12` and `keystore.properties` before Play upload.",
+        "Secure owner-controlled storage type chosen: owner-controlled secure password manager plus encrypted offline backup.",
+        "At least two owner-controlled secure copies exist: yes, two owner-controlled secure copies exist.",
+        "Recovery tested without exposing secrets: yes, recovery tested without exposing secrets.",
+        "Responsible owner: release owner recorded in owner tracker.",
+        "Backup record location in owner tracker or password manager: backup record stored in owner tracker without secrets.",
+        "Active upload keystore backed up before AAB upload: backup completed for `private/signing/qgrid-upload.p12` and `keystore.properties` before AAB upload.",
+        "Owner-controlled backup evidence recorded without secrets: yes, recorded without secrets.",
+        "signing_backup_evidence_packet_ok",
+    ]:
+        require(marker in output, f"signing backup evidence packet output missing marker: {marker}")
+
+    dated_output = subprocess.check_output(
+        [str(helper), "--backup-date", "2026-06-12 14:30 local time"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    require("Backup date/time: 2026-06-12 14:30 local time." in dated_output, "signing backup evidence packet dated output missing concrete date")
+    require(
+        "REPLACE_WITH_ACTUAL_BACKUP_DATE_TIME" not in dated_output,
+        "signing backup evidence packet dated output must not include the placeholder date",
+    )
+    require("signing_backup_evidence_packet_ok" in dated_output, "signing backup evidence packet dated output did not finish successfully")
+
+    spec = importlib.util.spec_from_file_location("line56_signing_backup_evidence_packet", helper)
+    require(spec is not None and spec.loader is not None, "signing backup evidence packet helper could not be loaded for regression checks")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    lines = module.signing_backup_lines(
+        backup_date="2026-06-12 14:30 local time",
+        storage_type="owner-controlled secure password manager plus encrypted offline backup",
+        responsible_owner="release owner recorded in owner tracker",
+        record_location="backup record stored in owner tracker without secrets",
+    )
+    joined = "\n".join(lines)
+    for marker in [
+        "Backup completed before Play upload",
+        "Secure owner-controlled storage type chosen",
+        "At least two owner-controlled secure copies exist",
+        "Recovery tested without exposing secrets",
+        "Backup date/time: 2026-06-12 14:30 local time.",
+        "Backup record location in owner tracker or password manager",
+    ]:
+        require(marker in joined, f"signing backup evidence packet generated lines missing marker: {marker}")
+
+    for call, expected_message in [
+        (lambda: module.validate_backup_date("pending"), "must be a concrete date/time"),
+        (lambda: module.validate_backup_date("2026"), "must include a full date"),
+        (lambda: module.validate_storage_type("owner-controlled secure cloud"), "must name a safe storage type"),
+        (lambda: module.validate_record_location("https://secret.example"), "must not contain storage URLs"),
+    ]:
+        try:
+            call()
+        except module.SigningBackupEvidencePacketError as exc:
+            require(expected_message in str(exc), f"signing backup evidence packet rejected bad input with unexpected message: {exc}")
+        else:
+            raise CheckFailure(f"signing backup evidence packet must reject bad input containing: {expected_message}")
+
+
 def check_signing_backup_evidence_handoff() -> None:
     require_text_markers(
         "play_store/signing_backup_evidence_ru.md",
@@ -5806,6 +5941,7 @@ def check_signing_backup_evidence_handoff() -> None:
             "Public certificate reference: `play_store/signing_certificate_report.md`.",
             "Legacy ignored local key: `private/signing/line56-upload.p12`",
             "./tools/check_signing_backup_inputs.py",
+            "./tools/print_signing_backup_evidence_packet.py",
             "Latest local preflight, checked on 6 June 2026:",
             "Command returned `signing_backup_input_ok`.",
             "Active upload keystore exists and is owner-only: `private/signing/qgrid-upload.p12`, mode `0o600`.",
@@ -5825,6 +5961,8 @@ def check_signing_backup_evidence_handoff() -> None:
             "For recovery, use wording like `yes, recovery tested without exposing secrets`.",
             "For responsible owner, use a role-based safe reference like `release owner recorded in owner tracker`.",
             "For backup record location, mention an `owner tracker` or `password manager` backup record without recording storage access details.",
+            "Run `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>` after the real owner-controlled backup",
+            "Do not copy the placeholder backup date from the default no-argument output.",
             "Fewer than two owner-controlled secure backup copies exist.",
             "Recovery has not been tested without exposing secrets.",
             "Stop the Play upload until resolved",
@@ -6188,7 +6326,7 @@ def check_owner_release_inputs() -> None:
             "use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data",
             "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and `play_store/play_console_post_upload_evidence_ru.md`",
             "production-access status",
-            "Before upload, use `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup facts.",
+            "Before upload, use `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>` and `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup facts after the real owner-controlled backup.",
             "Do not record secrets or tester personal data.",
             "Do Not Change Without Rebuilding And Rechecking",
             "`applicationId` / package name.",
@@ -6235,6 +6373,7 @@ def check_post_upload_evidence_handoff() -> None:
             "Signing backup input check command returned `signing_backup_input_ok`: recorded locally on 6 June 2026.",
             "Active upload keystore backed up before AAB upload: not yet available locally.",
             "Owner-controlled backup evidence recorded without secrets: not yet available locally.",
+            "Use `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>` after the real owner-controlled backup and copy only the safe post-upload backup lines.",
             "After the real backup is complete, keep the backup evidence line explicit and safe, for example: `yes, recorded without secrets`.",
             "The active-keystore backup line must explicitly mention `private/signing/qgrid-upload.p12` and `before AAB upload`",
             "Play-generated APK verification command: run `./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>` on a downloaded Play-generated APK artifact and require `play_generated_apk_verify_ok`.",
@@ -6967,6 +7106,7 @@ def run_checks() -> None:
         check_privacy_policy_url_helper,
         check_remote_release_helper,
         check_signing_backup_helper,
+        check_signing_backup_evidence_packet_helper,
         check_signing_backup_evidence_handoff,
         check_play_console_submission_handoff,
         check_closed_testing_handoff,

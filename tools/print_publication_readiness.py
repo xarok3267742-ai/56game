@@ -196,7 +196,10 @@ OWNER_ACTION_GROUPS = (
             "play_store/play_console_post_upload_evidence_ru.md",
             "play_store/signing_backup_evidence_ru.md",
         ),
-        ("./tools/check_signing_backup_inputs.py",),
+        (
+            "./tools/check_signing_backup_inputs.py",
+            "./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>",
+        ),
         (
             "Active upload keystore backed up before AAB upload",
             "Owner-controlled backup evidence recorded without secrets",

@@ -18,6 +18,7 @@ Run before making or refreshing the secure backup:
 
 ```bash
 ./tools/check_signing_backup_inputs.py
+./tools/print_signing_backup_evidence_packet.py
 ```
 
 Latest local preflight, checked on 6 June 2026:
@@ -39,6 +40,7 @@ Expected owner-side backup result:
 
 When replacing the pending backup lines after a real backup, keep the values safe and specific:
 
+- Run `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>` after the real owner-controlled backup and copy only the safe owner backup lines. Do not copy the placeholder backup date from the default no-argument output.
 - For backup completion, explicitly mention `private/signing/qgrid-upload.p12`, `keystore.properties` and `before Play upload`.
 - For storage type, use wording like `owner-controlled secure password manager plus encrypted offline backup`.
 - For secure copies, use wording like `yes, two owner-controlled secure copies exist`.

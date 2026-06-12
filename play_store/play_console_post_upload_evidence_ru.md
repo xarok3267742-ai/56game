@@ -37,6 +37,7 @@ Use `play_store/privacy_contact_handoff_ru.md` for exact safe evidence phrases. 
 
 After the real backup is complete, keep the backup evidence line explicit and safe, for example: `yes, recorded without secrets`.
 The active-keystore backup line must explicitly mention `private/signing/qgrid-upload.p12` and `before AAB upload`; do not record passwords, key contents or recovery codes.
+Use `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>` after the real owner-controlled backup and copy only the safe post-upload backup lines.
 
 ## Play-Generated Artifact Review
 

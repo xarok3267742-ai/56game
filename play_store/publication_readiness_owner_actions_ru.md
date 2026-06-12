@@ -95,6 +95,7 @@ Command:
 
 ```bash
 ./tools/check_signing_backup_inputs.py
+./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>
 ```
 
 Required posture:

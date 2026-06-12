@@ -48,6 +48,7 @@ Equivalent expanded sequence:
 ./tools/verify_play_generated_apk.py --dry-run
 ./tools/check_privacy_policy_url.py --local
 ./tools/check_signing_backup_inputs.py
+./tools/print_signing_backup_evidence_packet.py
 ```
 
 Connected-вариант добавляет перед verifier:
@@ -73,6 +74,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - `./tools/verify_release.py` проверяет 16 KB page-size posture для native `.so` в signed AAB; post-upload APK helper проверяет тот же `PT_LOAD` alignment на Play-generated APK plus uncompressed native-library packaging, 16 KB ZIP data alignment and `extractNativeLibs=false`.
 - `./tools/check_privacy_policy_url.py --local` возвращает `privacy_policy_local_ok` and prints the canonical privacy text SHA-256 for owner comparison.
 - `./tools/check_signing_backup_inputs.py` возвращает `signing_backup_input_ok`.
+- `./tools/print_signing_backup_evidence_packet.py` возвращает `signing_backup_evidence_packet_ok`; после реального owner-controlled backup запустите `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>` and copy only the safe signing-backup lines into `play_store/signing_backup_evidence_ru.md` and `play_store/play_console_post_upload_evidence_ru.md`.
 - После push в GitHub `./tools/verify_remote_release.py --tag <release-tag>` возвращает `remote_release_ok`, подтверждая `origin/main`, annotated remote release tag, every remote upload asset checksum from `play_store/upload_checksums.md`, отсутствие extra remote `.aab` outside `app/build/outputs/bundle/release/app-release.aab`, case-insensitive отсутствие signing/install artifacts в remote tree, наличие privacy HTML на `origin/gh-pages` and recorded hosted privacy URL validity.
 - Signed AAB существует: `app/build/outputs/bundle/release/app-release.aab`.
 - AAB SHA-256 совпадает с `play_store/upload_checksums.md`.
@@ -229,6 +231,7 @@ After Play Console upload, record these owner-side facts in the release notes or
 - Public privacy policy URL.
 - Privacy policy URL check result from `./tools/check_privacy_policy_url.py --url <https-url>`.
 - Signing backup input check result from `./tools/check_signing_backup_inputs.py`.
+- Safe signing-backup lines from `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>`.
 - Signing backup evidence recorded in `play_store/signing_backup_evidence_ru.md`.
 - Support/contact field used for privacy inquiries.
 - Use `play_store/privacy_contact_handoff_ru.md` to record only safe support/contact type evidence, not the actual support email or URL.
