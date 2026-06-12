@@ -90,6 +90,7 @@ If closed testing is required for the publisher account, the closed-testing stat
 If closed testing is required for the publisher account, the production-access status line must explicitly mention `Play Console production access` and that it was `granted` or `approved`. If closed testing is not required for this account, record `not required for this account`.
 After Play Console pre-launch review, the pre-launch result line must explicitly mention `Play Console pre-launch report` and `passed` or `no blocking issues`; the crash line must mention `pre-launch report` and `no reproducible crashes`; the policy-warning line must mention `Play policy warnings` and `no warnings`, `no unresolved warnings` or `resolved`.
 After store-listing preview review, the preview-crop line must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and `no damaging crops`; do not use a bare `yes`.
+Use `./tools/print_store_listing_review_evidence_packet.py` after the Play Console store listing preview and current review sheet are actually checked, then copy only the safe Store Preview Lines.
 
 ## Stop-Release Notes
 

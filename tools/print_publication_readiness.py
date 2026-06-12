@@ -253,6 +253,7 @@ OWNER_ACTION_GROUPS = (
         (
             "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
             "./tools/create_store_asset_review_sheet.py --write",
+            "./tools/print_store_listing_review_evidence_packet.py",
             "./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>",
         ),
         (

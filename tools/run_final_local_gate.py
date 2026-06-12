@@ -6,8 +6,8 @@ candidate, optionally refreshes connected Android test evidence, then runs the
 read-only handoff helpers that verify upload assets, the store-asset review
 sheet, the optional upload archive, Play Console copy, post-upload evidence
 draft, privacy/contact evidence draft, Play Console form evidence draft,
-Play-generated APK review posture, local privacy HTML, signing input hygiene and
-signing-backup evidence draft. Use --include-hosted-privacy only for a pre-upload run that should also revalidate the recorded hosted privacy policy URL.
+store-listing preview evidence draft, Play-generated APK review posture, local
+privacy HTML, signing input hygiene and signing-backup evidence draft. Use --include-hosted-privacy only for a pre-upload run that should also revalidate the recorded hosted privacy policy URL.
 """
 
 from __future__ import annotations
@@ -56,6 +56,7 @@ HANDOFF_COMMANDS: tuple[tuple[str, ...], ...] = (
     ("./tools/print_privacy_contact_evidence_packet.py",),
     ("./tools/print_play_console_forms_evidence_packet.py",),
     ("./tools/create_store_asset_review_sheet.py", "--dry-run"),
+    ("./tools/print_store_listing_review_evidence_packet.py",),
     ("./tools/prepare_play_upload_archive.py", "--dry-run"),
     ("./tools/prepare_play_upload_archive.py", "--verify-existing"),
     ("./tools/print_play_console_packet.py",),

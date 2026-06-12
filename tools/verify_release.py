@@ -14,7 +14,7 @@ The script intentionally checks facts that are easy to regress:
 - lightweight artifact and asset size budgets;
 - Play store asset dimensions/alpha;
 - upload manifest paths;
-- upload-packet, post-upload evidence, privacy/contact evidence and Play Console forms evidence helper consistency;
+- upload-packet, post-upload evidence, privacy/contact evidence, Play Console forms evidence and store-listing review evidence helper consistency;
 - store asset review sheet helper consistency;
 - Play upload archive helper consistency;
 - Play Console packet helper consistency;
@@ -585,6 +585,7 @@ def check_agents_handoff() -> None:
             "./tools/print_post_upload_evidence_packet.py",
             "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
+            "./tools/print_store_listing_review_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/create_store_asset_review_sheet.py --write",
             "./tools/prepare_play_upload_archive.py --dry-run",
@@ -647,6 +648,8 @@ def check_agents_handoff() -> None:
             "prints exact safe lines for App access, ads, Data Safety, content rating, target audience and AI disclosure fields",
             "`./tools/create_store_asset_review_sheet.py` is the local visual asset review helper.",
             "The sheet is internal evidence only and must not be uploaded to Play Console.",
+            "`./tools/print_store_listing_review_evidence_packet.py` is the read-only owner helper for store-listing preview crop evidence.",
+            "prints the safe `Store listing preview checked for damaging image crops` line",
             "`./tools/prepare_play_upload_archive.py` is the generated owner handoff archive helper.",
             "In `--verify-existing` mode it verifies the generated ZIP exactly matches current upload assets and handoff notes.",
             "The ZIP is not a Play Console upload artifact; unpack it and upload the individual files.",
@@ -677,7 +680,7 @@ def check_agents_handoff() -> None:
             "No placeholder user-facing content remains.",
             "Store assets are present and verifier-approved.",
             "`./tools/run_final_local_gate.py` passes and prints `final_local_gate_ok`",
-            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
+            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
             "preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device",
             "Google Play checklist, release report and upload handoff are current.",
             "The full publication goal is not complete until manual external gates are done",
@@ -689,7 +692,7 @@ def check_agents_handoff() -> None:
     final_gate = agents.split("Final local gate before handoff:", 1)[1].split("Run `connectedDebugAndroidTest`", 1)[0]
     require("./tools/run_final_local_gate.py" in final_gate, "AGENTS.md final local gate must use run_final_local_gate.py")
     require(
-        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
+        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
         in final_gate,
         "AGENTS.md final local gate must document the runner command expansion",
     )
@@ -701,6 +704,7 @@ def check_agents_handoff() -> None:
         "./tools/print_privacy_contact_evidence_packet.py",
         "./tools/print_play_console_forms_evidence_packet.py",
         "./tools/create_store_asset_review_sheet.py --dry-run",
+        "./tools/print_store_listing_review_evidence_packet.py",
         "./tools/prepare_play_upload_archive.py --dry-run",
         "./tools/prepare_play_upload_archive.py --verify-existing",
         "./tools/print_play_console_packet.py",
@@ -736,6 +740,7 @@ def check_readme_handoff() -> None:
             "./tools/print_post_upload_evidence_packet.py",
             "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
+            "./tools/print_store_listing_review_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/create_store_asset_review_sheet.py --write",
             "./tools/prepare_play_upload_archive.py --dry-run",
@@ -792,6 +797,7 @@ def check_readme_handoff() -> None:
             "use it only after the App access, ads, Data Safety, content rating, target audience and AI disclosure forms are actually completed",
             "`./tools/create_store_asset_review_sheet.py --write` regenerates the internal visual review sheet",
             "Store asset review sheet лежит в `play_store/store_asset_review_sheet.png` and is internal review evidence only",
+            "`./tools/print_store_listing_review_evidence_packet.py` prints the safe store-listing preview crop evidence line",
             "`./tools/prepare_play_upload_archive.py --write` creates a generated owner handoff ZIP under `build/play_upload`",
             "`./tools/prepare_play_upload_archive.py --verify-existing` verifies that ZIP against current upload assets and handoff notes",
             "unpack it for upload day and do not upload the ZIP itself to Play Console",
@@ -900,6 +906,7 @@ def check_google_play_checklist_handoff() -> None:
             "./tools/print_post_upload_evidence_packet.py",
             "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
+            "./tools/print_store_listing_review_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/prepare_play_upload_archive.py --dry-run",
             "./tools/prepare_play_upload_archive.py --verify-existing",
@@ -965,6 +972,8 @@ def check_google_play_checklist_handoff() -> None:
             "Run `./tools/print_signing_backup_evidence_packet.py` and require `signing_backup_evidence_packet_ok`",
             "copy only the safe signing-backup lines into `play_store/signing_backup_evidence_ru.md` and `play_store/play_console_post_upload_evidence_ru.md`",
             "Run `./tools/create_store_asset_review_sheet.py --dry-run` and review `play_store/store_asset_review_sheet.png` before upload",
+            "Run `./tools/print_store_listing_review_evidence_packet.py` and require `store_listing_review_evidence_packet_ok`",
+            "copy only the safe Store Preview Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "Run `./tools/print_play_console_packet.py` and require `play_console_packet_ok` before filling Play Console listing/App content forms.",
             "Use `play_store/privacy_contact_handoff_ru.md` for privacy URL, support/contact field and safe evidence wording without recording the actual support email or URL.",
             "Use `play_store/closed_testing_handoff_ru.md` for closed-test tester instructions, aggregate feedback topics and safe evidence phrases if the publisher account requires closed testing.",
@@ -979,6 +988,7 @@ def check_google_play_checklist_handoff() -> None:
             "validates the recorded hosted privacy URL",
             "Record safe signing-backup evidence in `play_store/signing_backup_evidence_ru.md`.",
             "Record safe post-upload evidence in `play_store/play_console_post_upload_evidence_ru.md`.",
+            "Record safe store-listing preview crop evidence from `./tools/print_store_listing_review_evidence_packet.py`",
             "Promote to production only after manual gates are complete.",
             "Publication is still gated by entering the privacy URL in Play Console, populated Play Console support/contact fields, signing-key backup, testing-track evidence, production-access approval if required and Play Console actions.",
         ],
@@ -1215,6 +1225,7 @@ def check_release_plan_handoff() -> None:
             "./tools/print_post_upload_evidence_packet.py",
             "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
+            "./tools/print_store_listing_review_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/print_play_console_packet.py",
             "./tools/verify_play_generated_apk.py --dry-run",
@@ -1306,6 +1317,8 @@ def check_release_report_handoff() -> None:
             "Latest privacy/contact evidence packet hardening",
             "Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`.",
             "Latest Play Console forms evidence packet hardening",
+            "Latest store-listing review evidence packet hardening",
+            "Store listing review evidence packet helper: `tools/print_store_listing_review_evidence_packet.py`.",
             "Latest Play-generated version owner-evidence hardening",
             "Latest privacy helper negative-regression gate",
             "Latest signing-backup evidence hardening",
@@ -1508,6 +1521,7 @@ def check_completion_audit_handoff() -> None:
             "Latest post-upload evidence packet hardening",
             "Latest privacy/contact evidence packet hardening",
             "Latest Play Console forms evidence packet hardening",
+            "Latest store-listing review evidence packet hardening",
             "Latest Play-generated version owner-evidence hardening",
             "Latest privacy helper negative-regression gate",
             "Latest signing-backup evidence hardening",
@@ -2679,6 +2693,10 @@ def check_asset_handoff() -> None:
         "upload manifest must include Play Console forms evidence packet helper handoff",
     )
     require(
+        "Store listing review evidence packet helper: `tools/print_store_listing_review_evidence_packet.py`" in upload_manifest,
+        "upload manifest must include store listing review evidence packet helper handoff",
+    )
+    require(
         "Signing backup evidence packet helper: `tools/print_signing_backup_evidence_packet.py`" in upload_manifest,
         "upload manifest must include signing backup evidence packet helper handoff",
     )
@@ -3100,6 +3118,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "Closed-testing handoff: `play_store/closed_testing_handoff_ru.md`.",
             "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
             "./tools/create_store_asset_review_sheet.py --write",
+            "./tools/print_store_listing_review_evidence_packet.py",
             "Internal-testing evidence must explicitly mention `internal testing` and that the AAB was uploaded or upload completed.",
             "Use `play_store/closed_testing_handoff_ru.md` for tester task coverage, aggregate feedback topics and safe evidence phrases.",
             "Closed testing required for this account.",
@@ -3109,6 +3128,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "Pre-launch/policy evidence must explicitly mention `Play Console pre-launch report`, `no reproducible crashes` and `Play policy warnings`.",
             "Store listing preview checked for damaging image crops.",
             "Store listing preview evidence must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and no damaging crops.",
+            "copy only the safe Store Preview Lines",
             "publication_readiness_production_ready_owner_confirmed",
         ],
     )
@@ -3200,6 +3220,8 @@ def check_upload_runbook_handoff() -> None:
             "copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/print_play_console_forms_evidence_packet.py` возвращает `play_console_forms_evidence_packet_ok`",
             "copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`",
+            "`./tools/print_store_listing_review_evidence_packet.py` возвращает `store_listing_review_evidence_packet_ok`",
+            "copy only the safe Store Preview Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/create_store_asset_review_sheet.py --dry-run` возвращает `store_asset_review_sheet_dry_run_ok`",
             "visually review `play_store/store_asset_review_sheet.png` before upload",
             "`./tools/prepare_play_upload_archive.py --dry-run` возвращает `play_upload_archive_dry_run_ok`",
@@ -3294,6 +3316,7 @@ def check_upload_runbook_handoff() -> None:
             "Safe upload artifact/internal-testing lines from `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`.",
             "Safe privacy/contact lines from `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`.",
             "Safe Play Console policy-form lines from `./tools/print_play_console_forms_evidence_packet.py`.",
+            "Safe store-listing preview crop line from `./tools/print_store_listing_review_evidence_packet.py`.",
             "Public privacy policy URL.",
             "Signing backup input check result from `./tools/check_signing_backup_inputs.py`.",
             "Safe signing-backup lines from `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>`.",
@@ -3326,6 +3349,7 @@ def check_final_local_gate_runner() -> None:
             "(\"./tools/print_privacy_contact_evidence_packet.py\",)",
             "(\"./tools/print_play_console_forms_evidence_packet.py\",)",
             "(\"./tools/create_store_asset_review_sheet.py\", \"--dry-run\")",
+            "(\"./tools/print_store_listing_review_evidence_packet.py\",)",
             "(\"./tools/prepare_play_upload_archive.py\", \"--dry-run\")",
             "(\"./tools/prepare_play_upload_archive.py\", \"--verify-existing\")",
             "(\"./tools/print_play_console_packet.py\",)",
@@ -3389,6 +3413,7 @@ def check_final_local_gate_runner() -> None:
         "./tools/print_privacy_contact_evidence_packet.py",
         "./tools/print_play_console_forms_evidence_packet.py",
         "./tools/create_store_asset_review_sheet.py --dry-run",
+        "./tools/print_store_listing_review_evidence_packet.py",
         "./tools/prepare_play_upload_archive.py --dry-run",
         "./tools/prepare_play_upload_archive.py --verify-existing",
         "./tools/print_play_console_packet.py",
@@ -3948,6 +3973,74 @@ def check_play_console_forms_evidence_packet_helper() -> None:
             require(expected_message in str(exc), f"Play Console forms helper rejected bad evidence with unexpected message: {exc}")
         else:
             raise CheckFailure(f"Play Console forms helper must reject bad evidence: {bad_value}")
+
+
+def check_store_listing_review_evidence_packet_helper() -> None:
+    helper = require_file("tools/print_store_listing_review_evidence_packet.py")
+    require(os.access(helper, os.X_OK), "tools/print_store_listing_review_evidence_packet.py must be executable")
+    require_text_markers(
+        "tools/print_store_listing_review_evidence_packet.py",
+        [
+            "Print safe store-listing preview evidence lines for the owner.",
+            "This helper is intentionally read-only.",
+            "DESTINATION_EVIDENCE = \"play_store/play_console_post_upload_evidence_ru.md\"",
+            "REVIEW_SHEET = \"play_store/store_asset_review_sheet.png\"",
+            "REVIEW_SHEET_SIZE = (1800, 2050)",
+            "def png_size(",
+            "def verify_review_sheet(",
+            "def validate_no_forbidden_evidence(",
+            "must not contain personal email addresses",
+            "must not contain private URLs or account links",
+            "def evidence_lines(",
+            "Store listing preview checked for damaging image crops",
+            "feature graphic, phone screenshots and tablet screenshots",
+            "no damaging crops",
+            "store_listing_review_evidence_packet_ok",
+        ],
+    )
+    output = subprocess.check_output(
+        [str(helper)],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Store listing review evidence packet",
+        "Destination evidence file: play_store/play_console_post_upload_evidence_ru.md",
+        "Source review sheet: play_store/store_asset_review_sheet.png",
+        "Source review command: ./tools/create_store_asset_review_sheet.py --write",
+        "Use these lines only after the Play Console store listing preview and current store asset review sheet are actually checked.",
+        "Do not record account tokens, screenshots with account data, private URLs or reviewer personal data.",
+        "Store Preview Lines",
+        "Store listing preview checked for damaging image crops: Play Console store listing preview and current store asset review sheet checked for icon, feature graphic, phone screenshots and tablet screenshots; no damaging crops.",
+        "store_listing_review_evidence_packet_ok",
+    ]:
+        require(marker in output, f"store-listing review evidence packet missing marker: {marker}")
+
+    spec = importlib.util.spec_from_file_location("line56_store_listing_review_evidence_packet", helper)
+    require(spec is not None and spec.loader is not None, "store-listing review evidence packet helper could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    lines = module.evidence_lines()
+    joined = "\n".join(lines)
+    for marker in ["icon", "feature graphic", "phone screenshots", "tablet screenshots", "no damaging crops"]:
+        require(marker in joined, f"store-listing review helper generated line missing marker: {marker}")
+    require(
+        module.png_size(ROOT / "play_store/store_asset_review_sheet.png") == (1800, 2050),
+        "store-listing review helper must read the current review sheet dimensions",
+    )
+    for bad_value, expected_message in [
+        ("reviewer@example.com", "personal email addresses"),
+        ("https://private.example/preview", "private URLs or account links"),
+        ("token=secret", "password, token, secret or API key assignments"),
+        ("storePassword=secret", "forbidden marker"),
+    ]:
+        try:
+            module.validate_no_forbidden_evidence(bad_value)
+        except module.StoreListingReviewEvidencePacketError as exc:
+            require(expected_message in str(exc), f"store-listing review helper rejected bad evidence with unexpected message: {exc}")
+        else:
+            raise CheckFailure(f"store-listing review helper must reject bad evidence: {bad_value}")
 
 
 def check_store_asset_review_sheet_helper() -> None:
@@ -4979,6 +5072,7 @@ def check_publication_readiness_helper() -> None:
             "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
             "./tools/print_privacy_contact_evidence_packet.py --contact-type support-email",
             "./tools/print_play_console_forms_evidence_packet.py",
+            "./tools/print_store_listing_review_evidence_packet.py",
             "./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>",
             "def expected_aab_sha256(",
             "def collect_evidence_status(",
@@ -5110,6 +5204,7 @@ def check_publication_readiness_helper() -> None:
         "Play Console forms: 6 unresolved field(s).",
         "command: ./tools/print_play_console_forms_evidence_packet.py",
         "Testing track and final review: 8 unresolved field(s).",
+        "command: ./tools/print_store_listing_review_evidence_packet.py",
         "publication_readiness_local_ready_external_pending",
     ]:
         require(marker in output, f"publication readiness output missing marker: {marker}")
@@ -6558,7 +6653,8 @@ def check_owner_release_inputs() -> None:
             "support/contact type",
             "use `play_store/closed_testing_handoff_ru.md` for tester task coverage, aggregate feedback topics and safe evidence phrases",
             "use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data",
-            "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`, `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`, `./tools/print_play_console_forms_evidence_packet.py` and `play_store/play_console_post_upload_evidence_ru.md`",
+            "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`, `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_store_listing_review_evidence_packet.py` and `play_store/play_console_post_upload_evidence_ru.md`",
+            "store-listing crop review",
             "production-access status",
             "Before upload, use `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>` and `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup facts after the real owner-controlled backup.",
             "Do not record secrets or tester personal data.",
@@ -6650,6 +6746,7 @@ def check_post_upload_evidence_handoff() -> None:
             "production-access status line must explicitly mention `Play Console production access` and that it was `granted` or `approved`",
             "After Play Console pre-launch review, the pre-launch result line must explicitly mention `Play Console pre-launch report` and `passed` or `no blocking issues`",
             "After store-listing preview review, the preview-crop line must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and `no damaging crops`",
+            "Use `./tools/print_store_listing_review_evidence_packet.py` after the Play Console store listing preview and current review sheet are actually checked, then copy only the safe Store Preview Lines.",
             "Stop production rollout and return to local rebuild/recheck",
             "package `com.qgrid.mobile`",
             "versionCode `1` and versionName `1.0.0`",
@@ -7336,6 +7433,7 @@ def run_checks() -> None:
         check_post_upload_evidence_packet_helper,
         check_privacy_contact_evidence_packet_helper,
         check_play_console_forms_evidence_packet_helper,
+        check_store_listing_review_evidence_packet_helper,
         check_store_asset_review_sheet_helper,
         check_play_upload_archive_helper,
         check_play_console_packet_helper,

@@ -71,6 +71,7 @@ Equivalent expanded sequence:
 ./tools/print_post_upload_evidence_packet.py
 ./tools/print_privacy_contact_evidence_packet.py
 ./tools/print_play_console_forms_evidence_packet.py
+./tools/print_store_listing_review_evidence_packet.py
 ./tools/create_store_asset_review_sheet.py --dry-run
 ./tools/prepare_play_upload_archive.py --dry-run
 ./tools/prepare_play_upload_archive.py --verify-existing
@@ -213,6 +214,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Run `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` and require `privacy_contact_evidence_packet_ok`; after the Play Console support/contact field is actually populated, copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - Run `./tools/print_play_console_forms_evidence_packet.py` and require `play_console_forms_evidence_packet_ok`; after the matching Play Console policy forms are actually completed, copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - Run `./tools/create_store_asset_review_sheet.py --dry-run` and review `play_store/store_asset_review_sheet.png` before upload to catch damaging crop or wrong-asset regressions locally.
+- Run `./tools/print_store_listing_review_evidence_packet.py` and require `store_listing_review_evidence_packet_ok`; after the Play Console store listing preview and current review sheet are actually checked, copy only the safe Store Preview Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - Optionally run `./tools/prepare_play_upload_archive.py --write` to create `build/play_upload/line56_v1_google_play_upload_packet.zip`, then run `./tools/prepare_play_upload_archive.py --verify-existing`; unpack the ZIP for upload day and do not upload it itself to Play Console.
 - Run `./tools/print_play_console_packet.py` and require `play_console_packet_ok` before filling Play Console listing/App content forms.
 - Run `./tools/print_publication_readiness.py` and require `publication_readiness_local_ready_external_pending` before upload; require `./tools/print_publication_readiness.py --require-production-ready` only after owner-controlled external evidence is recorded.
@@ -234,6 +236,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Apply for and receive Play Console production access if the publisher account requires it.
 - Review generated APKs and pre-launch report.
 - Record safe post-upload evidence in `play_store/play_console_post_upload_evidence_ru.md`.
+- Record safe store-listing preview crop evidence from `./tools/print_store_listing_review_evidence_packet.py` only after Play Console preview and current review sheet are checked.
 - Promote to production only after manual gates are complete.
 
 ## Release Build Status

@@ -41,6 +41,7 @@
 - Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`
 - Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`
 - Play Console forms evidence packet helper: `tools/print_play_console_forms_evidence_packet.py`
+- Store listing review evidence packet helper: `tools/print_store_listing_review_evidence_packet.py`
 - Store asset review sheet helper: `tools/create_store_asset_review_sheet.py`
 - Play upload archive helper: `tools/prepare_play_upload_archive.py`
   - Verify existing generated ZIP: run the helper with --verify-existing
@@ -67,6 +68,7 @@
 - Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`
 - Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`
 - Play Console forms evidence packet helper: `tools/print_play_console_forms_evidence_packet.py`
+- Store listing review evidence packet helper: `tools/print_store_listing_review_evidence_packet.py`
 - Store asset review sheet: `play_store/store_asset_review_sheet.png`
 - Store asset review sheet helper: `tools/create_store_asset_review_sheet.py`
 - Play upload archive helper: `tools/prepare_play_upload_archive.py`

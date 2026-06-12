@@ -208,6 +208,7 @@ Commands:
 ```bash
 ./tools/print_post_upload_evidence_packet.py --upload-date <date/time>
 ./tools/create_store_asset_review_sheet.py --write
+./tools/print_store_listing_review_evidence_packet.py
 ./tools/verify_play_generated_apk.py --apk <path-to-play-generated.apk>
 ```
 
@@ -233,6 +234,7 @@ Required posture:
 - Pre-launch report must have no blocking issues, no reproducible crashes and no unresolved policy warnings.
 - Pre-launch/policy evidence must explicitly mention `Play Console pre-launch report`, `no reproducible crashes` and `Play policy warnings`.
 - Store listing preview evidence must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and no damaging crops.
+- Use `./tools/print_store_listing_review_evidence_packet.py` after the Play Console store listing preview and current review sheet are actually checked, then copy only the safe Store Preview Lines.
 
 ## Final Production Gate
 
