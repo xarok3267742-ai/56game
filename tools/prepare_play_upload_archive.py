@@ -68,6 +68,7 @@ HANDOFF_FILES = (
     "play_store/upload_runbook_ru.md",
     "play_store/play_console_submission_ru.md",
     "play_store/app_content_answers_ru.md",
+    "play_store/closed_testing_handoff_ru.md",
     "play_store/production_access_answers_ru.md",
     "play_store/data_safety_ru.md",
     "play_store/content_rating_notes.md",
@@ -238,6 +239,7 @@ def readme_text(rows: list[tuple[str, int, str]]) -> str:
         "- _owner_handoff/upload_manifest.md lists the exact files and the Do Not Upload set.\n"
         "- _owner_handoff/upload_runbook_ru.md gives the upload-day sequence.\n"
         "- _owner_handoff/play_console_submission_ru.md contains copy-ready Play Console text.\n"
+        "- _owner_handoff/closed_testing_handoff_ru.md contains closed-test tester instructions and safe evidence phrases.\n"
         "- _owner_handoff/production_access_answers_ru.md contains the safe production-access application worksheet.\n"
         "- _owner_handoff/publication_readiness_owner_actions_ru.md groups external owner actions and evidence fields.\n"
         "- _owner_handoff/signing_backup_evidence_ru.md gives the safe signing-backup evidence template.\n"

@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LISTING_PATH = ROOT / "play_store/listing_ru.md"
 SUBMISSION_PATH = ROOT / "play_store/play_console_submission_ru.md"
 APP_CONTENT_PATH = ROOT / "play_store/app_content_answers_ru.md"
+CLOSED_TESTING_PATH = ROOT / "play_store/closed_testing_handoff_ru.md"
 PRODUCTION_ACCESS_PATH = ROOT / "play_store/production_access_answers_ru.md"
 DATA_SAFETY_PATH = ROOT / "play_store/data_safety_ru.md"
 CONTENT_RATING_PATH = ROOT / "play_store/content_rating_notes.md"
@@ -127,6 +128,19 @@ def verify_policy_handoff() -> None:
         ),
     )
     require_markers(
+        CLOSED_TESTING_PATH,
+        (
+            "Closed Testing Handoff - RU",
+            "App testing requirements for new personal developer accounts",
+            "at least 12 testers who have been opted-in for at least the last 14 days continuously",
+            "Tester Task Script",
+            "Feedback Topics",
+            "Evidence Phrases Accepted By Local Gate",
+            "Closed testing status if required: completed required closed testing with 12 opted-in testers for 14 continuous days.",
+            "No tester names, email addresses, invite links or private tester URLs are recorded.",
+        ),
+    )
+    require_markers(
         DATA_SAFETY_PATH,
         (
             "Данные пользователя не собираются.",
@@ -218,6 +232,7 @@ def print_packet(listing_values: dict[str, str]) -> None:
     print("- Populate Play Console support/contact fields used by the privacy policy inquiry mechanism.")
     print("- Complete secure signing backup using play_store/signing_backup_evidence_ru.md.")
     print("- Upload first to internal testing; run closed testing if the publisher account requires it.")
+    print("- Use play_store/closed_testing_handoff_ru.md for closed-test tester instructions and safe evidence phrases.")
     print("- Receive Play Console production access if the publisher account requires it.")
     print("- Prepare production-access answers with play_store/production_access_answers_ru.md if Play Console asks for them.")
     print("- Record safe post-upload facts in play_store/play_console_post_upload_evidence_ru.md.")
@@ -235,6 +250,7 @@ def main() -> int:
                 "Version code: `1`",
                 "Version name: `1.0.0`",
                 "Field-by-field source: `play_store/app_content_answers_ru.md`.",
+                "Use `play_store/closed_testing_handoff_ru.md` for closed-test tester instructions, aggregate feedback topics and safe evidence phrases if closed testing is required.",
                 "Final Manual Gates",
                 "Re-run `./tools/run_final_local_gate.py` and require `final_local_gate_ok` immediately before uploading.",
             ),

@@ -8,6 +8,7 @@
 - Release notes source: `play_store/listing_ru.md`
 - Copy-ready Play Console fields: `play_store/play_console_submission_ru.md`
 - Field-by-field App content answers: `play_store/app_content_answers_ru.md`
+- Closed-testing handoff: `play_store/closed_testing_handoff_ru.md`
 - Production access answer worksheet: `play_store/production_access_answers_ru.md`
 - Owner-controlled release inputs: `play_store/owner_release_inputs.md`
 - Publication readiness owner actions: `play_store/publication_readiness_owner_actions_ru.md`
@@ -155,6 +156,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Online interaction: none.
 - Notes source: `play_store/content_rating_notes.md`
 - Field-by-field App content source: `play_store/app_content_answers_ru.md`
+- Closed-testing handoff source: `play_store/closed_testing_handoff_ru.md`
 - Production access source: `play_store/production_access_answers_ru.md`
 
 ## Target Audience Notes
@@ -171,6 +173,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Install generated APKs on at least one small/medium Android device or emulator.
 - Re-run the first-launch, home, level selection, gameplay, win, settings, restart and no-internet smoke flows.
 - For applicable personal developer accounts, run the required closed testing track before production.
+- Use `play_store/closed_testing_handoff_ru.md` for closed-test tester instructions, aggregate feedback topics and safe evidence phrases if the publisher account requires closed testing.
 - If that closed-testing requirement applies, apply for and receive Play Console production access before production rollout.
 - Review the completed TalkBack exploratory evidence in `docs/accessibility_notes.md`; repeat on a physical device after Play-generated APK install if the publisher wants an audio/speech-quality check.
 
@@ -213,6 +216,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Complete Data Safety using `play_store/data_safety_ru.md`.
 - Complete content rating using `play_store/content_rating_notes.md`.
 - Complete target audience and app content declarations using `play_store/app_content_answers_ru.md`.
+- Use `play_store/closed_testing_handoff_ru.md` for closed-test tester instructions, aggregate feedback topics and safe evidence phrases if the publisher account requires closed testing.
 - Prepare production-access answers from `play_store/production_access_answers_ru.md` without tester personal data if the publisher account requires production access approval.
 - Run internal/closed testing as required.
 - Apply for and receive Play Console production access if the publisher account requires it.

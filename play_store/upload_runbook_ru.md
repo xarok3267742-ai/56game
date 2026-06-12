@@ -84,12 +84,14 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - Play Console support/contact fields: рабочий email или support URL.
 - Public privacy policy URL: HTTPS, без логина, не PDF, без credentials/query/fragments, не placeholder/reserved host, DNS resolves only to public global IP addresses, не редактируемый читателями; hosted normalized text must match `play_store/privacy_policy_ru.html`.
 - Signing backup: `private/signing/qgrid-upload.p12` and `keystore.properties` сохранены в secure owner-controlled storage after `./tools/check_signing_backup_inputs.py` returned `signing_backup_input_ok`.
-- Testing path: internal testing first; closed testing with 12 opted-in testers for 14 continuous days if required by account type, then Play Console production access granted/approved if that path applies.
+- Testing path: internal testing first; closed testing with 12 opted-in testers for 14 continuous days if required by account type, then Play Console production access granted/approved if that path applies. Use `play_store/closed_testing_handoff_ru.md` for tester instructions, aggregate feedback topics and safe evidence wording.
 - Final generated-artifact review owner: человек, который проверит Play-generated APKs, policy warnings and pre-launch report.
 
 Источник owner gates: `play_store/owner_release_inputs.md`. Safe signing-backup evidence template: `play_store/signing_backup_evidence_ru.md`.
 
 Owner-action breakdown for upload day: `play_store/publication_readiness_owner_actions_ru.md`.
+
+Closed-testing handoff: `play_store/closed_testing_handoff_ru.md`.
 
 Production-access answer worksheet: `play_store/production_access_answers_ru.md`.
 
@@ -141,6 +143,7 @@ Copy-ready text source:
 
 - `play_store/play_console_submission_ru.md`.
 - Command packet: run `./tools/print_play_console_packet.py` and require `play_console_packet_ok`.
+- For closed testing, use `play_store/closed_testing_handoff_ru.md` to send testers private instructions outside the repository and record only aggregate feedback/evidence.
 - If production access is required, prepare answers from `play_store/production_access_answers_ru.md` using only aggregate closed-test facts and no tester personal data.
 
 Upload only these assets:
@@ -194,7 +197,7 @@ Recommended order:
 4. Install generated APKs on at least one Android device or emulator.
 5. Repeat first-launch, home, game, win, settings, restart and no-internet smoke flows.
 6. Review Play pre-launch report and policy warnings.
-7. Run closed testing if required by the publisher account type.
+7. Run closed testing if required by the publisher account type; use `play_store/closed_testing_handoff_ru.md` for tester task coverage and safe evidence phrases.
 8. Apply for and receive Play Console production access if closed testing is required for the publisher account; use `play_store/production_access_answers_ru.md` to prepare safe answers.
 9. Promote to production only after owner gates, testing tracks, production-access status and review warnings are complete.
 
