@@ -563,17 +563,29 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
             f"{file_label} value for {label} must be not required or completed: {value}",
         )
     elif label == "Pre-launch report result":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("Play Console pre-launch report",))
         normalized = lower_value(value)
         require(
-            normalized in {"passed", "no blocking issues", "no issues"},
-            f"{file_label} value for {label} must indicate passed/no blocking issues: {value}",
+            "passed" in normalized or "no blocking issues" in normalized or "no issues" in normalized,
+            f"{file_label} value for {label} must explicitly say the Play Console pre-launch report passed or has no blocking issues: {value}",
         )
     elif label == "Reproducible crashes in pre-launch report":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("pre-launch report",))
         normalized = lower_value(value)
-        require(normalized in {"none", "no", "no reproducible crashes"}, f"{file_label} value for {label} must be none/no: {value}")
+        require(
+            "no reproducible crashes" in normalized,
+            f"{file_label} value for {label} must explicitly say the pre-launch report has no reproducible crashes: {value}",
+        )
     elif label == "Play policy warnings":
+        validate_no_negative_markers(label, value, file_label)
+        validate_contains_all(label, value, file_label, ("Play policy warnings",))
         normalized = lower_value(value)
-        require(normalized in {"none", "no", "no warnings", "resolved"}, f"{file_label} value for {label} must be none/no/resolved: {value}")
+        require(
+            "no warnings" in normalized or "no unresolved" in normalized or "resolved" in normalized,
+            f"{file_label} value for {label} must explicitly say Play policy warnings have no warnings, no unresolved warnings or were resolved: {value}",
+        )
     elif label == "Store listing preview checked for damaging image crops":
         validate_no_negative_markers(label, value, file_label)
         validate_contains_all(label, value, file_label, ("icon", "feature graphic", "phone", "tablet", "screenshots"))

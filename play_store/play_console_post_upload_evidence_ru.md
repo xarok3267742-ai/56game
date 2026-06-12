@@ -79,6 +79,7 @@ After completing Policy Forms, keep the evidence explicit and do not use a bare 
 - Store listing preview checked for damaging image crops: not yet available locally.
 
 After internal testing upload, the internal-testing line must explicitly mention `internal testing` and that the AAB was uploaded or upload completed; do not use a bare `yes`.
+After Play Console pre-launch review, the pre-launch result line must explicitly mention `Play Console pre-launch report` and `passed` or `no blocking issues`; the crash line must mention `pre-launch report` and `no reproducible crashes`; the policy-warning line must mention `Play policy warnings` and `no warnings`, `no unresolved warnings` or `resolved`.
 After store-listing preview review, the preview-crop line must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and `no damaging crops`; do not use a bare `yes`.
 
 ## Stop-Release Notes
