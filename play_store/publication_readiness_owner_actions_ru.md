@@ -207,6 +207,8 @@ Commands:
 
 ```bash
 ./tools/print_post_upload_evidence_packet.py --upload-date <date/time>
+./tools/print_closed_testing_evidence_packet.py --not-required
+./tools/print_closed_testing_evidence_packet.py --required-completed
 ./tools/print_pre_launch_review_evidence_packet.py
 ./tools/create_store_asset_review_sheet.py --write
 ./tools/print_store_listing_review_evidence_packet.py
@@ -231,6 +233,7 @@ Required posture:
 - Use `play_store/closed_testing_handoff_ru.md` for tester task coverage, aggregate feedback topics and safe evidence phrases.
 - If the publisher account requires closed testing, complete the required tester/time gate before production and record safe evidence that explicitly mentions at least 12 opted-in testers and at least 14 continuous days without tester personal data, invite links or private tester URLs.
 - If closed testing is required for the publisher account, wait until Play Console production access is granted or approved before production rollout and record safe evidence without account-private screenshots or tester personal data. If it is not required for this account, record `not required for this account`.
+- After Play Console confirms the account path, use exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`, then copy only the safe Testing Track Lines.
 - Use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data, invite links or private tester URLs if Play Console asks for production-access application answers.
 - Pre-launch report must have no blocking issues, no reproducible crashes and no unresolved policy warnings.
 - Pre-launch/policy evidence must explicitly mention `Play Console pre-launch report`, `no reproducible crashes` and `Play policy warnings`.

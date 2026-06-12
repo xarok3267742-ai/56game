@@ -69,6 +69,7 @@ Equivalent expanded sequence:
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
 ./tools/print_post_upload_evidence_packet.py
+./tools/print_closed_testing_evidence_packet.py --dry-run
 ./tools/print_privacy_contact_evidence_packet.py
 ./tools/print_play_console_forms_evidence_packet.py
 ./tools/print_pre_launch_review_evidence_packet.py
@@ -212,6 +213,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - To have the project manage the API 36 emulator itself, run `./tools/run_api36_connected_gate.py` and require `api36_connected_gate_ok`; add `--include-hosted-privacy` when network is available before upload. It targets `Medium_Phone_API_36` on `emulator-5560`, starts it with `-wipe-data` so stale debug/test APKs from older local projects cannot steal focus, retries the cleaned AVD once without `-wipe-data` if the emulator exits after the wipe reset before boot, and refuses to touch a different AVD on that serial.
 - Run `./tools/print_upload_packet.py` and require `upload_packet_ok` before uploading assets.
 - Run `./tools/print_post_upload_evidence_packet.py` and require `post_upload_evidence_packet_ok`; after the real Play Console upload, rerun it with `--upload-date <date/time>` and copy the safe upload artifact/internal-testing lines into `play_store/play_console_post_upload_evidence_ru.md`.
+- Run `./tools/print_closed_testing_evidence_packet.py --dry-run` and require `closed_testing_evidence_packet_dry_run_ok`; after Play Console confirms the account path, run exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed` and copy only the safe Testing Track Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - Run `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` and require `privacy_contact_evidence_packet_ok`; after the Play Console support/contact field is actually populated, copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - Run `./tools/print_play_console_forms_evidence_packet.py` and require `play_console_forms_evidence_packet_ok`; after the matching Play Console policy forms are actually completed, copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - Run `./tools/print_pre_launch_review_evidence_packet.py` and require `pre_launch_review_evidence_packet_ok`; after the Play Console pre-launch report and policy warnings are actually reviewed, copy only the safe Pre-Launch Review Lines into `play_store/play_console_post_upload_evidence_ru.md`.
@@ -238,6 +240,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Apply for and receive Play Console production access if the publisher account requires it.
 - Review generated APKs and pre-launch report.
 - Record safe post-upload evidence in `play_store/play_console_post_upload_evidence_ru.md`.
+- Record safe closed-testing/production-access evidence from `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed` only after Play Console confirms the account path.
 - Record safe Play pre-launch/policy review evidence from `./tools/print_pre_launch_review_evidence_packet.py` only after Play Console pre-launch report and policy warnings are reviewed.
 - Record safe store-listing preview crop evidence from `./tools/print_store_listing_review_evidence_packet.py` only after Play Console preview and current review sheet are checked.
 - Promote to production only after manual gates are complete.

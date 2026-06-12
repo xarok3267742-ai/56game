@@ -40,6 +40,7 @@ Equivalent expanded sequence:
 ./tools/verify_release.py
 ./tools/print_upload_packet.py
 ./tools/print_post_upload_evidence_packet.py
+./tools/print_closed_testing_evidence_packet.py --dry-run
 ./tools/print_privacy_contact_evidence_packet.py
 ./tools/print_play_console_forms_evidence_packet.py
 ./tools/print_pre_launch_review_evidence_packet.py
@@ -70,6 +71,7 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 - `./tools/verify_release.py` возвращает `release_verification_ok`.
 - `./tools/print_upload_packet.py` возвращает `upload_packet_ok`.
 - `./tools/print_post_upload_evidence_packet.py` возвращает `post_upload_evidence_packet_ok`; после реальной загрузки в Play Console запустите `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and copy the safe upload artifact/internal-testing evidence lines into `play_store/play_console_post_upload_evidence_ru.md`.
+- `./tools/print_closed_testing_evidence_packet.py --dry-run` возвращает `closed_testing_evidence_packet_dry_run_ok`; after Play Console confirms the account path, run exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed` and copy only the safe Testing Track Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` возвращает `privacy_contact_evidence_packet_ok`; после реального заполнения Play Console support/contact field copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - `./tools/print_play_console_forms_evidence_packet.py` возвращает `play_console_forms_evidence_packet_ok`; после реального заполнения Play Console policy forms copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`.
 - `./tools/print_pre_launch_review_evidence_packet.py` возвращает `pre_launch_review_evidence_packet_ok`; после реальной проверки Play Console pre-launch report and policy warnings copy only the safe Pre-Launch Review Lines into `play_store/play_console_post_upload_evidence_ru.md`.
@@ -236,6 +238,7 @@ After Play Console upload, record these owner-side facts in the release notes or
 - Uploaded AAB version code and version name.
 - Play Console track used first.
 - Safe upload artifact/internal-testing lines from `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`.
+- Safe closed-testing/production-access lines from exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`.
 - Safe privacy/contact lines from `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`.
 - Safe Play Console policy-form lines from `./tools/print_play_console_forms_evidence_packet.py`.
 - Safe Play pre-launch/policy review lines from `./tools/print_pre_launch_review_evidence_packet.py`.

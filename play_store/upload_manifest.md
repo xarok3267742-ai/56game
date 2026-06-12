@@ -39,6 +39,7 @@
 - Managed API 36 connected gate helper: `tools/run_api36_connected_gate.py`
 - Upload packet helper: `tools/print_upload_packet.py`
 - Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`
+- Closed-testing evidence packet helper: `tools/print_closed_testing_evidence_packet.py`
 - Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`
 - Play Console forms evidence packet helper: `tools/print_play_console_forms_evidence_packet.py`
 - Play pre-launch review evidence packet helper: `tools/print_pre_launch_review_evidence_packet.py`
@@ -67,6 +68,7 @@
 - Final local gate runner: `tools/run_final_local_gate.py`
 - Managed API 36 connected gate helper: `tools/run_api36_connected_gate.py`
 - Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`
+- Closed-testing evidence packet helper: `tools/print_closed_testing_evidence_packet.py`
 - Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`
 - Play Console forms evidence packet helper: `tools/print_play_console_forms_evidence_packet.py`
 - Play pre-launch review evidence packet helper: `tools/print_pre_launch_review_evidence_packet.py`

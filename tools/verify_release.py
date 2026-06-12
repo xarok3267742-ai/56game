@@ -14,7 +14,7 @@ The script intentionally checks facts that are easy to regress:
 - lightweight artifact and asset size budgets;
 - Play store asset dimensions/alpha;
 - upload manifest paths;
-- upload-packet, post-upload evidence, privacy/contact evidence, Play Console forms evidence, Play pre-launch review evidence and store-listing review evidence helper consistency;
+- upload-packet, post-upload evidence, closed-testing evidence, privacy/contact evidence, Play Console forms evidence, Play pre-launch review evidence and store-listing review evidence helper consistency;
 - store asset review sheet helper consistency;
 - Play upload archive helper consistency;
 - Play Console packet helper consistency;
@@ -583,6 +583,9 @@ def check_agents_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_closed_testing_evidence_packet.py --dry-run",
+            "./tools/print_closed_testing_evidence_packet.py --not-required",
+            "./tools/print_closed_testing_evidence_packet.py --required-completed",
             "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/print_pre_launch_review_evidence_packet.py",
@@ -642,6 +645,9 @@ def check_agents_handoff() -> None:
             "requires the exact ordered upload path set and prints the Google Play upload packet plus the Do Not Upload list.",
             "`./tools/print_post_upload_evidence_packet.py` is the read-only owner helper for upload-day evidence.",
             "prints exact safe lines for the upload artifact identity and internal-testing upload fields",
+            "`./tools/print_closed_testing_evidence_packet.py` is the read-only owner helper for closed-testing and production-access evidence.",
+            "use exactly one of `--not-required` or `--required-completed`",
+            "copy only the safe Testing Track Lines",
             "`./tools/print_privacy_contact_evidence_packet.py` is the read-only owner helper for privacy/contact evidence.",
             "prints safe privacy URL and support/contact evidence lines for `play_store/play_console_post_upload_evidence_ru.md`",
             "It never prints the actual support email address or support website URL.",
@@ -683,7 +689,7 @@ def check_agents_handoff() -> None:
             "No placeholder user-facing content remains.",
             "Store assets are present and verifier-approved.",
             "`./tools/run_final_local_gate.py` passes and prints `final_local_gate_ok`",
-            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
+            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
             "preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device",
             "Google Play checklist, release report and upload handoff are current.",
             "The full publication goal is not complete until manual external gates are done",
@@ -695,7 +701,7 @@ def check_agents_handoff() -> None:
     final_gate = agents.split("Final local gate before handoff:", 1)[1].split("Run `connectedDebugAndroidTest`", 1)[0]
     require("./tools/run_final_local_gate.py" in final_gate, "AGENTS.md final local gate must use run_final_local_gate.py")
     require(
-        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
+        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
         in final_gate,
         "AGENTS.md final local gate must document the runner command expansion",
     )
@@ -704,6 +710,7 @@ def check_agents_handoff() -> None:
         "./tools/verify_release.py",
         "./tools/print_upload_packet.py",
         "./tools/print_post_upload_evidence_packet.py",
+        "./tools/print_closed_testing_evidence_packet.py --dry-run",
         "./tools/print_privacy_contact_evidence_packet.py",
         "./tools/print_play_console_forms_evidence_packet.py",
         "./tools/print_pre_launch_review_evidence_packet.py",
@@ -742,6 +749,9 @@ def check_readme_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_closed_testing_evidence_packet.py --dry-run",
+            "./tools/print_closed_testing_evidence_packet.py --not-required",
+            "./tools/print_closed_testing_evidence_packet.py --required-completed",
             "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/print_pre_launch_review_evidence_packet.py",
@@ -796,6 +806,8 @@ def check_readme_handoff() -> None:
             "`./tools/print_upload_packet.py` prints and verifies the exact ordered upload packet",
             "`./tools/print_post_upload_evidence_packet.py` prints safe upload artifact and internal-testing evidence lines",
             "rerun it with `--upload-date <date/time>` for a concrete upload-date line",
+            "`./tools/print_closed_testing_evidence_packet.py --dry-run` prints the safe closed-testing evidence mode choices",
+            "use exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`",
             "`./tools/print_privacy_contact_evidence_packet.py` prints safe privacy URL and support/contact evidence lines",
             "do not record the actual support email or support website URL",
             "`./tools/print_play_console_forms_evidence_packet.py` prints safe Play Console policy-form evidence lines",
@@ -911,6 +923,7 @@ def check_google_play_checklist_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_closed_testing_evidence_packet.py --dry-run",
             "./tools/print_privacy_contact_evidence_packet.py",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/print_pre_launch_review_evidence_packet.py",
@@ -974,6 +987,8 @@ def check_google_play_checklist_handoff() -> None:
             "Run `./tools/print_upload_packet.py` and require `upload_packet_ok` before uploading assets.",
             "Run `./tools/print_post_upload_evidence_packet.py` and require `post_upload_evidence_packet_ok`",
             "copy the safe upload artifact/internal-testing lines into `play_store/play_console_post_upload_evidence_ru.md`",
+            "Run `./tools/print_closed_testing_evidence_packet.py --dry-run` and require `closed_testing_evidence_packet_dry_run_ok`",
+            "copy only the safe Testing Track Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "Run `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` and require `privacy_contact_evidence_packet_ok`",
             "Run `./tools/print_play_console_forms_evidence_packet.py` and require `play_console_forms_evidence_packet_ok`",
             "copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`",
@@ -998,6 +1013,7 @@ def check_google_play_checklist_handoff() -> None:
             "validates the recorded hosted privacy URL",
             "Record safe signing-backup evidence in `play_store/signing_backup_evidence_ru.md`.",
             "Record safe post-upload evidence in `play_store/play_console_post_upload_evidence_ru.md`.",
+            "Record safe closed-testing/production-access evidence from `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`",
             "Record safe Play pre-launch/policy review evidence from `./tools/print_pre_launch_review_evidence_packet.py`",
             "Record safe store-listing preview crop evidence from `./tools/print_store_listing_review_evidence_packet.py`",
             "Promote to production only after manual gates are complete.",
@@ -1326,6 +1342,8 @@ def check_release_report_handoff() -> None:
             "Latest privacy/contact handoff hardening",
             "Latest post-upload evidence packet hardening",
             "Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`.",
+            "Latest closed-testing evidence packet hardening",
+            "Closed-testing evidence packet helper: `tools/print_closed_testing_evidence_packet.py`.",
             "Latest privacy/contact evidence packet hardening",
             "Privacy/contact evidence packet helper: `tools/print_privacy_contact_evidence_packet.py`.",
             "Latest Play Console forms evidence packet hardening",
@@ -1533,6 +1551,7 @@ def check_completion_audit_handoff() -> None:
             "Latest Play support/contact value-redaction evidence hardening",
             "Latest privacy/contact handoff hardening",
             "Latest post-upload evidence packet hardening",
+            "Latest closed-testing evidence packet hardening",
             "Latest privacy/contact evidence packet hardening",
             "Latest Play Console forms evidence packet hardening",
             "Latest Play pre-launch review evidence packet hardening",
@@ -2704,6 +2723,10 @@ def check_asset_handoff() -> None:
         "upload manifest must include post-upload evidence packet helper handoff",
     )
     require(
+        "Closed-testing evidence packet helper: `tools/print_closed_testing_evidence_packet.py`" in upload_manifest,
+        "upload manifest must include closed-testing evidence packet helper handoff",
+    )
+    require(
         "Play Console forms evidence packet helper: `tools/print_play_console_forms_evidence_packet.py`" in upload_manifest,
         "upload manifest must include Play Console forms evidence packet helper handoff",
     )
@@ -3136,6 +3159,8 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "Use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data, invite links or private tester URLs if Play Console asks for production-access application answers.",
             "Closed-testing handoff: `play_store/closed_testing_handoff_ru.md`.",
             "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
+            "./tools/print_closed_testing_evidence_packet.py --not-required",
+            "./tools/print_closed_testing_evidence_packet.py --required-completed",
             "./tools/print_pre_launch_review_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --write",
             "./tools/print_store_listing_review_evidence_packet.py",
@@ -3145,6 +3170,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "at least 12 opted-in testers and at least 14 continuous days without tester personal data, invite links or private tester URLs",
             "Production access status if required.",
             "Play Console production access is granted or approved before production rollout",
+            "copy only the safe Testing Track Lines",
             "Pre-launch/policy evidence must explicitly mention `Play Console pre-launch report`, `no reproducible crashes` and `Play policy warnings`.",
             "copy only the safe Pre-Launch Review Lines",
             "Store listing preview checked for damaging image crops.",
@@ -3217,6 +3243,7 @@ def check_upload_runbook_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_closed_testing_evidence_packet.py --dry-run",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/print_play_console_packet.py",
@@ -3237,6 +3264,8 @@ def check_upload_runbook_handoff() -> None:
             "`./tools/print_upload_packet.py` возвращает `upload_packet_ok`.",
             "`./tools/print_post_upload_evidence_packet.py` возвращает `post_upload_evidence_packet_ok`",
             "copy the safe upload artifact/internal-testing evidence lines into `play_store/play_console_post_upload_evidence_ru.md`",
+            "`./tools/print_closed_testing_evidence_packet.py --dry-run` возвращает `closed_testing_evidence_packet_dry_run_ok`",
+            "copy only the safe Testing Track Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/print_privacy_contact_evidence_packet.py --contact-type support-email` возвращает `privacy_contact_evidence_packet_ok`",
             "copy only the safe Privacy Contact Lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/print_play_console_forms_evidence_packet.py` возвращает `play_console_forms_evidence_packet_ok`",
@@ -3337,6 +3366,7 @@ def check_upload_runbook_handoff() -> None:
             "After any local rebuild, rerun the full preflight and compare `play_store/upload_checksums.md` again before uploading.",
             "Evidence To Record After Upload",
             "Safe upload artifact/internal-testing lines from `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`.",
+            "Safe closed-testing/production-access lines from exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`.",
             "Safe privacy/contact lines from `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`.",
             "Safe Play Console policy-form lines from `./tools/print_play_console_forms_evidence_packet.py`.",
             "Safe Play pre-launch/policy review lines from `./tools/print_pre_launch_review_evidence_packet.py`.",
@@ -3370,6 +3400,7 @@ def check_final_local_gate_runner() -> None:
             "(\"./tools/verify_release.py\",)",
             "(\"./tools/print_upload_packet.py\",)",
             "(\"./tools/print_post_upload_evidence_packet.py\",)",
+            "(\"./tools/print_closed_testing_evidence_packet.py\", \"--dry-run\")",
             "(\"./tools/print_privacy_contact_evidence_packet.py\",)",
             "(\"./tools/print_play_console_forms_evidence_packet.py\",)",
             "(\"./tools/print_pre_launch_review_evidence_packet.py\",)",
@@ -3435,6 +3466,7 @@ def check_final_local_gate_runner() -> None:
         "./tools/verify_release.py",
         "./tools/print_upload_packet.py",
         "./tools/print_post_upload_evidence_packet.py",
+        "./tools/print_closed_testing_evidence_packet.py --dry-run",
         "./tools/print_privacy_contact_evidence_packet.py",
         "./tools/print_play_console_forms_evidence_packet.py",
         "./tools/print_pre_launch_review_evidence_packet.py",
@@ -3830,6 +3862,104 @@ def check_post_upload_evidence_packet_helper() -> None:
             require(expected_message in str(exc), f"post-upload helper rejected bad upload date with unexpected message: {exc}")
         else:
             raise CheckFailure(f"post-upload helper must reject bad upload date: {bad_date}")
+
+
+def check_closed_testing_evidence_packet_helper() -> None:
+    helper = require_file("tools/print_closed_testing_evidence_packet.py")
+    require(os.access(helper, os.X_OK), "tools/print_closed_testing_evidence_packet.py must be executable")
+    require_text_markers(
+        "tools/print_closed_testing_evidence_packet.py",
+        [
+            "Print safe closed-testing and production-access evidence lines for the owner.",
+            "This helper is intentionally read-only.",
+            "MODE_NOT_REQUIRED = \"not_required\"",
+            "MODE_REQUIRED_COMPLETED = \"required_completed\"",
+            "DESTINATION_EVIDENCE = \"play_store/play_console_post_upload_evidence_ru.md\"",
+            "def validate_no_forbidden_evidence(",
+            "must not contain tester email addresses",
+            "must not contain tester URLs or private links",
+            "def evidence_lines(",
+            "Closed testing required for this account",
+            "Closed testing status if required",
+            "Production access status if required",
+            "completed required closed testing with 12 opted-in testers for 14 continuous days",
+            "Play Console production access granted",
+            "--not-required",
+            "--required-completed",
+            "closed_testing_evidence_packet_dry_run_ok",
+            "closed_testing_evidence_packet_ok",
+        ],
+    )
+    dry_run_output = subprocess.check_output(
+        [str(helper), "--dry-run"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Closed testing evidence packet",
+        "Destination evidence file: play_store/play_console_post_upload_evidence_ru.md",
+        "Use one evidence mode only after the matching Play Console account path is actually confirmed.",
+        "Do not record tester names, tester emails, invite links, private URLs, screenshots with account data or tokens.",
+        "Available Evidence Modes",
+        "./tools/print_closed_testing_evidence_packet.py --not-required",
+        "./tools/print_closed_testing_evidence_packet.py --required-completed",
+        "closed_testing_evidence_packet_dry_run_ok",
+    ]:
+        require(marker in dry_run_output, f"closed-testing evidence packet dry run missing marker: {marker}")
+
+    not_required_output = subprocess.check_output(
+        [str(helper), "--not-required"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Testing Track Lines",
+        "Closed testing required for this account: no.",
+        "Closed testing status if required: not required for this account.",
+        "Production access status if required: not required for this account.",
+        "closed_testing_evidence_packet_ok",
+    ]:
+        require(marker in not_required_output, f"closed-testing not-required output missing marker: {marker}")
+
+    required_output = subprocess.check_output(
+        [str(helper), "--required-completed"],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Testing Track Lines",
+        "Closed testing required for this account: yes.",
+        "Closed testing status if required: completed required closed testing with 12 opted-in testers for 14 continuous days.",
+        "Production access status if required: Play Console production access granted.",
+        "closed_testing_evidence_packet_ok",
+    ]:
+        require(marker in required_output, f"closed-testing required-completed output missing marker: {marker}")
+
+    spec = importlib.util.spec_from_file_location("line56_closed_testing_evidence_packet", helper)
+    require(spec is not None and spec.loader is not None, "closed-testing evidence packet helper could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    not_required_lines = "\n".join(module.evidence_lines(module.MODE_NOT_REQUIRED))
+    required_lines = "\n".join(module.evidence_lines(module.MODE_REQUIRED_COMPLETED))
+    for marker in ["Closed testing required for this account: no", "not required for this account"]:
+        require(marker in not_required_lines, f"closed-testing not-required lines missing marker: {marker}")
+    for marker in ["Closed testing required for this account: yes", "12 opted-in testers", "14 continuous days", "Play Console production access granted"]:
+        require(marker in required_lines, f"closed-testing required-completed lines missing marker: {marker}")
+    for bad_value, expected_message in [
+        ("tester@example.com", "tester email addresses"),
+        ("https://private.example/testers", "tester URLs or private links"),
+        ("token=secret", "password, token, secret or API key assignments"),
+        ("storePassword=secret", "forbidden marker"),
+    ]:
+        try:
+            module.validate_no_forbidden_evidence(bad_value)
+        except module.ClosedTestingEvidencePacketError as exc:
+            require(expected_message in str(exc), f"closed-testing helper rejected bad evidence with unexpected message: {exc}")
+        else:
+            raise CheckFailure(f"closed-testing helper must reject bad evidence: {bad_value}")
 
 
 def check_privacy_contact_evidence_packet_helper() -> None:
@@ -5165,6 +5295,8 @@ def check_publication_readiness_helper() -> None:
             "Internal testing upload completed",
             "internal testing first",
             "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
+            "./tools/print_closed_testing_evidence_packet.py --not-required",
+            "./tools/print_closed_testing_evidence_packet.py --required-completed",
             "./tools/print_privacy_contact_evidence_packet.py --contact-type support-email",
             "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/print_pre_launch_review_evidence_packet.py",
@@ -5300,6 +5432,8 @@ def check_publication_readiness_helper() -> None:
         "Play Console forms: 6 unresolved field(s).",
         "command: ./tools/print_play_console_forms_evidence_packet.py",
         "Testing track and final review: 8 unresolved field(s).",
+        "command: ./tools/print_closed_testing_evidence_packet.py --not-required",
+        "command: ./tools/print_closed_testing_evidence_packet.py --required-completed",
         "command: ./tools/print_pre_launch_review_evidence_packet.py",
         "command: ./tools/print_store_listing_review_evidence_packet.py",
         "publication_readiness_local_ready_external_pending",
@@ -6750,7 +6884,8 @@ def check_owner_release_inputs() -> None:
             "support/contact type",
             "use `play_store/closed_testing_handoff_ru.md` for tester task coverage, aggregate feedback topics and safe evidence phrases",
             "use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data",
-            "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`, `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/print_store_listing_review_evidence_packet.py` and `play_store/play_console_post_upload_evidence_ru.md`",
+            "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`, exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`, `./tools/print_privacy_contact_evidence_packet.py --contact-type support-email`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/print_store_listing_review_evidence_packet.py` and `play_store/play_console_post_upload_evidence_ru.md`",
+            "closed-testing/production-access status",
             "pre-launch/policy review",
             "store-listing crop review",
             "production-access status",
@@ -6836,6 +6971,7 @@ def check_post_upload_evidence_handoff() -> None:
             "Closed testing required for this account: not yet available locally.",
             "Closed testing status if required: not yet available locally.",
             "Production access status if required: not yet available locally.",
+            "After Play Console confirms the account path, use exactly one of `./tools/print_closed_testing_evidence_packet.py --not-required` or `./tools/print_closed_testing_evidence_packet.py --required-completed`, then copy only the safe Testing Track Lines.",
             "Pre-launch report result: not yet available locally.",
             "Reproducible crashes in pre-launch report: not yet available locally.",
             "Play policy warnings: not yet available locally.",
@@ -7530,6 +7666,7 @@ def run_checks() -> None:
         check_api36_connected_gate_helper,
         check_upload_packet_helper,
         check_post_upload_evidence_packet_helper,
+        check_closed_testing_evidence_packet_helper,
         check_privacy_contact_evidence_packet_helper,
         check_play_console_forms_evidence_packet_helper,
         check_pre_launch_review_evidence_packet_helper,
