@@ -50,6 +50,7 @@ After the real backup is complete, keep the backup evidence line explicit and sa
 After Play-generated artifact review, the icon line must be based on helper output `store icon pixel matches: ...`, `application icon linked store icon: ...` and `round icon linked store icon: ...`, not only a visual/manual size check.
 The signature line must explicitly include `verified`, `SHA-256` and the signer certificate SHA-256 fingerprint from helper output `signer certificate SHA-256: ...`; do not record signing passwords or keystore contents.
 The icon line must explicitly mention application-icon-linked and round-icon-linked store-icon pixel matches.
+The version line must explicitly include `versionCode 1` and `versionName 1.0.0`, based on helper output `versionCode: 1` and `versionName: 1.0.0`.
 After Play-generated artifact review, the permissions line must explicitly include `no INTERNET`, `no ACCESS_NETWORK_STATE` and `no dangerous runtime permissions`.
 The manifest privacy line must explicitly include `allowBackup=false` and `no debuggable`, based on helper output `allowBackup: false` and `debuggable: absent` or `debuggable: false`.
 The native-library line must explicitly include `16 KB`, `16384`, `uncompressed`, `ZIP-aligned` and `extractNativeLibs=false`, based on helper output `native libraries: 8 checked; minimum PT_LOAD alignment: 16384 bytes`, `native APK packaging: 8 uncompressed; minimum ZIP data alignment: 16384 bytes` and `extractNativeLibs: false`.

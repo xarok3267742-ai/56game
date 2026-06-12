@@ -139,6 +139,7 @@ Fields to resolve:
 Required posture:
 
 - Generated artifacts must not contain debug package ids, Android Debug signing certificates, missing/invalid APK signatures, androidTest/JUnit/Espresso/test leakage, forbidden permissions, `allowBackup=true`, `debuggable=true`, `extractNativeLibs=true`, compressed native libraries, native ZIP data offsets below 16 KB alignment, icon pixels that differ from `play_store/icon/play_icon_512.png`, application/round icon references that are not linked to that matching PNG, or native `.so` files below 16 KB ELF `PT_LOAD` alignment.
+- Version evidence must explicitly mention `versionCode 1` and `versionName 1.0.0`.
 - Install/launch evidence must explicitly say the downloaded Play-generated APK was installed and launched on an Android device or Android emulator.
 - Stop rollout if package, label, version, icon, permissions, manifest privacy or native 16 KB page-size posture differ from the local release candidate.
 

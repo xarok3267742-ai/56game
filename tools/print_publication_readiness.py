@@ -445,7 +445,6 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
         "Privacy policy URL is accessible without login",
         "Privacy policy URL is not PDF",
         "Active upload keystore backed up before AAB upload",
-        "Play-generated version code/name match this release candidate",
         "Internal testing upload completed",
     }:
         validate_yes(label, value, file_label)
@@ -490,6 +489,17 @@ def validate_post_upload_value(label: str, value: str, file_label: str, expected
     elif label == "Play-generated icon matches `play_store/icon/play_icon_512.png`":
         validate_yes(label, value, file_label)
         validate_contains_all(label, value, file_label, ("application icon", "round icon", "store icon", "pixel"))
+    elif label == "Play-generated version code/name match this release candidate":
+        validate_no_negative_markers(label, value, file_label)
+        lowered = value.lower()
+        require(
+            re.search(r"(version\s*code|versioncode)\s*(?:=|:)?\s*`?1\b", lowered) is not None,
+            f"{file_label} value for {label} must explicitly include versionCode 1: {value}",
+        )
+        require(
+            re.search(r"(version\s*name|versionname)\s*(?:=|:)?\s*`?1\.0\.0\b", lowered) is not None,
+            f"{file_label} value for {label} must explicitly include versionName 1.0.0: {value}",
+        )
     elif label == "Play-generated permissions review shows no `INTERNET`, no `ACCESS_NETWORK_STATE` and no dangerous runtime permissions":
         validate_no_negative_markers(label, value, file_label)
         validate_contains_all(label, value, file_label, ("no INTERNET", "no ACCESS_NETWORK_STATE", "no dangerous"))
