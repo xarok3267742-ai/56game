@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LISTING_PATH = ROOT / "play_store/listing_ru.md"
 SUBMISSION_PATH = ROOT / "play_store/play_console_submission_ru.md"
 APP_CONTENT_PATH = ROOT / "play_store/app_content_answers_ru.md"
+PRODUCTION_ACCESS_PATH = ROOT / "play_store/production_access_answers_ru.md"
 DATA_SAFETY_PATH = ROOT / "play_store/data_safety_ru.md"
 CONTENT_RATING_PATH = ROOT / "play_store/content_rating_notes.md"
 OWNER_INPUTS_PATH = ROOT / "play_store/owner_release_inputs.md"
@@ -114,6 +115,18 @@ def verify_policy_handoff() -> None:
         ),
     )
     require_markers(
+        PRODUCTION_ACCESS_PATH,
+        (
+            "Production Access Answers - RU",
+            "Apply for production access",
+            "About Your Closed Test",
+            "About Your App Or Game",
+            "Production Readiness",
+            "No tester names, email addresses or invite links are included here.",
+            "Production access status if required",
+        ),
+    )
+    require_markers(
         DATA_SAFETY_PATH,
         (
             "Данные пользователя не собираются.",
@@ -206,6 +219,7 @@ def print_packet(listing_values: dict[str, str]) -> None:
     print("- Complete secure signing backup using play_store/signing_backup_evidence_ru.md.")
     print("- Upload first to internal testing; run closed testing if the publisher account requires it.")
     print("- Receive Play Console production access if the publisher account requires it.")
+    print("- Prepare production-access answers with play_store/production_access_answers_ru.md if Play Console asks for them.")
     print("- Record safe post-upload facts in play_store/play_console_post_upload_evidence_ru.md.")
     print()
     print("play_console_packet_ok")

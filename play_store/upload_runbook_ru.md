@@ -91,6 +91,8 @@ ANDROID_SERIAL=<serial> ./gradlew connectedDebugAndroidTest
 
 Owner-action breakdown for upload day: `play_store/publication_readiness_owner_actions_ru.md`.
 
+Production-access answer worksheet: `play_store/production_access_answers_ru.md`.
+
 ## 3. Create App / Identity
 
 В Play Console создать app:
@@ -139,6 +141,7 @@ Copy-ready text source:
 
 - `play_store/play_console_submission_ru.md`.
 - Command packet: run `./tools/print_play_console_packet.py` and require `play_console_packet_ok`.
+- If production access is required, prepare answers from `play_store/production_access_answers_ru.md` using only aggregate closed-test facts and no tester personal data.
 
 Upload only these assets:
 
@@ -192,7 +195,7 @@ Recommended order:
 5. Repeat first-launch, home, game, win, settings, restart and no-internet smoke flows.
 6. Review Play pre-launch report and policy warnings.
 7. Run closed testing if required by the publisher account type.
-8. Apply for and receive Play Console production access if closed testing is required for the publisher account.
+8. Apply for and receive Play Console production access if closed testing is required for the publisher account; use `play_store/production_access_answers_ru.md` to prepare safe answers.
 9. Promote to production only after owner gates, testing tracks, production-access status and review warnings are complete.
 
 ## 8. Stop Conditions

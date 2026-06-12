@@ -8,6 +8,7 @@
 - Release notes source: `play_store/listing_ru.md`
 - Copy-ready Play Console fields: `play_store/play_console_submission_ru.md`
 - Field-by-field App content answers: `play_store/app_content_answers_ru.md`
+- Production access answer worksheet: `play_store/production_access_answers_ru.md`
 - Owner-controlled release inputs: `play_store/owner_release_inputs.md`
 - Publication readiness owner actions: `play_store/publication_readiness_owner_actions_ru.md`
 - Metadata gate: `tools/verify_release.py` enforces app name <= 30 chars, short description <= 80 chars, full description <= 4000 chars, release notes <= 500 chars, no placeholder markers and exact sync between `listing_ru.md` and `play_console_submission_ru.md`.
@@ -154,6 +155,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Online interaction: none.
 - Notes source: `play_store/content_rating_notes.md`
 - Field-by-field App content source: `play_store/app_content_answers_ru.md`
+- Production access source: `play_store/production_access_answers_ru.md`
 
 ## Target Audience Notes
 
@@ -211,6 +213,7 @@ Latest local status on 6 June 2026: `test lint assembleDebug assembleRelease bun
 - Complete Data Safety using `play_store/data_safety_ru.md`.
 - Complete content rating using `play_store/content_rating_notes.md`.
 - Complete target audience and app content declarations using `play_store/app_content_answers_ru.md`.
+- Prepare production-access answers from `play_store/production_access_answers_ru.md` without tester personal data if the publisher account requires production access approval.
 - Run internal/closed testing as required.
 - Apply for and receive Play Console production access if the publisher account requires it.
 - Review generated APKs and pre-launch report.

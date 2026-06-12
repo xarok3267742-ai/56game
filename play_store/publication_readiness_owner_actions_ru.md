@@ -23,6 +23,8 @@ Action: upload the signed AAB through a testing track first and record exact art
 
 Evidence file: `play_store/play_console_post_upload_evidence_ru.md`.
 
+Answer worksheet: `play_store/production_access_answers_ru.md`.
+
 Command:
 
 ```bash
@@ -213,6 +215,7 @@ Required posture:
 - Internal-testing evidence must explicitly mention `internal testing` and that the AAB was uploaded or upload completed.
 - If the publisher account requires closed testing, complete the required tester/time gate before production and record safe evidence that explicitly mentions at least 12 opted-in testers and at least 14 continuous days without tester personal data, invite links or private tester URLs.
 - If closed testing is required for the publisher account, wait until Play Console production access is granted or approved before production rollout and record safe evidence without account-private screenshots or tester personal data. If it is not required for this account, record `not required for this account`.
+- Use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data, invite links or private tester URLs if Play Console asks for production-access application answers.
 - Pre-launch report must have no blocking issues, no reproducible crashes and no unresolved policy warnings.
 - Pre-launch/policy evidence must explicitly mention `Play Console pre-launch report`, `no reproducible crashes` and `Play policy warnings`.
 - Store listing preview evidence must explicitly mention the icon, feature graphic, phone screenshots, tablet screenshots and no damaging crops.

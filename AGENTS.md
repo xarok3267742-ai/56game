@@ -166,6 +166,7 @@ Release-facing Play files must stay present:
 - `play_store/data_safety_ru.md`
 - `play_store/content_rating_notes.md`
 - `play_store/app_content_answers_ru.md`
+- `play_store/production_access_answers_ru.md`
 - `play_store/privacy_policy_ru.md`
 - `play_store/privacy_policy_ru.html`
 - `play_store/privacy_policy_hosting_checklist.md`
