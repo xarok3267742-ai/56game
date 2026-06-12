@@ -733,7 +733,7 @@ def check_agents_handoff() -> None:
             "No placeholder user-facing content remains.",
             "Store assets are present and verifier-approved.",
             "`./tools/run_final_local_gate.py` passes and prints `final_local_gate_ok`",
-            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_developer_account_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/print_play_generated_apk_evidence_packet.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
+            "this covers `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_developer_account_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/print_play_generated_apk_evidence_packet.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
             "preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device",
             "Google Play checklist, release report and upload handoff are current.",
             "The full publication goal is not complete until manual external gates are done",
@@ -744,34 +744,14 @@ def check_agents_handoff() -> None:
     require("Final local gate before handoff:" in agents, "AGENTS.md missing final local gate section")
     final_gate = agents.split("Final local gate before handoff:", 1)[1].split("Run `connectedDebugAndroidTest`", 1)[0]
     require("./tools/run_final_local_gate.py" in final_gate, "AGENTS.md final local gate must use run_final_local_gate.py")
-    require(
-        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_developer_account_evidence_packet.py`, `./tools/print_closed_testing_evidence_packet.py --dry-run`, `./tools/print_privacy_contact_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/print_pre_launch_review_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/print_store_listing_review_evidence_packet.py`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/print_play_generated_apk_evidence_packet.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
-        in final_gate,
-        "AGENTS.md final local gate must document the runner command expansion",
-    )
-    for command in [
-        "./gradlew test lint assembleDebug assembleRelease bundleRelease",
-        "./tools/verify_release.py",
-        "./tools/print_upload_packet.py",
-        "./tools/print_post_upload_evidence_packet.py",
-        "./tools/print_developer_account_evidence_packet.py",
-        "./tools/print_closed_testing_evidence_packet.py --dry-run",
-        "./tools/print_privacy_contact_evidence_packet.py",
-        "./tools/print_play_console_forms_evidence_packet.py",
-        "./tools/print_pre_launch_review_evidence_packet.py",
-        "./tools/create_store_asset_review_sheet.py --dry-run",
-        "./tools/print_store_listing_review_evidence_packet.py",
-        "./tools/prepare_play_upload_archive.py --dry-run",
-        "./tools/prepare_play_upload_archive.py --verify-existing",
-        "./tools/print_play_console_packet.py",
-        "./tools/print_publication_readiness.py",
-        "./tools/verify_play_generated_apk.py --dry-run",
-        "./tools/print_play_generated_apk_evidence_packet.py --dry-run",
-        "./tools/check_privacy_policy_url.py --local",
-        "./tools/check_signing_backup_inputs.py",
-        "./tools/print_signing_backup_evidence_packet.py",
-    ]:
-        require(command in final_gate, f"AGENTS.md final local gate missing command: {command}")
+    require("The runner executes" in final_gate, "AGENTS.md final local gate must document the runner command expansion")
+    require("in order" in final_gate, "AGENTS.md final local gate must state the command expansion order")
+    previous_index = -1
+    for command in FINAL_LOCAL_GATE_SEQUENCE:
+        command_index = final_gate.find(command)
+        require(command_index >= 0, f"AGENTS.md final local gate missing command: {command}")
+        require(command_index > previous_index, f"AGENTS.md final local gate command is out of order: {command}")
+        previous_index = command_index
 
 
 def check_readme_handoff() -> None:
@@ -1520,6 +1500,8 @@ def check_release_report_handoff() -> None:
             "`tools/verify_release.py` reuses a single `FINAL_LOCAL_GATE_SEQUENCE` assertion for both the checklist and `play_store/upload_runbook_ru.md`",
             "Latest release-plan final-gate sequence sync hardening",
             "`tools/verify_release.py` now checks it through the shared `FINAL_LOCAL_GATE_SEQUENCE` assertion too",
+            "Latest AGENTS final-gate sequence sync hardening",
+            "`tools/verify_release.py` checks the AGENTS runner expansion against shared `FINAL_LOCAL_GATE_SEQUENCE` order",
             "verified 13 remote upload assets from `play_store/upload_checksums.md`",
             "remote forbidden-path/AAB scans",
             "Latest upload-runbook sequence sync hardening",
@@ -1731,6 +1713,8 @@ def check_completion_audit_handoff() -> None:
             "`tools/verify_release.py` reuses a single `FINAL_LOCAL_GATE_SEQUENCE` assertion for both the checklist and `play_store/upload_runbook_ru.md`",
             "Latest release-plan final-gate sequence sync hardening",
             "`tools/verify_release.py` now checks it through the shared `FINAL_LOCAL_GATE_SEQUENCE` assertion too",
+            "Latest AGENTS final-gate sequence sync hardening",
+            "`tools/verify_release.py` checks the AGENTS runner expansion against shared `FINAL_LOCAL_GATE_SEQUENCE` order",
             "13 remote upload assets verified from `play_store/upload_checksums.md`",
             "Latest upload-runbook sequence sync hardening",
             "`tools/verify_release.py` now parses that fenced block and fails if the order or command set drifts from the final local gate",
