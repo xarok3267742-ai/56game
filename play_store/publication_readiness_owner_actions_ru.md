@@ -165,7 +165,11 @@ Action: complete App content, ads, Data Safety, content rating, target audience 
 
 Evidence file: `play_store/play_console_post_upload_evidence_ru.md`.
 
-Command: no local command; complete the matching Play Console forms.
+Command:
+
+```bash
+./tools/print_play_console_forms_evidence_packet.py
+```
 
 Sources:
 

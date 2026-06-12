@@ -71,6 +71,7 @@ The install/launch line must explicitly say the Play-generated APK was `installe
 - AI disclosure completed as no in-app generative AI features: not yet available locally.
 
 After completing Policy Forms, keep the evidence explicit and do not use a bare `yes`: app access must mention `no restricted access`, `no login` and `no account`; ads must mention `no ads`; Data Safety must mention `no user data collected` and `no user data shared`; content rating must mention `Games` and `Puzzle`; target audience must mention `13+` and `non-child-directed`; AI disclosure must mention `no in-app generative AI features`.
+Use `./tools/print_play_console_forms_evidence_packet.py` after the matching Play Console policy forms are actually completed and copy only the safe Policy Form Lines.
 
 ## Testing And Review
 

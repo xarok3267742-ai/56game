@@ -233,7 +233,7 @@ OWNER_ACTION_GROUPS = (
         "Play Console forms",
         "Complete App content, ads, Data Safety, content rating, target audience and AI disclosure forms.",
         ("play_store/play_console_post_upload_evidence_ru.md",),
-        ("no local command; complete the matching Play Console forms",),
+        ("./tools/print_play_console_forms_evidence_packet.py",),
         (
             "App access completed as no restricted access/login/account",
             "Ads declaration completed as no ads",

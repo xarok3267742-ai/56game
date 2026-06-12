@@ -14,7 +14,7 @@ The script intentionally checks facts that are easy to regress:
 - lightweight artifact and asset size budgets;
 - Play store asset dimensions/alpha;
 - upload manifest paths;
-- upload-packet and post-upload evidence helper consistency;
+- upload-packet, post-upload evidence and Play Console forms evidence helper consistency;
 - store asset review sheet helper consistency;
 - Play upload archive helper consistency;
 - Play Console packet helper consistency;
@@ -583,6 +583,7 @@ def check_agents_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/create_store_asset_review_sheet.py --write",
             "./tools/prepare_play_upload_archive.py --dry-run",
@@ -638,6 +639,8 @@ def check_agents_handoff() -> None:
             "requires the exact ordered upload path set and prints the Google Play upload packet plus the Do Not Upload list.",
             "`./tools/print_post_upload_evidence_packet.py` is the read-only owner helper for upload-day evidence.",
             "prints exact safe lines for the upload artifact identity and internal-testing upload fields",
+            "`./tools/print_play_console_forms_evidence_packet.py` is the read-only owner helper for Play Console policy-form evidence.",
+            "prints exact safe lines for App access, ads, Data Safety, content rating, target audience and AI disclosure fields",
             "`./tools/create_store_asset_review_sheet.py` is the local visual asset review helper.",
             "The sheet is internal evidence only and must not be uploaded to Play Console.",
             "`./tools/prepare_play_upload_archive.py` is the generated owner handoff archive helper.",
@@ -670,7 +673,7 @@ def check_agents_handoff() -> None:
             "No placeholder user-facing content remains.",
             "Store assets are present and verifier-approved.",
             "`./tools/run_final_local_gate.py` passes and prints `final_local_gate_ok`",
-            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
+            "this covers `./gradlew test`, `./gradlew lint`, `./gradlew assembleDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py`.",
             "preferably through `./tools/run_api36_connected_gate.py` or `./tools/run_final_local_gate.py --include-connected --connected-serial <serial>` on an API 36 device",
             "Google Play checklist, release report and upload handoff are current.",
             "The full publication goal is not complete until manual external gates are done",
@@ -682,7 +685,7 @@ def check_agents_handoff() -> None:
     final_gate = agents.split("Final local gate before handoff:", 1)[1].split("Run `connectedDebugAndroidTest`", 1)[0]
     require("./tools/run_final_local_gate.py" in final_gate, "AGENTS.md final local gate must use run_final_local_gate.py")
     require(
-        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
+        "The runner executes `./gradlew test lint assembleDebug assembleRelease bundleRelease`, `./tools/verify_release.py`, `./tools/print_upload_packet.py`, `./tools/print_post_upload_evidence_packet.py`, `./tools/print_play_console_forms_evidence_packet.py`, `./tools/create_store_asset_review_sheet.py --dry-run`, `./tools/prepare_play_upload_archive.py --dry-run`, `./tools/prepare_play_upload_archive.py --verify-existing`, `./tools/print_play_console_packet.py`, `./tools/print_publication_readiness.py`, `./tools/verify_play_generated_apk.py --dry-run`, `./tools/check_privacy_policy_url.py --local`, `./tools/check_signing_backup_inputs.py` and `./tools/print_signing_backup_evidence_packet.py` in order."
         in final_gate,
         "AGENTS.md final local gate must document the runner command expansion",
     )
@@ -691,6 +694,7 @@ def check_agents_handoff() -> None:
         "./tools/verify_release.py",
         "./tools/print_upload_packet.py",
         "./tools/print_post_upload_evidence_packet.py",
+        "./tools/print_play_console_forms_evidence_packet.py",
         "./tools/create_store_asset_review_sheet.py --dry-run",
         "./tools/prepare_play_upload_archive.py --dry-run",
         "./tools/prepare_play_upload_archive.py --verify-existing",
@@ -725,6 +729,7 @@ def check_readme_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/create_store_asset_review_sheet.py --write",
             "./tools/prepare_play_upload_archive.py --dry-run",
@@ -775,6 +780,8 @@ def check_readme_handoff() -> None:
             "`./tools/print_upload_packet.py` prints and verifies the exact ordered upload packet",
             "`./tools/print_post_upload_evidence_packet.py` prints safe upload artifact and internal-testing evidence lines",
             "rerun it with `--upload-date <date/time>` for a concrete upload-date line",
+            "`./tools/print_play_console_forms_evidence_packet.py` prints safe Play Console policy-form evidence lines",
+            "use it only after the App access, ads, Data Safety, content rating, target audience and AI disclosure forms are actually completed",
             "`./tools/create_store_asset_review_sheet.py --write` regenerates the internal visual review sheet",
             "Store asset review sheet лежит в `play_store/store_asset_review_sheet.png` and is internal review evidence only",
             "`./tools/prepare_play_upload_archive.py --write` creates a generated owner handoff ZIP under `build/play_upload`",
@@ -883,6 +890,7 @@ def check_google_play_checklist_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/prepare_play_upload_archive.py --dry-run",
             "./tools/prepare_play_upload_archive.py --verify-existing",
@@ -940,6 +948,8 @@ def check_google_play_checklist_handoff() -> None:
             "Run `./tools/print_upload_packet.py` and require `upload_packet_ok` before uploading assets.",
             "Run `./tools/print_post_upload_evidence_packet.py` and require `post_upload_evidence_packet_ok`",
             "copy the safe upload artifact/internal-testing lines into `play_store/play_console_post_upload_evidence_ru.md`",
+            "Run `./tools/print_play_console_forms_evidence_packet.py` and require `play_console_forms_evidence_packet_ok`",
+            "copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "Run `./tools/print_signing_backup_evidence_packet.py` and require `signing_backup_evidence_packet_ok`",
             "copy only the safe signing-backup lines into `play_store/signing_backup_evidence_ru.md` and `play_store/play_console_post_upload_evidence_ru.md`",
             "Run `./tools/create_store_asset_review_sheet.py --dry-run` and review `play_store/store_asset_review_sheet.png` before upload",
@@ -1191,6 +1201,7 @@ def check_release_plan_handoff() -> None:
             "Equivalent expanded sequence:",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/print_play_console_packet.py",
             "./tools/verify_play_generated_apk.py --dry-run",
@@ -1276,6 +1287,7 @@ def check_release_report_handoff() -> None:
             "Latest privacy/contact handoff hardening",
             "Latest post-upload evidence packet hardening",
             "Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`.",
+            "Latest Play Console forms evidence packet hardening",
             "Latest Play-generated version owner-evidence hardening",
             "Latest privacy helper negative-regression gate",
             "Latest signing-backup evidence hardening",
@@ -1370,6 +1382,8 @@ def check_release_report_handoff() -> None:
             "Final local gate runner: `tools/run_final_local_gate.py`.",
             "Managed API 36 connected gate helper: `tools/run_api36_connected_gate.py`.",
             "Upload packet helper: `tools/print_upload_packet.py`.",
+            "Post-upload evidence packet helper: `tools/print_post_upload_evidence_packet.py`.",
+            "Play Console forms evidence packet helper: `tools/print_play_console_forms_evidence_packet.py`.",
             "Play Console packet helper: `tools/print_play_console_packet.py`.",
             "Privacy policy URL helper: `tools/check_privacy_policy_url.py`.",
             "Signing backup input helper: `tools/check_signing_backup_inputs.py`.",
@@ -1474,6 +1488,7 @@ def check_completion_audit_handoff() -> None:
             "Latest Play support/contact value-redaction evidence hardening",
             "Latest privacy/contact handoff hardening",
             "Latest post-upload evidence packet hardening",
+            "Latest Play Console forms evidence packet hardening",
             "Latest Play-generated version owner-evidence hardening",
             "Latest privacy helper negative-regression gate",
             "Latest signing-backup evidence hardening",
@@ -2637,6 +2652,10 @@ def check_asset_handoff() -> None:
         "upload manifest must include post-upload evidence packet helper handoff",
     )
     require(
+        "Play Console forms evidence packet helper: `tools/print_play_console_forms_evidence_packet.py`" in upload_manifest,
+        "upload manifest must include Play Console forms evidence packet helper handoff",
+    )
+    require(
         "Signing backup evidence packet helper: `tools/print_signing_backup_evidence_packet.py`" in upload_manifest,
         "upload manifest must include signing backup evidence packet helper handoff",
     )
@@ -3047,6 +3066,7 @@ def check_publication_readiness_owner_actions_handoff() -> None:
             "play_store/app_content_answers_ru.md",
             "play_store/data_safety_ru.md",
             "play_store/content_rating_notes.md",
+            "./tools/print_play_console_forms_evidence_packet.py",
             "Target audience should stay 13+ and non-child-directed",
             "Evidence must not use bare `yes`",
             "no restricted access/login/account, no ads, no user data collected/shared, Games / Puzzle content rating, 13+ non-child-directed target audience and no in-app generative AI features.",
@@ -3132,6 +3152,7 @@ def check_upload_runbook_handoff() -> None:
             "./tools/verify_release.py",
             "./tools/print_upload_packet.py",
             "./tools/print_post_upload_evidence_packet.py",
+            "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/create_store_asset_review_sheet.py --dry-run",
             "./tools/print_play_console_packet.py",
             "./tools/print_publication_readiness.py",
@@ -3151,6 +3172,8 @@ def check_upload_runbook_handoff() -> None:
             "`./tools/print_upload_packet.py` возвращает `upload_packet_ok`.",
             "`./tools/print_post_upload_evidence_packet.py` возвращает `post_upload_evidence_packet_ok`",
             "copy the safe upload artifact/internal-testing evidence lines into `play_store/play_console_post_upload_evidence_ru.md`",
+            "`./tools/print_play_console_forms_evidence_packet.py` возвращает `play_console_forms_evidence_packet_ok`",
+            "copy the safe App access, ads, Data Safety, content rating, target audience and AI disclosure lines into `play_store/play_console_post_upload_evidence_ru.md`",
             "`./tools/create_store_asset_review_sheet.py --dry-run` возвращает `store_asset_review_sheet_dry_run_ok`",
             "visually review `play_store/store_asset_review_sheet.png` before upload",
             "`./tools/prepare_play_upload_archive.py --dry-run` возвращает `play_upload_archive_dry_run_ok`",
@@ -3243,6 +3266,7 @@ def check_upload_runbook_handoff() -> None:
             "After any local rebuild, rerun the full preflight and compare `play_store/upload_checksums.md` again before uploading.",
             "Evidence To Record After Upload",
             "Safe upload artifact/internal-testing lines from `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`.",
+            "Safe Play Console policy-form lines from `./tools/print_play_console_forms_evidence_packet.py`.",
             "Public privacy policy URL.",
             "Signing backup input check result from `./tools/check_signing_backup_inputs.py`.",
             "Safe signing-backup lines from `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>`.",
@@ -3272,6 +3296,7 @@ def check_final_local_gate_runner() -> None:
             "(\"./tools/verify_release.py\",)",
             "(\"./tools/print_upload_packet.py\",)",
             "(\"./tools/print_post_upload_evidence_packet.py\",)",
+            "(\"./tools/print_play_console_forms_evidence_packet.py\",)",
             "(\"./tools/create_store_asset_review_sheet.py\", \"--dry-run\")",
             "(\"./tools/prepare_play_upload_archive.py\", \"--dry-run\")",
             "(\"./tools/prepare_play_upload_archive.py\", \"--verify-existing\")",
@@ -3333,6 +3358,7 @@ def check_final_local_gate_runner() -> None:
         "./tools/verify_release.py",
         "./tools/print_upload_packet.py",
         "./tools/print_post_upload_evidence_packet.py",
+        "./tools/print_play_console_forms_evidence_packet.py",
         "./tools/create_store_asset_review_sheet.py --dry-run",
         "./tools/prepare_play_upload_archive.py --dry-run",
         "./tools/prepare_play_upload_archive.py --verify-existing",
@@ -3724,6 +3750,82 @@ def check_post_upload_evidence_packet_helper() -> None:
             require(expected_message in str(exc), f"post-upload helper rejected bad upload date with unexpected message: {exc}")
         else:
             raise CheckFailure(f"post-upload helper must reject bad upload date: {bad_date}")
+
+
+def check_play_console_forms_evidence_packet_helper() -> None:
+    helper = require_file("tools/print_play_console_forms_evidence_packet.py")
+    require(os.access(helper, os.X_OK), "tools/print_play_console_forms_evidence_packet.py must be executable")
+    require_text_markers(
+        "tools/print_play_console_forms_evidence_packet.py",
+        [
+            "Print safe Play Console form evidence lines for the owner.",
+            "This helper is intentionally read-only.",
+            "It does not claim that Play Console",
+            "FORBIDDEN_EVIDENCE_MARKERS",
+            "class PlayConsoleFormsEvidencePacketError",
+            "def validate_no_forbidden_evidence(",
+            "must not contain personal email addresses",
+            "must not contain private URLs or invite links",
+            "def evidence_lines(",
+            "App access completed as no restricted access/login/account",
+            "Ads declaration completed as no ads",
+            "Data Safety completed as no user data collected or shared",
+            "Content rating completed as Games / Puzzle posture",
+            "Target audience completed as non-child-directed 13+ posture unless publisher intentionally chose a child-directed path",
+            "AI disclosure completed as no in-app generative AI features",
+            "Destination evidence file: play_store/play_console_post_upload_evidence_ru.md",
+            "Use these lines only after the matching Play Console forms are actually completed.",
+            "play_console_forms_evidence_packet_ok",
+        ],
+    )
+    output = subprocess.check_output(
+        [str(helper)],
+        cwd=ROOT,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    for marker in [
+        "Play Console forms evidence packet",
+        "Destination evidence file: play_store/play_console_post_upload_evidence_ru.md",
+        "Use these lines only after the matching Play Console forms are actually completed.",
+        "Do not record account tokens, support-contact values, tester personal data or invite links.",
+        "App access completed as no restricted access/login/account: Play Console App access completed as no restricted access, no login and no account required.",
+        "Ads declaration completed as no ads: Play Console ads declaration completed as no ads.",
+        "Data Safety completed as no user data collected or shared: Data Safety completed as no user data collected and no user data shared.",
+        "Content rating completed as Games / Puzzle posture: Content rating completed with Games / Puzzle posture.",
+        "Target audience completed as non-child-directed 13+ posture unless publisher intentionally chose a child-directed path: Target audience completed as 13+ non-child-directed posture.",
+        "AI disclosure completed as no in-app generative AI features: AI disclosure completed as no in-app generative AI features.",
+        "play_console_forms_evidence_packet_ok",
+    ]:
+        require(marker in output, f"Play Console forms evidence packet missing marker: {marker}")
+
+    spec = importlib.util.spec_from_file_location("line56_play_console_forms_evidence_packet", helper)
+    require(spec is not None and spec.loader is not None, "Play Console forms evidence packet helper could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    lines = module.evidence_lines()
+    joined = "\n".join(lines)
+    for marker in [
+        "no restricted access, no login and no account",
+        "no ads",
+        "no user data collected and no user data shared",
+        "Games / Puzzle",
+        "13+ non-child-directed",
+        "no in-app generative AI features",
+    ]:
+        require(marker in joined, f"Play Console forms evidence packet generated lines missing marker: {marker}")
+    for bad_value, expected_message in [
+        ("support@example.com", "personal email addresses"),
+        ("https://private.example/invite", "private URLs or invite links"),
+        ("token=secret", "password, token, secret or API key assignments"),
+        ("storePassword=secret", "forbidden marker"),
+    ]:
+        try:
+            module.validate_no_forbidden_evidence(bad_value)
+        except module.PlayConsoleFormsEvidencePacketError as exc:
+            require(expected_message in str(exc), f"Play Console forms helper rejected bad evidence with unexpected message: {exc}")
+        else:
+            raise CheckFailure(f"Play Console forms helper must reject bad evidence: {bad_value}")
 
 
 def check_store_asset_review_sheet_helper() -> None:
@@ -4753,6 +4855,7 @@ def check_publication_readiness_helper() -> None:
             "Internal testing upload completed",
             "internal testing first",
             "./tools/print_post_upload_evidence_packet.py --upload-date <date/time>",
+            "./tools/print_play_console_forms_evidence_packet.py",
             "./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>",
             "def expected_aab_sha256(",
             "def collect_evidence_status(",
@@ -4880,6 +4983,8 @@ def check_publication_readiness_helper() -> None:
         "command: ./tools/check_signing_backup_inputs.py",
         "command: ./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>",
         "Play-generated artifact review: 9 unresolved field(s).",
+        "Play Console forms: 6 unresolved field(s).",
+        "command: ./tools/print_play_console_forms_evidence_packet.py",
         "Testing track and final review: 8 unresolved field(s).",
         "publication_readiness_local_ready_external_pending",
     ]:
@@ -6324,7 +6429,7 @@ def check_owner_release_inputs() -> None:
             "Use `play_store/privacy_contact_handoff_ru.md` for the Play Console privacy URL, support/contact field and safe evidence wording without recording the actual support email or URL.",
             "use `play_store/closed_testing_handoff_ru.md` for tester task coverage, aggregate feedback topics and safe evidence phrases",
             "use `play_store/production_access_answers_ru.md` to prepare aggregate production-access answers without tester personal data",
-            "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>` and `play_store/play_console_post_upload_evidence_ru.md`",
+            "use `./tools/print_post_upload_evidence_packet.py --upload-date <date/time>`, `./tools/print_play_console_forms_evidence_packet.py` and `play_store/play_console_post_upload_evidence_ru.md`",
             "production-access status",
             "Before upload, use `./tools/print_signing_backup_evidence_packet.py --backup-date <date/time>` and `play_store/signing_backup_evidence_ru.md` to record only safe owner-side backup facts after the real owner-controlled backup.",
             "Do not record secrets or tester personal data.",
@@ -6398,6 +6503,7 @@ def check_post_upload_evidence_handoff() -> None:
             "Content rating completed as Games / Puzzle posture: not yet available locally.",
             "Target audience completed as non-child-directed 13+ posture unless publisher intentionally chose a child-directed path: not yet available locally.",
             "AI disclosure completed as no in-app generative AI features: not yet available locally.",
+            "Use `./tools/print_play_console_forms_evidence_packet.py` after the matching Play Console policy forms are actually completed and copy only the safe Policy Form Lines.",
             "After completing Policy Forms, keep the evidence explicit and do not use a bare `yes`",
             "Data Safety must mention `no user data collected` and `no user data shared`",
             "target audience must mention `13+` and `non-child-directed`",
@@ -7098,6 +7204,7 @@ def run_checks() -> None:
         check_api36_connected_gate_helper,
         check_upload_packet_helper,
         check_post_upload_evidence_packet_helper,
+        check_play_console_forms_evidence_packet_helper,
         check_store_asset_review_sheet_helper,
         check_play_upload_archive_helper,
         check_play_console_packet_helper,
