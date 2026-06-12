@@ -72,6 +72,28 @@ FINAL_LOCAL_GATE_SEQUENCE = [
     "./tools/check_signing_backup_inputs.py",
     "./tools/print_signing_backup_evidence_packet.py",
 ]
+FINAL_LOCAL_GATE_STATUS_MARKERS = [
+    "`./gradlew test lint assembleDebug assembleRelease bundleRelease`",
+    "release_verification_ok",
+    "upload_packet_ok",
+    "post_upload_evidence_packet_ok",
+    "developer_account_evidence_packet_ok",
+    "closed_testing_evidence_packet_dry_run_ok",
+    "privacy_contact_evidence_packet_ok",
+    "play_console_forms_evidence_packet_ok",
+    "pre_launch_review_evidence_packet_ok",
+    "store_asset_review_sheet_dry_run_ok",
+    "store_listing_review_evidence_packet_ok",
+    "play_upload_archive_dry_run_ok",
+    "play_upload_archive_existing_ok",
+    "play_console_packet_ok",
+    "publication_readiness_local_ready_external_pending",
+    "play_generated_apk_verify_dry_run_ok",
+    "play_generated_apk_evidence_packet_dry_run_ok",
+    "privacy_policy_local_ok",
+    "signing_backup_input_ok",
+    "signing_backup_evidence_packet_ok",
+]
 
 
 class CheckFailure(Exception):
@@ -105,6 +127,15 @@ def require_equivalent_final_gate_sequence(path: str, label: str) -> None:
     require(
         actual_sequence == FINAL_LOCAL_GATE_SEQUENCE,
         f"{label} equivalent expanded sequence must exactly match the default final local gate command order",
+    )
+
+
+def require_final_gate_status_markers(path: str, label: str) -> None:
+    source = read(path)
+    missing_markers = [marker for marker in FINAL_LOCAL_GATE_STATUS_MARKERS if marker not in source]
+    require(
+        not missing_markers,
+        f"{label} must list every final local gate execution status marker; missing: {', '.join(missing_markers)}",
     )
 
 
@@ -1528,6 +1559,7 @@ def check_release_report_handoff() -> None:
             "Публикация в Google Play still requires Play Console developer identity/profile confirmation, `com.qgrid.mobile` package-name registration, entering the verified privacy URL in Play Console, populated Play Console support/contact fields, keystore backup, Play Console forms, testing-track evidence and production-access approval if required.",
         ],
     )
+    require_final_gate_status_markers("docs/release_report.md", "release report")
 
 
 def check_completion_audit_handoff() -> None:
@@ -1732,6 +1764,7 @@ def check_completion_audit_handoff() -> None:
             "Play Console developer identity/profile confirmation, `com.qgrid.mobile` package-name registration, Play Console privacy URL entry, Play Console support/contact fields, signing backup, testing-track evidence, production-access approval if required and other Play Console/account actions remain outside the local codebase",
         ],
     )
+    require_final_gate_status_markers("docs/completion_audit.md", "completion audit")
 
 
 def check_qa_test_plan_handoff() -> None:
