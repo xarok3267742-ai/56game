@@ -3,7 +3,7 @@
 ## Listing
 
 - App name: `Линия 56`
-- Short description: `Соединяйте числа и соберите сумму ровно 56.`
+- Short description: `Проводите линию по числам и соберите ровно 56`
 - Full description source: `play_store/listing_ru.md`
 - Release notes source: `play_store/listing_ru.md`
 - Copy-ready Play Console fields: `play_store/play_console_submission_ru.md`

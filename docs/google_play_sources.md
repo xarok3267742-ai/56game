@@ -54,7 +54,7 @@ Current project alignment:
 - Native library 16 KB page-size posture is locally verifier-gated: `tools/verify_release.py` inspects every `.so` in the signed AAB and requires `PT_LOAD` alignment at least 16,384 bytes; `tools/verify_play_generated_apk.py` performs the same ELF check for a downloaded Play-generated APK and also requires uncompressed native libraries, 16 KB ZIP data alignment and `extractNativeLibs=false`.
 - Release artifact is a signed `.aab`, which is the Google Play publishing format.
 - App name `Линия 56` is 8 characters, under the 30-character metadata limit.
-- Short description `Соединяйте числа и соберите сумму ровно 56.` is 43 characters, under the 80-character limit.
+- Short description `Проводите линию по числам и соберите ровно 56` is 45 characters, under the 80-character limit.
 - Store icon is 512x512 32-bit PNG with alpha and under 1024KB; it is full-square with no transparent pixels or baked-in masking, because Google Play dynamically applies its own rounded mask and shadow.
 - Feature graphic is 1024x500 24-bit PNG without alpha and was rebuilt after rejecting the previous text-heavy concept.
 - Phone screenshots are 1080x2064 24-bit PNGs without alpha, cropped from real 1080x2400 app captures to remove system bars and satisfy Play's 2:1 side-ratio rule.

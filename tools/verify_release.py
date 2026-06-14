@@ -972,7 +972,7 @@ def check_google_play_checklist_handoff() -> None:
         "docs/google_play_checklist.md",
         [
             "App name: `Линия 56`",
-            "Short description: `Соединяйте числа и соберите сумму ровно 56.`",
+            "Short description: `Проводите линию по числам и соберите ровно 56`",
             "Copy-ready Play Console fields: `play_store/play_console_submission_ru.md`",
             "Field-by-field App content answers: `play_store/app_content_answers_ru.md`",
             "Closed-testing handoff: `play_store/closed_testing_handoff_ru.md`",
@@ -5235,7 +5235,7 @@ def check_play_console_packet_helper() -> None:
     require("Google Play Console packet" in output, "Play Console helper did not print packet header")
     require("Package name: com.qgrid.mobile" in output, "Play Console helper did not print package")
     require("App name: Линия 56" in output, "Play Console helper did not print app name")
-    require("Short description: Соединяйте числа и соберите сумму ровно 56." in output, "Play Console helper did not print short description")
+    require("Short description: Проводите линию по числам и соберите ровно 56" in output, "Play Console helper did not print short description")
     require("App content posture" in output, "Play Console helper did not print App content posture")
     require("Data Safety: no user data collected or shared." in output, "Play Console helper did not print data safety posture")
     require("Manual owner gates" in output, "Play Console helper did not print manual owner gates")
@@ -5284,7 +5284,7 @@ def check_play_console_packet_helper() -> None:
     else:
         raise CheckFailure("Play Console helper must reject app name over the Play Console length limit")
 
-    too_long_short_listing = listing.replace("Соединяйте числа и соберите сумму ровно 56.", "B" * 81, 1)
+    too_long_short_listing = listing.replace("Проводите линию по числам и соберите ровно 56", "B" * 81, 1)
     try:
         module.verify_listing(too_long_short_listing, submission)
     except module.PlayConsolePacketError as exc:
@@ -5316,7 +5316,7 @@ def check_play_console_packet_helper() -> None:
     else:
         raise CheckFailure("Play Console helper must reject placeholder markers in listing copy")
 
-    unsynced_submission = submission.replace("Соединяйте числа и соберите сумму ровно 56.", "", 1)
+    unsynced_submission = submission.replace("Проводите линию по числам и соберите ровно 56", "", 1)
     try:
         module.verify_listing(listing, unsynced_submission)
     except module.PlayConsolePacketError as exc:
