@@ -5,7 +5,7 @@
 - Colors: leaf green primary, warm gold accent, blue tertiary, clay secondary, mist background.
 - Typography: sans-serif, compact mobile hierarchy, no negative letter spacing.
 - Spacing: 6/8/12/14/16/20/24/28dp.
-- Radii: 4-8dp, no pill-heavy style.
+- Radii: 8dp-or-less tiles/panels with Material full-width action buttons; no nested decorative cards.
 - Elevation: light 1-3dp only for panels/tiles.
 - Buttons: icon + text for primary actions, icon buttons for navigation/settings.
 - States: selected, hinted, exceeded, disabled undo, completed level.
@@ -26,6 +26,7 @@
 - Haptics polish: tactile feedback now follows accepted game-state changes, so rejected repeat/non-adjacent taps do not produce a misleading selection vibration.
 - Store screenshot pass: action buttons no longer clip after shortening `Отменить`/`Сбросить` to `Отмена`/`Сброс`.
 - Responsive action bar pass: on compact widths the gameplay controls split into two rows, preserving visible labels for `Отмена`, `Подсказка` and `Сброс`; the landscape control column can scroll instead of clipping controls.
+- Distinctive UI refresh pass on 14 June 2026: coordinate-grid background, home/onboarding route panels, progress rail, board route overlay, level grid panel and refreshed phone/tablet screenshots make the app visually recognizable without fake UI, mascots or decorative noise.
 - Adaptive onboarding pass: normal 1080x2400 viewport centers the first-run screen; compact 720x1280 with `font_scale=1.3` keeps the button fully visible above system navigation.
 - Compact About/privacy pass: 720x1280, density 320, `font_scale=1.3`; top and scrolled-bottom screenshots show the privacy heading, local-data/no-services/backup/delete copy without relying on one long paragraph.
 - Wide/large pass: 2400x1080 landscape override uses a dedicated compact onboarding row layout; 1600x2560 tall override keeps onboarding readable with no overlap.

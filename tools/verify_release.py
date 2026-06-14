@@ -833,8 +833,8 @@ def check_readme_handoff() -> None:
             "Release AAB собран: `app/build/outputs/bundle/release/app-release.aab`",
             "Production package остаётся нейтральным: `com.qgrid.mobile`; debug package: `com.qgrid.mobile.debug`.",
             "Version identity for this upload candidate: `versionCode = 1`, `versionName = 1.0.0`.",
-            "Текущий release AAB: `2,930,928` bytes",
-            "`3affd5cc6de7735d7cb9cc4f381e114caa0b20d6bfa933621d596d24dc2e3043`",
+            "Текущий release AAB: `2,956,105` bytes",
+            "`f69f0f6d8efbaf31ac624d507e43ed7c700a36c420a5e3c480edb7d7f0bebe95`",
             "For Google Play, the signed AAB is the only binary upload artifact.",
             "Generated release APK outputs under `app/build/outputs/apk/release` are install/testing artifacts only and must not be uploaded to Play.",
             "Последняя asset-правка на 6 июня 2026",
@@ -1206,7 +1206,7 @@ def check_ui_audit_handoff() -> None:
         [
             "Colors: leaf green primary, warm gold accent, blue tertiary, clay secondary, mist background.",
             "Typography: sans-serif, compact mobile hierarchy, no negative letter spacing.",
-            "Radii: 4-8dp, no pill-heavy style.",
+            "Radii: 8dp-or-less tiles/panels with Material full-width action buttons; no nested decorative cards.",
             "States: selected, hinted, exceeded, disabled undo, completed level.",
             "First launch: onboarding visible, no text clipping on 1080x2400 API 35.",
             "Home: progress, start, levels, settings/about visible.",
@@ -1219,6 +1219,7 @@ def check_ui_audit_handoff() -> None:
             "Haptics polish: tactile feedback now follows accepted game-state changes",
             "Store screenshot pass: action buttons no longer clip",
             "Responsive action bar pass: on compact widths the gameplay controls split into two rows",
+            "Distinctive UI refresh pass on 14 June 2026",
             "Adaptive onboarding pass: normal 1080x2400 viewport centers the first-run screen",
             "compact 720x1280 with `font_scale=1.3` keeps the button fully visible",
             "Compact About/privacy pass: 720x1280, density 320, `font_scale=1.3`",
@@ -1558,8 +1559,10 @@ def check_release_report_handoff() -> None:
             "remote forbidden-path/AAB scans",
             "Latest upload-runbook sequence sync hardening",
             "`tools/verify_release.py` now parses that fenced block and fails if the order or command set drifts from the final local gate",
-            "Debug APK: `app/build/outputs/apk/debug/app-debug.apk`, package `com.qgrid.mobile.debug`, 19,833,279 bytes.",
-            "Signed Release AAB: `app/build/outputs/bundle/release/app-release.aab`, 2,930,928 bytes.",
+            "Latest distinctive UI/UX refresh on 14 June 2026",
+            "Latest store screenshot helper hardening on 14 June 2026",
+            "Debug APK: `app/build/outputs/apk/debug/app-debug.apk`, package `com.qgrid.mobile.debug`, 19,866,047 bytes.",
+            "Signed Release AAB: `app/build/outputs/bundle/release/app-release.aab`, 2,956,105 bytes.",
             "Upload runbook: `play_store/upload_runbook_ru.md`.",
             "Post-upload evidence template: `play_store/play_console_post_upload_evidence_ru.md`.",
             "Signing backup evidence and owner template: `play_store/signing_backup_evidence_ru.md`.",
@@ -1606,7 +1609,7 @@ def check_completion_audit_handoff() -> None:
             "Lint passes with no issues: `./gradlew lint`.",
             "Signed release AAB builds: `./gradlew bundleRelease`.",
             "Production AAB cleanliness is checked by `tools/verify_release.py`",
-            "current release AAB is 2,930,928 bytes and current debug APK is 19,833,279 bytes.",
+            "current release AAB is 2,956,105 bytes and current debug APK is 19,866,047 bytes.",
             "latest connected run finished 10 tests covering product name",
             "Latest result replay hardening",
             "Release APK installed on API 35 emulator: `./gradlew installRelease`.",
@@ -2375,28 +2378,28 @@ def check_size_budgets() -> None:
             require(screenshot.stat().st_size <= 1024 * 1024, f"{screenshot.relative_to(ROOT)}: expected <= 1048576 bytes")
 
     play_store_size = directory_size(ROOT / "play_store")
-    require(play_store_size <= 7 * 1024 * 1024, f"play_store directory expected <= 7MB, got {play_store_size} bytes")
+    require(play_store_size <= 8 * 1024 * 1024, f"play_store directory expected <= 8MB, got {play_store_size} bytes")
 
 
 def check_performance_notes() -> None:
     require_text_markers(
         "docs/performance_notes.md",
         [
-            "Measured and re-verified on 6 June 2026",
-            "Signed release AAB: `2,930,928` bytes",
-            "Debug APK: `19,833,279` bytes",
-            "Google Play feature graphic: `410,321` bytes",
+            "Measured and re-verified on 14 June 2026",
+            "Signed release AAB: `2,956,105` bytes",
+            "Debug APK: `19,866,047` bytes",
+            "Google Play feature graphic: `420,032` bytes",
             "Google Play store icon: `274,405` bytes",
-            "Largest phone screenshot: `133,859` bytes",
-            "Largest large/tablet screenshot: `98,888` bytes",
+            "Largest phone screenshot: `310,727` bytes",
+            "Largest large/tablet screenshot: `205,730` bytes",
             "ImageGen source background: `1,577,241` bytes",
             "ImageGen source icon: `1,474,693` bytes",
-            "`play_store` directory total: `6,111` KiB",
+            "`play_store` directory total: `7,788` KiB",
             "Native libraries in the signed release AAB: 8 `.so` files",
             "minimum `PT_LOAD` alignment is `0x4000` / 16,384 bytes",
             "Release AAB <= 6 MB",
             "Debug APK <= 30 MB",
-            "Full `play_store` directory <= 7 MB",
+            "Full `play_store` directory <= 8 MB",
             "Debug APK and release AAB freshness",
             "local SDK input (`local.properties` when present)",
         ],
@@ -2418,6 +2421,7 @@ def check_art_direction_handoff() -> None:
             "Текст должен быть live UI text, не нарисованный в картинке.",
             "App icon должна читаться в маленьком размере и не содержать мелкий текст.",
             "Feature graphic должен строиться на реальном UI/screenshot или качественной композиции",
+            "After the 14 June 2026 UI refresh",
             "Минималистичная, взрослая, спокойная головоломка",
             "Перегруженный баннер, случайный маскот, мелкий текст, фейковые карточки",
         ],
@@ -2518,12 +2522,11 @@ def check_screenshot_manifest_handoff() -> None:
     require_text_markers(
         manifest_path,
         [
-            "Phone device: Medium Phone API 35 emulator, captured at 1080x2400 and exported as 1080x2064, release variant `com.qgrid.mobile`.",
-            "Large/tablet capture: same API 35 emulator with `wm size 1600x2560`, density `320`, exported as 1600x2336, release variant `com.qgrid.mobile`.",
+            "Phone device: Medium_Phone_API_36 emulator, captured at 1080x2400 and exported as 1080x2064, release variant `com.qgrid.mobile`.",
+            "Large/tablet capture: same API 36 emulator with `wm size 1600x2560`, density `320`, exported as 1600x2336, release variant `com.qgrid.mobile`.",
             "Format: 24-bit PNG without alpha; Play screenshot long side is no more than 2x the short side; system status/navigation bars are cropped out of upload images.",
-            "Capture command: `ANDROID_SERIAL=emulator-5562 ./tools/capture_store_screenshots.py --serial emulator-5562`",
-            "captures phone files from the 1080x2400 app viewport, crops them to 1080x2064 Play-compliant PNGs, captures large/tablet files and crops them to 1600x2336, rebuilds `play_store/feature_graphic.png` and updates `play_store/upload_checksums.md`",
-            "completed immediately afterward through the same capture helper functions on the restarted `emulator-5562`",
+            "Capture command: `PYTHONUNBUFFERED=1 ./tools/capture_store_screenshots.py --serial emulator-5560`",
+            "captures phone files from the 1080x2400 app viewport, crops them to 1080x2064 Play-compliant PNGs, captures large/tablet files and crops them to 1600x2336, runs `./gradlew bundleRelease`, rebuilds `play_store/feature_graphic.png` and updates `play_store/upload_checksums.md`",
             "Screenshots are real app captures, not fake UI.",
             "They should be re-captured after any visual polish, icon replacement, or Play Console screenshot-size decision.",
         ],
@@ -2540,7 +2543,7 @@ def check_screenshot_manifest_handoff() -> None:
             "TABLET_UPLOAD_SIZE = (1600, 2336)",
             "TABLET_UPLOAD_CROP_BOX = (0, 64, TABLET_UPLOAD_SIZE[0], 64 + TABLET_UPLOAD_SIZE[1])",
             "FEATURE_GRAPHIC_SIZE = (1024, 500)",
-            "FEATURE_GAMEPLAY_CROP_BOX = (43, 200, 1040, 1540)",
+            "FEATURE_GAMEPLAY_CROP_BOX = (43, 160, 1040, 1500)",
             "FEATURE_GAMEPLAY_CROP_SIZE = (997, 1340)",
             "FEATURE_PANEL_SIZE = (335, 450)",
             "def capture_set(",
@@ -2551,6 +2554,11 @@ def check_screenshot_manifest_handoff() -> None:
             "def rebuild_feature_graphic(",
             "validate_saved_png(out_path, FEATURE_GRAPHIC_SIZE)",
             "UPLOAD_CHECKSUM_PATH_SET = set(UPLOAD_CHECKSUM_PATHS)",
+            "def configured_sdk_dir(",
+            "def adb_binary(",
+            "ADB = adb_binary()",
+            "def find_tappable_node(",
+            "def build_release_bundle(",
             "def parse_checksum_path_from_row(",
             "Bad upload checksum row",
             "def validate_upload_checksum_paths(",
@@ -2565,6 +2573,7 @@ def check_screenshot_manifest_handoff() -> None:
             "play_store/upload_checksums.md",
             "--no-update-checksums",
             "./gradlew\", \"installRelease\"",
+            "./gradlew\", \"bundleRelease\"",
             "Image.open(io.BytesIO(png)).convert(\"RGB\")",
             "image = crop_upload_image(image, crop_box",
             "return image.crop(crop_box)",
@@ -2773,7 +2782,7 @@ def check_asset_handoff() -> None:
     require_text_markers(
         "play_store/screenshots/manifest.md",
         [
-            "Phone device: Medium Phone API 35 emulator, captured at 1080x2400 and exported as 1080x2064",
+            "Phone device: Medium_Phone_API_36 emulator, captured at 1080x2400 and exported as 1080x2064",
             "Large/tablet capture",
             "Format: 24-bit PNG without alpha; Play screenshot long side is no more than 2x the short side; system status/navigation bars are cropped out of upload images.",
             "`phone/01_onboarding.png`",
@@ -4118,7 +4127,7 @@ def check_post_upload_evidence_packet_helper() -> None:
         "Uploaded package name: com.qgrid.mobile.",
         "Uploaded version code: 1.",
         "Uploaded version name: 1.0.0.",
-        "Uploaded AAB SHA-256: 3affd5cc6de7735d7cb9cc4f381e114caa0b20d6bfa933621d596d24dc2e3043.",
+        "Uploaded AAB SHA-256: f69f0f6d8efbaf31ac624d507e43ed7c700a36c420a5e3c480edb7d7f0bebe95.",
         "First release track used: internal testing.",
         "Internal testing upload completed: internal testing upload completed; signed AAB was uploaded to internal testing.",
         "post_upload_evidence_packet_ok",
@@ -4145,7 +4154,7 @@ def check_post_upload_evidence_packet_helper() -> None:
     lines = module.evidence_lines(upload_date="2026-06-12 14:30 local time")
     require("- Uploaded package name: com.qgrid.mobile." in lines, "post-upload helper generated wrong package line")
     require(
-        "- Uploaded AAB SHA-256: 3affd5cc6de7735d7cb9cc4f381e114caa0b20d6bfa933621d596d24dc2e3043." in lines,
+        "- Uploaded AAB SHA-256: f69f0f6d8efbaf31ac624d507e43ed7c700a36c420a5e3c480edb7d7f0bebe95." in lines,
         "post-upload helper generated wrong AAB SHA line",
     )
     require(
@@ -6731,8 +6740,8 @@ def check_remote_release_helper() -> None:
         "remote release helper parsed unexpected upload asset order",
     )
     expected_size, expected_sha = module.expected_aab()
-    require(expected_size == 2930928, "remote release helper parsed unexpected AAB size")
-    require(expected_sha == "3affd5cc6de7735d7cb9cc4f381e114caa0b20d6bfa933621d596d24dc2e3043", "remote release helper parsed unexpected AAB SHA")
+    require(expected_size == 2956105, "remote release helper parsed unexpected AAB size")
+    require(expected_sha == "f69f0f6d8efbaf31ac624d507e43ed7c700a36c420a5e3c480edb7d7f0bebe95", "remote release helper parsed unexpected AAB SHA")
     require(
         module.recorded_privacy_url() == "https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html",
         "remote release helper parsed unexpected recorded privacy URL",
@@ -7594,8 +7603,8 @@ def check_post_upload_evidence_handoff() -> None:
 def check_upload_checksums() -> None:
     checksum_path = "play_store/upload_checksums.md"
     require(
-        "Verified for the current local release candidate after the ImageGen icon/onboarding brand-mark alignment, Play screenshot aspect-ratio normalization, system-bar crop and git/VCS metadata refresh" in read(checksum_path),
-        "upload checksums must mention icon/onboarding alignment, screenshot normalization, system-bar crop and git/VCS metadata refresh",
+        "Verified for the current local release candidate after the 14 June 2026 distinctive UI/UX refresh, Play screenshot recapture, feature graphic rebuild and git/VCS metadata refresh" in read(checksum_path),
+        "upload checksums must mention the 14 June 2026 UI refresh, screenshot recapture, feature graphic rebuild and git/VCS metadata refresh",
     )
     expected_paths = {
         "app/build/outputs/bundle/release/app-release.aab",
@@ -8167,7 +8176,8 @@ def check_game_model_validation_source() -> None:
             "ProgressBarRangeInfo(progressValue, 0f..1f)",
             "progressBarRangeInfo =",
             "drawStopIndicator = {}",
-            "state.displayLevels.chunked(4)",
+            "val columns = if (maxWidth < 360.dp) 4 else 6",
+            "state.displayLevels.chunked(columns)",
             "hasNextLevel = state.currentGameHasNumberedNextLevel",
             "allLevelsComplete = state.currentGameCompletesAllLevels",
             "onLevels = onLevels",
@@ -8186,7 +8196,7 @@ def check_game_model_validation_source() -> None:
             "val handleCell: (CellPosition) -> Unit = onCell",
             "onBack = viewModel::openGameReturnScreen",
             "onLevels = viewModel::openLevels",
-            "val useStackedLayout = maxWidth < 330.dp",
+            "val useStackedLayout = maxWidth < 390.dp",
             ".verticalScroll(rememberScrollState())",
         ],
     )

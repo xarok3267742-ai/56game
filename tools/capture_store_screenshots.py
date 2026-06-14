@@ -36,7 +36,7 @@ TABLET_SIZE = (1600, 2560)
 TABLET_UPLOAD_SIZE = (1600, 2336)
 TABLET_UPLOAD_CROP_BOX = (0, 64, TABLET_UPLOAD_SIZE[0], 64 + TABLET_UPLOAD_SIZE[1])
 FEATURE_GRAPHIC_SIZE = (1024, 500)
-FEATURE_GAMEPLAY_CROP_BOX = (43, 200, 1040, 1540)
+FEATURE_GAMEPLAY_CROP_BOX = (43, 160, 1040, 1500)
 FEATURE_GAMEPLAY_CROP_SIZE = (997, 1340)
 FEATURE_PANEL_SIZE = (335, 450)
 FEATURE_PANEL_POSITION = (650, 25)
@@ -61,6 +61,33 @@ class CaptureError(RuntimeError):
     pass
 
 
+def configured_sdk_dir() -> Path | None:
+    for env_name in ("ANDROID_HOME", "ANDROID_SDK_ROOT"):
+        if value := os.environ.get(env_name):
+            return Path(value).expanduser()
+
+    local_properties = ROOT / "local.properties"
+    if not local_properties.is_file():
+        return None
+
+    for line in local_properties.read_text(encoding="utf-8").splitlines():
+        if line.startswith("sdk.dir="):
+            return Path(line.split("=", 1)[1]).expanduser()
+    return None
+
+
+def adb_binary() -> str:
+    sdk_dir = configured_sdk_dir()
+    if sdk_dir is not None:
+        candidate = sdk_dir / "platform-tools" / "adb"
+        if candidate.is_file():
+            return str(candidate)
+    return "adb"
+
+
+ADB = adb_binary()
+
+
 def run(command: list[str], *, capture: bool = False, env: dict[str, str] | None = None) -> bytes:
     result = subprocess.run(
         command,
@@ -82,10 +109,13 @@ class Adb:
         self.serial = serial
 
     def adb(self, *args: str, capture: bool = False) -> bytes:
-        return run(["adb", "-s", self.serial, *args], capture=capture)
+        return run([ADB, "-s", self.serial, *args], capture=capture)
 
     def shell(self, *args: str, capture: bool = False) -> bytes:
         return self.adb("shell", *args, capture=capture)
+
+    def enable_package(self) -> None:
+        self.shell("pm", "enable", PACKAGE)
 
 
 def dump_tree(adb: Adb) -> ET.Element:
@@ -108,6 +138,7 @@ def all_nodes(adb: Adb) -> list[ET.Element]:
         if PACKAGE in last_packages:
             return nodes
         if attempt < 2:
+            adb.enable_package()
             adb.shell("am", "start", "-W", "-n", ACTIVITY)
             time.sleep(1.0)
     raise CaptureError(
@@ -116,13 +147,35 @@ def all_nodes(adb: Adb) -> list[ET.Element]:
     )
 
 
-def node_center(node: ET.Element) -> tuple[int, int]:
+def node_bounds(node: ET.Element) -> tuple[int, int, int, int]:
     bounds = node.attrib.get("bounds", "")
     match = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds)
     if not match:
         raise CaptureError(f"Bad UIAutomator bounds: {bounds!r}")
-    x1, y1, x2, y2 = map(int, match.groups())
+    return tuple(map(int, match.groups()))
+
+
+def node_center(node: ET.Element) -> tuple[int, int]:
+    x1, y1, x2, y2 = node_bounds(node)
     return (x1 + x2) // 2, (y1 + y2) // 2
+
+
+def node_area(node: ET.Element) -> int:
+    x1, y1, x2, y2 = node_bounds(node)
+    return max(0, x2 - x1) * max(0, y2 - y1)
+
+
+def node_contains_point(node: ET.Element, x: int, y: int) -> bool:
+    x1, y1, x2, y2 = node_bounds(node)
+    return x1 <= x <= x2 and y1 <= y <= y2
+
+
+def is_tappable(node: ET.Element) -> bool:
+    return (
+        node.attrib.get("clickable") == "true"
+        and node.attrib.get("enabled") == "true"
+        and node.attrib.get("bounds", "") != "[0,0][0,0]"
+    )
 
 
 def find_node(
@@ -150,6 +203,30 @@ def find_node(
     return None
 
 
+def find_tappable_node(adb: Adb, label: str) -> ET.Element | None:
+    nodes = all_nodes(adb)
+    matching_nodes = [
+        node
+        for node in nodes
+        if label in node.attrib.get("text", "") or label in node.attrib.get("content-desc", "")
+    ]
+    for node in matching_nodes:
+        if is_tappable(node):
+            return node
+
+    containing_candidates: list[ET.Element] = []
+    for node in matching_nodes:
+        x, y = node_center(node)
+        containing_candidates.extend(
+            candidate
+            for candidate in nodes
+            if is_tappable(candidate) and node_contains_point(candidate, x, y)
+        )
+    if containing_candidates:
+        return min(containing_candidates, key=node_area)
+    return matching_nodes[0] if matching_nodes else None
+
+
 def wait_for(label: str, predicate, timeout: float = 20.0):
     deadline = time.time() + timeout
     last_error: Exception | None = None
@@ -168,7 +245,7 @@ def tap_text(adb: Adb, label: str, fallback: tuple[int, int] | None = None) -> N
     try:
         node = wait_for(
             f"text or description {label}",
-            lambda: find_node(adb, text_contains=label) or find_node(adb, desc_contains=label),
+            lambda: find_tappable_node(adb, label),
             timeout=8.0 if fallback is not None else 30.0,
         )
         x, y = node_center(node)
@@ -211,15 +288,15 @@ def tap_first_hint_cell(adb: Adb) -> None:
 def fixed_tap_points(size: tuple[int, int]) -> dict[str, tuple[int, int]]:
     if size == PHONE_CAPTURE_SIZE:
         return {
-            "onboarding_start": (540, 1370),
-            "home_start": (540, 880),
-            "hint": (540, 1685),
+            "onboarding_start": (540, 1815),
+            "home_start": (540, 1350),
+            "hint": (800, 1685),
         }
     if size == TABLET_SIZE:
         return {
-            "onboarding_start": (800, 888),
-            "home_start": (800, 630),
-            "hint": (800, 2060),
+            "onboarding_start": (800, 1224),
+            "home_start": (800, 990),
+            "hint": (800, 2170),
         }
     raise CaptureError(f"No fixed tap points for capture size {size}")
 
@@ -240,7 +317,9 @@ def configure_display(adb: Adb, width: int, height: int, density: int | None) ->
 
 def start_fresh(adb: Adb) -> None:
     adb.shell("am", "force-stop", PACKAGE)
+    adb.enable_package()
     adb.shell("pm", "clear", PACKAGE)
+    adb.enable_package()
     time.sleep(1.2)
     adb.shell("am", "start", "-S", "-W", "-n", ACTIVITY)
     time.sleep(2.0)
@@ -446,6 +525,10 @@ def install_release(serial: str) -> None:
     run(["./gradlew", "installRelease"], env=env)
 
 
+def build_release_bundle() -> None:
+    run(["./gradlew", "bundleRelease"])
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Capture Play Store screenshots from the release Android app.")
     parser.add_argument(
@@ -481,6 +564,7 @@ def main() -> None:
         capture_set(adb, ROOT / "play_store/screenshots/phone", PHONE_CAPTURE_SIZE, crop_box=PHONE_UPLOAD_CROP_BOX)
         configure_display(adb, *TABLET_SIZE, density=320)
         capture_set(adb, ROOT / "play_store/screenshots/tablet", TABLET_SIZE, crop_box=TABLET_UPLOAD_CROP_BOX)
+        build_release_bundle()
         rebuild_feature_graphic()
         if not args.no_update_checksums:
             update_upload_checksums()

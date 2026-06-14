@@ -91,7 +91,7 @@ Production package остаётся нейтральным: `com.qgrid.mobile`; 
 
 Version identity for this upload candidate: `versionCode = 1`, `versionName = 1.0.0`.
 
-Текущий release AAB: `2,930,928` bytes, SHA-256 `3affd5cc6de7735d7cb9cc4f381e114caa0b20d6bfa933621d596d24dc2e3043`.
+Текущий release AAB: `2,956,105` bytes, SHA-256 `f69f0f6d8efbaf31ac624d507e43ed7c700a36c420a5e3c480edb7d7f0bebe95`.
 
 For Google Play, the signed AAB is the only binary upload artifact. Generated release APK outputs under `app/build/outputs/apk/release` are install/testing artifacts only and must not be uploaded to Play.
 
@@ -102,6 +102,8 @@ Offline release smoke passed on API 35 with airplane mode enabled and Wi-Fi disa
 Последняя навигационная правка: действие `Следующий уровень` после победы берёт следующий id из выигранного `gameState.level` через `currentGameNextLevelId`, поэтому результат не зависит от устаревшего `currentLevel`.
 
 Последняя asset-правка на 6 июня 2026: Google Play/app launcher icon заменён на встроенно сгенерированный ImageGen raster icon без текста; `play_store/icon/play_icon_512.png` и `app/src/main/res/drawable-nodpi/ic_launcher_imagegen.png` синхронизированы как full-square PNG с непрозрачной альфой, splash и onboarding brand mark используют тот же raster asset, Play screenshots пересняты с release app, phone screenshots нормализованы до Play-compliant 1080x2064, tablet screenshots нормализованы до 1600x2336, системные полосы убраны из upload images, и `play_store/upload_checksums.md` обновлён.
+
+Последняя UI/UX-правка на 14 июня 2026: добавлены coordinate-grid background, route-preview panels on onboarding/home, clearer score progress rail, framed board route overlay and denser level grid; phone/tablet screenshots were recaptured from the release app on `Medium_Phone_API_36` / `emulator-5560`, feature graphic was rebuilt from the refreshed gameplay crop and `play_store/upload_checksums.md` was refreshed.
 
 Подписанный release AAB использует локальный upload keystore из ignored `private/signing/qgrid-upload.p12`; credentials лежат в ignored `keystore.properties`. Public certificate fingerprints documented in `play_store/signing_certificate_report.md`. Перед публикацией обязательно запустить `./tools/check_signing_backup_inputs.py`, сделать безопасный backup signing files and record only safe owner evidence in `play_store/signing_backup_evidence_ru.md`.
 
@@ -117,6 +119,6 @@ Managed API 36 connected-gate note: if `./tools/run_api36_connected_gate.py` sta
 
 Upload-day preflight note: `./tools/run_upload_day_preflight.py` runs the hosted-privacy final local gate, regenerates the internal store asset review sheet, writes and verifies `build/play_upload/line56_v1_google_play_upload_packet.zip`, reprints the upload/Play Console packets and rechecks publication readiness. Use `--managed-api36-connected` when the project-owned API 36 AVD should refresh connected evidence in the same pre-upload pass, and `--release-tag <release-tag>` after pushing a tagged release to include remote verification. If the managed API 36 helper itself is terminated by transient emulator loss, the upload-day wrapper reruns that managed gate once; ordinary connected test failures still fail.
 
-Store screenshots are reproducible through `tools/capture_store_screenshots.py`; run it against a booted API 35 emulator after visible UI changes. The script refreshes phone/tablet screenshots, crops phone captures to Play-compliant 1080x2064 PNGs, crops tablet captures to 1600x2336, rebuilds the feature graphic, updates `play_store/upload_checksums.md`, prints the current checksum rows and then `./tools/verify_release.py` should pass.
+Store screenshots are reproducible through `tools/capture_store_screenshots.py`; run it against a booted API 36 emulator after visible UI changes. The script refreshes phone/tablet screenshots, crops phone captures to Play-compliant 1080x2064 PNGs, crops tablet captures to 1600x2336, runs `./gradlew bundleRelease`, rebuilds the feature graphic, updates `play_store/upload_checksums.md`, prints the current checksum rows and then `./tools/verify_release.py` should pass.
 
 Локально подготовленный release candidate не равен опубликованному Google Play продукту. Перед публикацией ещё нужно подтвердить Play Console developer account/profile and package-name registration for `com.qgrid.mobile`, ввести проверенный hosted privacy URL `https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html` в Play Console, заполнить рабочий Play Console support contact, при необходимости повторно проверить URL командой `./tools/check_privacy_policy_url.py --url https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html`, сделать backup keystore/credentials after `./tools/check_signing_backup_inputs.py` returns `signing_backup_input_ok`, заполнить Play Console forms, run required testing tracks for the publisher account type and receive Play Console production access if required.

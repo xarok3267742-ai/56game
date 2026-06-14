@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -58,8 +59,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -202,6 +208,23 @@ private fun OnboardingScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),
             )
+            if (!compactHeight) {
+                Spacer(Modifier.height(12.dp))
+                Surface(
+                    shape = MaterialTheme.shapes.large,
+                    color = MaterialTheme.colorScheme.primary,
+                    shadowElevation = 2.dp,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .widthIn(max = 164.dp),
+                ) {
+                    MiniRoutePreview(
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .size(132.dp),
+                    )
+                }
+            }
             Spacer(Modifier.height(if (compactHeight) 14.dp else 16.dp))
             RuleRow("1", stringResource(R.string.onboarding_rule_one))
             RuleRow("2", stringResource(R.string.onboarding_rule_two))
@@ -307,6 +330,8 @@ private fun HomeScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
+        HomeRoutePanel()
+        Spacer(Modifier.height(18.dp))
         Text(
             text = stringResource(R.string.home_body),
             style = MaterialTheme.typography.bodyLarge,
@@ -359,30 +384,160 @@ private fun LevelsScreen(
     onBack: () -> Unit,
     onLevel: (Int) -> Unit,
 ) {
-    ScreenColumn {
-        Header(
-            title = stringResource(R.string.choose_level),
-            onBack = onBack,
-        )
-        Spacer(Modifier.height(16.dp))
-        state.displayLevels.chunked(4).forEach { row ->
-            Row(
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val columns = if (maxWidth < 360.dp) 4 else 6
+        ScreenColumn {
+            Header(
+                title = stringResource(R.string.choose_level),
+                onBack = onBack,
+            )
+            Spacer(Modifier.height(16.dp))
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                tonalElevation = 1.dp,
+                shadowElevation = 1.dp,
             ) {
-                row.forEach { level ->
-                    LevelTile(
-                        level = level,
-                        completed = level.id in state.progress.completedLevelIds,
-                        onClick = { onLevel(level.id) },
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-                repeat(4 - row.size) {
-                    Spacer(Modifier.weight(1f))
+                Column(Modifier.padding(10.dp)) {
+                    state.displayLevels.chunked(columns).forEach { row ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(7.dp),
+                        ) {
+                            row.forEach { level ->
+                                LevelTile(
+                                    level = level,
+                                    completed = level.id in state.progress.completedLevelIds,
+                                    onClick = { onLevel(level.id) },
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                            repeat(columns - row.size) {
+                                Spacer(Modifier.weight(1f))
+                            }
+                        }
+                        Spacer(Modifier.height(7.dp))
+                    }
                 }
             }
-            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun HomeRoutePanel() {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.primary,
+        shadowElevation = 2.dp,
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            MiniRoutePreview(
+                modifier = Modifier
+                    .size(132.dp)
+                    .weight(0.9f, fill = false),
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = TARGET_SUM.toString(),
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+                Text(
+                    text = stringResource(R.string.target_sum),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.88f),
+                )
+                Spacer(Modifier.height(10.dp))
+                Text(
+                    text = stringResource(R.string.home_daily),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.82f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MiniRoutePreview(
+    modifier: Modifier = Modifier,
+) {
+    val cells = listOf(
+        9, 12, 7, 5,
+        4, 11, 15, 6,
+        8, 10, 3, 14,
+        2, 13, 1, 16,
+    )
+    val route = setOf(1, 5, 6, 10, 11)
+    val lineColor = MaterialTheme.colorScheme.secondary
+    val selectedColor = MaterialTheme.colorScheme.surface
+    val selectedContentColor = MaterialTheme.colorScheme.primary
+    val idleColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.14f)
+    val idleContentColor = MaterialTheme.colorScheme.onPrimary
+    Box(modifier = modifier.aspectRatio(1f)) {
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val step = size.width / 4f
+            val centers = listOf(1, 5, 6, 10, 11).map { index ->
+                Offset(
+                    x = (index % 4) * step + step / 2f,
+                    y = (index / 4) * step + step / 2f,
+                )
+            }
+            centers.zipWithNext().forEach { (start, end) ->
+                drawLine(
+                    color = lineColor.copy(alpha = 0.86f),
+                    start = start,
+                    end = end,
+                    strokeWidth = 8.dp.toPx(),
+                    cap = StrokeCap.Round,
+                )
+            }
+        }
+        Column(Modifier.fillMaxSize()) {
+            repeat(4) { row ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    repeat(4) { col ->
+                        val index = row * 4 + col
+                        val selected = index in route
+                        Surface(
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f),
+                            shape = MaterialTheme.shapes.medium,
+                            color = if (selected) selectedColor else idleColor,
+                            border = if (selected) {
+                                BorderStroke(1.dp, lineColor.copy(alpha = 0.72f))
+                            } else {
+                                null
+                            },
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = cells[index].toString(),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = if (selected) selectedContentColor else idleContentColor,
+                                )
+                            }
+                        }
+                    }
+                }
+                if (row != 3) Spacer(Modifier.height(5.dp))
+            }
         }
     }
 }
@@ -655,16 +810,67 @@ private fun ScreenColumn(
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .windowInsetsPadding(WindowInsets.safeDrawing)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 18.dp),
-        verticalArrangement = verticalArrangement,
-        content = content,
-    )
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f),
+                    ),
+                ),
+            ),
+    ) {
+        CoordinateBackdrop(Modifier.matchParentSize())
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalArrangement = verticalArrangement,
+            content = content,
+        )
+    }
+}
+
+@Composable
+private fun CoordinateBackdrop(
+    modifier: Modifier = Modifier,
+) {
+    val gridColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.045f)
+    val accentColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.07f)
+    Canvas(modifier = modifier) {
+        val step = 36.dp.toPx()
+        var x = -step
+        while (x < size.width + step) {
+            drawLine(
+                color = gridColor,
+                start = Offset(x, 0f),
+                end = Offset(x + size.height * 0.22f, size.height),
+                strokeWidth = 1.dp.toPx(),
+            )
+            x += step
+        }
+        var y = step * 0.5f
+        while (y < size.height) {
+            drawLine(
+                color = gridColor,
+                start = Offset(0f, y),
+                end = Offset(size.width, y),
+                strokeWidth = 1.dp.toPx(),
+            )
+            y += step
+        }
+        drawRoundRect(
+            color = accentColor,
+            topLeft = Offset(size.width * 0.06f, size.height * 0.08f),
+            size = Size(size.width * 0.42f, 64.dp.toPx()),
+            cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx()),
+            style = Stroke(width = 1.dp.toPx()),
+        )
+    }
 }
 
 @Composable
@@ -847,6 +1053,7 @@ private fun LevelTile(
     val title = levelTitle(level)
     val status = if (completed) stringResource(R.string.completed) else stringResource(R.string.available)
     val description = stringResource(R.string.level_tile_description, title, status)
+    val accentColor = difficultyAccent(level.difficulty)
     Surface(
         modifier = modifier
             .aspectRatio(1f)
@@ -856,11 +1063,31 @@ private fun LevelTile(
                 onClick = onClick,
             ),
         shape = MaterialTheme.shapes.medium,
-        color = if (completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+        color = if (completed) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f)
+        },
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (completed) {
+                accentColor.copy(alpha = 0.78f)
+            } else {
+                accentColor.copy(alpha = 0.42f)
+            },
+        ),
         tonalElevation = if (completed) 2.dp else 1.dp,
         shadowElevation = 1.dp,
     ) {
         Box(contentAlignment = Alignment.Center) {
+            Canvas(modifier = Modifier.matchParentSize()) {
+                drawRoundRect(
+                    color = accentColor.copy(alpha = if (completed) 0.30f else 0.18f),
+                    topLeft = Offset(0f, size.height - 7.dp.toPx()),
+                    size = Size(size.width, 7.dp.toPx()),
+                    cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx()),
+                )
+            }
             if (completed) {
                 Icon(
                     imageVector = Icons.Filled.Check,
@@ -886,6 +1113,15 @@ private fun LevelTile(
 }
 
 @Composable
+private fun difficultyAccent(difficulty: Difficulty): Color {
+    return when (difficulty) {
+        Difficulty.EASY -> MaterialTheme.colorScheme.primary
+        Difficulty.MEDIUM -> MaterialTheme.colorScheme.secondary
+        Difficulty.HARD -> MaterialTheme.colorScheme.tertiary
+    }
+}
+
+@Composable
 private fun levelTitle(level: LevelDefinition): String = stringResource(
     R.string.level_title_format,
     level.id,
@@ -902,32 +1138,50 @@ private fun difficultyTitle(difficulty: Difficulty): String = stringResource(
 
 @Composable
 private fun SumPanel(game: GameState) {
+    val progressValue = (game.currentSum / TARGET_SUM.toFloat()).coerceIn(0f, 1f)
+    val railColor = if (game.status == GameStatus.EXCEEDED) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, railColor.copy(alpha = 0.22f)),
         tonalElevation = 1.dp,
         shadowElevation = 1.dp,
     ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            SumMetric(
-                label = stringResource(R.string.current_sum),
-                value = game.currentSum.toString(),
-                modifier = Modifier.weight(1f),
-            )
-            SumMetric(
-                label = stringResource(R.string.target_sum),
-                value = TARGET_SUM.toString(),
-                modifier = Modifier.weight(1f),
-            )
-            SumMetric(
-                label = stringResource(R.string.remaining_sum),
-                value = game.remaining.coerceAtLeast(0).toString(),
-                modifier = Modifier.weight(1f),
+        Column(Modifier.padding(14.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SumMetric(
+                    label = stringResource(R.string.current_sum),
+                    value = game.currentSum.toString(),
+                    emphasized = true,
+                    modifier = Modifier.weight(1.15f),
+                )
+                SumMetric(
+                    label = stringResource(R.string.target_sum),
+                    value = TARGET_SUM.toString(),
+                    modifier = Modifier.weight(0.9f),
+                )
+                SumMetric(
+                    label = stringResource(R.string.remaining_sum),
+                    value = game.remaining.coerceAtLeast(0).toString(),
+                    modifier = Modifier.weight(0.95f),
+                )
+            }
+            Spacer(Modifier.height(12.dp))
+            LinearProgressIndicator(
+                progress = { progressValue },
+                modifier = Modifier.fillMaxWidth(),
+                color = railColor,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                drawStopIndicator = {},
             )
         }
     }
@@ -937,6 +1191,7 @@ private fun SumPanel(game: GameState) {
 private fun SumMetric(
     label: String,
     value: String,
+    emphasized: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -951,8 +1206,16 @@ private fun SumMetric(
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary,
+            style = if (emphasized) {
+                MaterialTheme.typography.headlineLarge
+            } else {
+                MaterialTheme.typography.headlineMedium
+            },
+            color = if (emphasized) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.primary
+            },
         )
     }
 }
@@ -1001,54 +1264,88 @@ private fun GameBoard(
     modifier: Modifier = Modifier,
 ) {
     val lineColor = if (settings.highContrast) HighContrastGold else WarmGold
-    Box(
+    val routeShadowColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.18f)
+    Surface(
         modifier = modifier
             .aspectRatio(1f),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.78f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.20f)),
+        shadowElevation = 2.dp,
     ) {
-        val board = game.level.board
-        Canvas(modifier = Modifier.matchParentSize()) {
-            val cellSize = size.width / board.size
-            val centers = game.selection.positions.map {
-                Offset(
-                    x = it.col * cellSize + cellSize / 2,
-                    y = it.row * cellSize + cellSize / 2,
-                )
-            }
-            centers.zipWithNext().forEach { (start, end) ->
-                drawLine(
-                    color = lineColor,
-                    start = start,
-                    end = end,
-                    strokeWidth = 10.dp.toPx(),
-                    cap = StrokeCap.Round,
-                )
-            }
-        }
-        Column(Modifier.fillMaxSize()) {
-            for (row in 0 until board.size) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    for (col in 0 until board.size) {
-                        val position = CellPosition(row, col)
-                        val cell = board.cellAt(position)
-                        CellTile(
-                            cell = cell,
-                            selected = game.selection.contains(position),
-                            hinted = game.hintedPosition == position,
-                            exceeded = game.status == GameStatus.EXCEEDED &&
-                                game.selection.last == position,
-                            enabled = game.status == GameStatus.PLAYING,
-                            settings = settings,
-                            onClick = { onCell(position) },
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+        ) {
+            val board = game.level.board
+            Canvas(modifier = Modifier.matchParentSize()) {
+                val cellSize = size.width / board.size
+                val gridColor = Color.White.copy(alpha = if (settings.highContrast) 0.28f else 0.44f)
+                for (index in 1 until board.size) {
+                    val offset = index * cellSize
+                    drawLine(
+                        color = gridColor,
+                        start = Offset(offset, 0f),
+                        end = Offset(offset, size.height),
+                        strokeWidth = 1.dp.toPx(),
+                    )
+                    drawLine(
+                        color = gridColor,
+                        start = Offset(0f, offset),
+                        end = Offset(size.width, offset),
+                        strokeWidth = 1.dp.toPx(),
+                    )
                 }
-                if (row != board.size - 1) Spacer(Modifier.height(6.dp))
+                val centers = game.selection.positions.map {
+                    Offset(
+                        x = it.col * cellSize + cellSize / 2,
+                        y = it.row * cellSize + cellSize / 2,
+                    )
+                }
+                centers.zipWithNext().forEach { (start, end) ->
+                    drawLine(
+                        color = routeShadowColor,
+                        start = start,
+                        end = end,
+                        strokeWidth = 15.dp.toPx(),
+                        cap = StrokeCap.Round,
+                    )
+                    drawLine(
+                        color = lineColor,
+                        start = start,
+                        end = end,
+                        strokeWidth = 9.dp.toPx(),
+                        cap = StrokeCap.Round,
+                    )
+                }
+            }
+            Column(Modifier.fillMaxSize()) {
+                for (row in 0 until board.size) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    ) {
+                        for (col in 0 until board.size) {
+                            val position = CellPosition(row, col)
+                            val cell = board.cellAt(position)
+                            CellTile(
+                                cell = cell,
+                                selected = game.selection.contains(position),
+                                hinted = game.hintedPosition == position,
+                                exceeded = game.status == GameStatus.EXCEEDED &&
+                                    game.selection.last == position,
+                                enabled = game.status == GameStatus.PLAYING,
+                                settings = settings,
+                                onClick = { onCell(position) },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                    }
+                    if (row != board.size - 1) Spacer(Modifier.height(7.dp))
+                }
             }
         }
     }
@@ -1070,7 +1367,7 @@ private fun CellTile(
         exceeded -> colorScheme.error
         selected -> colorScheme.primary
         hinted -> if (settings.highContrast) HighContrastGold else WarmGold
-        else -> colorScheme.surface
+        else -> colorScheme.surface.copy(alpha = 0.96f)
     }
     val contentColor = when {
         exceeded -> colorScheme.onError
@@ -1125,10 +1422,29 @@ private fun CellTile(
         ),
         shape = MaterialTheme.shapes.medium,
         color = animatedContainerColor.value,
+        border = BorderStroke(
+            width = if (hinted || exceeded) 2.dp else 1.dp,
+            color = when {
+                exceeded -> colorScheme.error
+                hinted -> if (settings.highContrast) HighContrastGold else WarmGold
+                selected -> if (settings.highContrast) HighContrastGold else colorScheme.secondary
+                else -> colorScheme.onSurface.copy(alpha = 0.08f)
+            },
+        ),
         tonalElevation = animatedTonalElevation.value,
         shadowElevation = animatedShadowElevation.value,
     ) {
         Box(contentAlignment = Alignment.Center) {
+            if (selected && !exceeded) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(5.dp)
+                        .size(9.dp),
+                    shape = MaterialTheme.shapes.small,
+                    color = if (settings.highContrast) HighContrastGold else WarmGold,
+                ) {}
+            }
             Text(
                 text = cell.value.toString(),
                 style = MaterialTheme.typography.titleLarge.copy(
@@ -1152,7 +1468,7 @@ private fun ActionBar(
     resetEnabled: Boolean,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val useStackedLayout = maxWidth < 330.dp
+        val useStackedLayout = maxWidth < 390.dp
         if (useStackedLayout) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
