@@ -777,8 +777,10 @@ private fun GameScreen(
                 onBack = onBack,
             )
             Spacer(Modifier.height(14.dp))
-            SumPanel(game, state.progress.settings)
-            Spacer(Modifier.height(16.dp))
+            RouteDashboardPanel(game, state.progress.settings)
+            Spacer(Modifier.height(10.dp))
+            RouteTraceStrip(game, state.progress.settings)
+            Spacer(Modifier.height(14.dp))
             CenteredGameBoard(
                 game = game,
                 settings = state.progress.settings,
@@ -846,7 +848,9 @@ private fun LandscapeGameScreen(
                 onBack = onBack,
             )
             Spacer(Modifier.height(10.dp))
-            SumPanel(game, state.progress.settings)
+            RouteDashboardPanel(game, state.progress.settings)
+            Spacer(Modifier.height(8.dp))
+            RouteTraceStrip(game, state.progress.settings)
             Spacer(Modifier.height(10.dp))
             GameMessageText(game)
             Spacer(Modifier.height(10.dp))
@@ -1388,7 +1392,7 @@ private fun difficultyTitle(difficulty: Difficulty): String = stringResource(
 )
 
 @Composable
-private fun SumPanel(
+private fun RouteDashboardPanel(
     game: GameState,
     settings: SettingsState,
 ) {
@@ -1403,48 +1407,165 @@ private fun SumPanel(
     } else {
         WarmGold
     }
+    val isExceeded = game.status == GameStatus.EXCEEDED
+    val panelColor = if (isExceeded) {
+        MaterialTheme.colorScheme.error.copy(alpha = 0.10f)
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+    val primaryContentColor = if (isExceeded) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.onPrimary
+    }
+    val secondaryContentColor = if (isExceeded) {
+        MaterialTheme.colorScheme.error.copy(alpha = 0.76f)
+    } else {
+        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.78f)
+    }
+    val panelDescription = stringResource(
+        R.string.sum_panel_description,
+        game.currentSum,
+        TARGET_SUM,
+        game.remaining.coerceAtLeast(0),
+    )
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = panelDescription },
         shape = MaterialTheme.shapes.large,
-        color = if (game.status == GameStatus.EXCEEDED) {
-            MaterialTheme.colorScheme.error.copy(alpha = 0.08f)
-        } else {
-            MaterialTheme.colorScheme.surface.copy(alpha = 0.96f)
-        },
+        color = panelColor,
         border = BorderStroke(1.dp, railColor.copy(alpha = 0.34f)),
         tonalElevation = 1.dp,
-        shadowElevation = 2.dp,
+        shadowElevation = 4.dp,
     ) {
-        Column(Modifier.padding(14.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                SumMetric(
-                    label = stringResource(R.string.current_sum),
-                    value = game.currentSum.toString(),
-                    emphasized = true,
-                    modifier = Modifier.weight(1.18f),
-                )
-                SumMetric(
-                    label = stringResource(R.string.target_sum),
-                    value = TARGET_SUM.toString(),
-                    modifier = Modifier.weight(0.9f),
-                )
-                SumMetric(
-                    label = stringResource(R.string.remaining_sum),
-                    value = game.remaining.coerceAtLeast(0).toString(),
-                    modifier = Modifier.weight(0.95f),
+        Box {
+            DashboardBackdrop(
+                progress = animatedProgress.value,
+                exceeded = isExceeded,
+                modifier = Modifier.matchParentSize(),
+            )
+            Column(Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1.18f)) {
+                        Text(
+                            text = stringResource(R.string.current_sum),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = secondaryContentColor,
+                            maxLines = 1,
+                        )
+                        Text(
+                            text = game.currentSum.toString(),
+                            style = MaterialTheme.typography.headlineLarge.copy(fontSize = 44.sp),
+                            color = primaryContentColor,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                        )
+                    }
+                    ConsoleReadout(
+                        label = stringResource(R.string.target_sum),
+                        value = TARGET_SUM.toString(),
+                        contentColor = primaryContentColor,
+                        mutedColor = secondaryContentColor,
+                        modifier = Modifier.weight(0.72f),
+                    )
+                    ConsoleReadout(
+                        label = stringResource(R.string.remaining_sum),
+                        value = game.remaining.coerceAtLeast(0).toString(),
+                        contentColor = primaryContentColor,
+                        mutedColor = secondaryContentColor,
+                        modifier = Modifier.weight(0.82f),
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                RouteProgressRail(
+                    progress = animatedProgress.value,
+                    exceeded = isExceeded,
+                    onDark = !isExceeded,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
-            Spacer(Modifier.height(10.dp))
-            RouteProgressRail(
-                progress = animatedProgress.value,
-                exceeded = game.status == GameStatus.EXCEEDED,
-                modifier = Modifier.fillMaxWidth(),
-            )
         }
+    }
+}
+
+@Composable
+private fun DashboardBackdrop(
+    progress: Float,
+    exceeded: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val boundedProgress = progress.coerceIn(0f, 1f)
+    val guideColor = if (exceeded) {
+        MaterialTheme.colorScheme.error.copy(alpha = 0.14f)
+    } else {
+        Color.White.copy(alpha = 0.12f)
+    }
+    val pulseColor = if (exceeded) {
+        MaterialTheme.colorScheme.error.copy(alpha = 0.10f)
+    } else {
+        WarmGold.copy(alpha = 0.16f)
+    }
+    Canvas(modifier = modifier) {
+        val step = 22.dp.toPx()
+        val dash = PathEffect.dashPathEffect(floatArrayOf(7.dp.toPx(), 10.dp.toPx()))
+        var x = -step
+        while (x < size.width + step) {
+            drawLine(
+                color = guideColor,
+                start = Offset(x, 0f),
+                end = Offset(x + size.height * 0.34f, size.height),
+                strokeWidth = 1.dp.toPx(),
+                pathEffect = dash,
+            )
+            x += step
+        }
+        drawCircle(
+            color = pulseColor,
+            radius = (44.dp.toPx() + 34.dp.toPx() * boundedProgress),
+            center = Offset(size.width * 0.86f, size.height * 0.36f),
+            style = Stroke(width = 2.dp.toPx()),
+        )
+        drawCircle(
+            color = pulseColor.copy(alpha = pulseColor.alpha * 0.62f),
+            radius = 24.dp.toPx(),
+            center = Offset(size.width * 0.10f, size.height * 0.88f),
+            style = Stroke(width = 2.dp.toPx()),
+        )
+    }
+}
+
+@Composable
+private fun ConsoleReadout(
+    label: String,
+    value: String,
+    contentColor: Color,
+    mutedColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.End,
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = mutedColor,
+            maxLines = 1,
+            textAlign = TextAlign.End,
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.headlineMedium,
+            color = contentColor,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            textAlign = TextAlign.End,
+        )
     }
 }
 
@@ -1452,12 +1573,17 @@ private fun SumPanel(
 private fun RouteProgressRail(
     progress: Float,
     exceeded: Boolean,
+    onDark: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val boundedProgress = progress.coerceIn(0f, 1f)
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant
+    val trackColor = if (onDark) {
+        Color.White.copy(alpha = 0.24f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
     val activeColor = if (exceeded) MaterialTheme.colorScheme.error else WarmGold
-    val markerColor = MaterialTheme.colorScheme.primary
+    val markerColor = if (onDark) Color.White else MaterialTheme.colorScheme.primary
     Canvas(
         modifier = modifier
             .height(34.dp)
@@ -1485,7 +1611,11 @@ private fun RouteProgressRail(
         repeat(7) { index ->
             val x = size.width * (index / 6f)
             drawLine(
-                color = Color.White.copy(alpha = 0.78f),
+                color = if (onDark) {
+                    Color.White.copy(alpha = 0.62f)
+                } else {
+                    Color.White.copy(alpha = 0.78f)
+                },
                 start = Offset(x, railTop - 4.dp.toPx()),
                 end = Offset(x, railTop + railHeight + 4.dp.toPx()),
                 strokeWidth = 1.dp.toPx(),
@@ -1505,35 +1635,172 @@ private fun RouteProgressRail(
 }
 
 @Composable
-private fun SumMetric(
-    label: String,
-    value: String,
-    emphasized: Boolean = false,
+private fun RouteTraceStrip(
+    game: GameState,
+    settings: SettingsState,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
+    val values = game.selection.positions.map { game.level.board.cellAt(it).value }
+    val visibleValues = values.takeLast(7)
+    val hiddenCount = values.size - visibleValues.size
+    val traceDescription = if (values.isEmpty()) {
+        stringResource(R.string.route_trace_empty, TARGET_SUM)
+    } else {
+        stringResource(
+            R.string.route_trace_description,
+            values.joinToString(separator = " + "),
+            game.currentSum,
+            TARGET_SUM,
+        )
+    }
+    val accentColor = when {
+        game.status == GameStatus.EXCEEDED -> MaterialTheme.colorScheme.error
+        settings.highContrast -> HighContrastGold
+        else -> WarmGold
+    }
+    val primaryGuideColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+    val tertiaryGuideColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.08f)
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = traceDescription },
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.32f)),
+        shadowElevation = 1.dp,
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-        )
-        Text(
-            text = value,
-            style = if (emphasized) {
-                MaterialTheme.typography.headlineLarge
-            } else {
-                MaterialTheme.typography.headlineMedium
-            },
-            color = if (emphasized) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                MaterialTheme.colorScheme.primary
-            },
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+        ) {
+            Canvas(Modifier.matchParentSize()) {
+                val y = size.height / 2f
+                drawLine(
+                    color = accentColor.copy(alpha = 0.30f),
+                    start = Offset(18.dp.toPx(), y),
+                    end = Offset(size.width - 18.dp.toPx(), y),
+                    strokeWidth = 3.dp.toPx(),
+                    cap = StrokeCap.Round,
+                )
+                drawLine(
+                    color = primaryGuideColor,
+                    start = Offset(size.width * 0.12f, 0f),
+                    end = Offset(size.width * 0.28f, size.height),
+                    strokeWidth = 1.dp.toPx(),
+                )
+                drawLine(
+                    color = tertiaryGuideColor,
+                    start = Offset(size.width * 0.70f, 0f),
+                    end = Offset(size.width * 0.54f, size.height),
+                    strokeWidth = 1.dp.toPx(),
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (values.isEmpty()) {
+                    repeat(4) {
+                        RouteTraceNode(
+                            text = "",
+                            active = false,
+                            target = false,
+                            exceeded = false,
+                        )
+                    }
+                } else {
+                    if (hiddenCount > 0) {
+                        RouteTraceNode(
+                            text = "+$hiddenCount",
+                            active = false,
+                            target = false,
+                            exceeded = false,
+                        )
+                    }
+                    visibleValues.forEachIndexed { index, value ->
+                        RouteTraceNode(
+                            text = value.toString(),
+                            active = true,
+                            target = false,
+                            exceeded = game.status == GameStatus.EXCEEDED &&
+                                index == visibleValues.lastIndex,
+                        )
+                    }
+                }
+                RouteTraceNode(
+                    text = TARGET_SUM.toString(),
+                    active = game.status == GameStatus.WON,
+                    target = true,
+                    exceeded = false,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RouteTraceNode(
+    text: String,
+    active: Boolean,
+    target: Boolean,
+    exceeded: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val nodeColor = when {
+        exceeded -> colorScheme.error
+        target && active -> colorScheme.primary
+        target -> colorScheme.surfaceVariant
+        active -> WarmGold
+        else -> colorScheme.surface
+    }
+    val strokeColor = when {
+        exceeded -> colorScheme.error
+        active || target -> colorScheme.primary
+        else -> colorScheme.onSurface.copy(alpha = 0.12f)
+    }
+    val contentColor = when {
+        exceeded -> colorScheme.onError
+        target && active -> colorScheme.onPrimary
+        active -> colorScheme.onSurface
+        else -> colorScheme.onSurfaceVariant
+    }
+    Box(
+        modifier = modifier.size(30.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(Modifier.matchParentSize()) {
+            val corner = CornerRadius(8.dp.toPx(), 8.dp.toPx())
+            drawRoundRect(
+                color = nodeColor,
+                cornerRadius = corner,
+            )
+            drawRoundRect(
+                color = strokeColor.copy(alpha = if (active || target) 0.54f else 0.32f),
+                cornerRadius = corner,
+                style = Stroke(width = 1.dp.toPx()),
+            )
+            if (!active && !target && !exceeded) {
+                drawCircle(
+                    color = strokeColor.copy(alpha = 0.18f),
+                    radius = 3.dp.toPx(),
+                    center = Offset(size.width / 2f, size.height / 2f),
+                )
+            }
+        }
+        if (text.isNotEmpty()) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = if (text.length > 2) 10.sp else 12.sp),
+                color = contentColor,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+            )
+        }
     }
 }
 
@@ -1736,11 +2003,16 @@ private fun CellTile(
     modifier: Modifier = Modifier,
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val valueAccent = when (cell.value % 3) {
+        0 -> colorScheme.primary
+        1 -> colorScheme.tertiary
+        else -> colorScheme.secondary
+    }
     val containerColor = when {
         exceeded -> colorScheme.error
         selected -> colorScheme.primary
         hinted -> if (settings.highContrast) HighContrastGold else WarmGold
-        else -> colorScheme.surface.copy(alpha = 0.94f)
+        else -> valueAccent.copy(alpha = if (settings.highContrast) 0.12f else 0.085f)
     }
     val contentColor = when {
         exceeded -> colorScheme.onError
@@ -1801,7 +2073,7 @@ private fun CellTile(
                 exceeded -> colorScheme.error
                 hinted -> if (settings.highContrast) HighContrastGold else WarmGold
                 selected -> if (settings.highContrast) HighContrastGold else colorScheme.secondary
-                else -> colorScheme.onSurface.copy(alpha = 0.08f)
+                else -> valueAccent.copy(alpha = if (settings.highContrast) 0.44f else 0.24f)
             },
         ),
         tonalElevation = animatedTonalElevation.value,
@@ -1813,8 +2085,9 @@ private fun CellTile(
                     exceeded -> Color.White.copy(alpha = 0.28f)
                     selected -> if (settings.highContrast) HighContrastGold else WarmGold
                     hinted -> colorScheme.primary
-                    else -> colorScheme.primary.copy(alpha = 0.08f)
+                    else -> valueAccent.copy(alpha = if (settings.highContrast) 0.24f else 0.14f)
                 }
+                val valueWeight = (cell.value.coerceIn(1, 18) / 18f).coerceIn(0.18f, 1f)
                 drawLine(
                     color = stripeColor,
                     start = Offset(size.width * 0.18f, size.height * 0.82f),
@@ -1822,6 +2095,31 @@ private fun CellTile(
                     strokeWidth = if (selected || hinted || exceeded) 3.dp.toPx() else 1.dp.toPx(),
                     cap = StrokeCap.Round,
                 )
+                if (!selected && !hinted && !exceeded) {
+                    drawRoundRect(
+                        color = valueAccent.copy(alpha = if (settings.highContrast) 0.36f else 0.22f),
+                        topLeft = Offset(size.width * 0.16f, size.height * 0.76f),
+                        size = Size(
+                            width = size.width * 0.68f * valueWeight,
+                            height = 3.dp.toPx(),
+                        ),
+                        cornerRadius = CornerRadius(3.dp.toPx(), 3.dp.toPx()),
+                    )
+                    drawLine(
+                        color = Color.White.copy(alpha = 0.58f),
+                        start = Offset(size.width * 0.18f, size.height * 0.18f),
+                        end = Offset(size.width * 0.32f, size.height * 0.18f),
+                        strokeWidth = 1.dp.toPx(),
+                        cap = StrokeCap.Round,
+                    )
+                    drawLine(
+                        color = Color.White.copy(alpha = 0.58f),
+                        start = Offset(size.width * 0.18f, size.height * 0.18f),
+                        end = Offset(size.width * 0.18f, size.height * 0.32f),
+                        strokeWidth = 1.dp.toPx(),
+                        cap = StrokeCap.Round,
+                    )
+                }
             }
             if (selected && !exceeded) {
                 Surface(

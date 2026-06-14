@@ -6,6 +6,8 @@
 
 After the 14 June 2026 UI refresh, the recognizable visual language is a quiet coordinate-paper background, route-cockpit home panel, snake-map level picker, large readable number tiles, warm-gold connected paths, waypoint order badges and a real board/score crop in store creatives.
 
+The current gameplay direction emphasizes a route dashboard instead of a generic score card: a dark target panel, animated progress rail, live selected-value trace and subtle value-weight marks on idle tiles make the core loop feel more proprietary while staying calm and readable.
+
 ## Палитра
 
 - Primary: deep leaf green.

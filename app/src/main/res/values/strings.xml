@@ -15,6 +15,9 @@
     <string name="target_sum">Цель</string>
     <string name="current_sum">Сумма</string>
     <string name="remaining_sum">Осталось</string>
+    <string name="sum_panel_description">Сумма %1$d, цель %2$d, осталось %3$d.</string>
+    <string name="route_trace_empty">Линия пока не начата. Цель %1$d.</string>
+    <string name="route_trace_description">Линия: %1$s. Сумма %2$d из %3$d.</string>
     <string name="undo">Отмена</string>
     <string name="hint">Подсказка</string>
     <string name="reset">Сброс</string>

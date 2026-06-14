@@ -833,8 +833,8 @@ def check_readme_handoff() -> None:
             "Release AAB собран: `app/build/outputs/bundle/release/app-release.aab`",
             "Production package остаётся нейтральным: `com.qgrid.mobile`; debug package: `com.qgrid.mobile.debug`.",
             "Version identity for this upload candidate: `versionCode = 1`, `versionName = 1.0.0`.",
-            "Текущий release AAB: `2,969,759` bytes",
-            "`e5e1744a2c304cc42e960ba2bb9693cb8671fe47e1231f384c101cea4b90060d`",
+            "Текущий release AAB: `2,984,214` bytes",
+            "`0af8449f4da9fbf8933d5e77445f8725d42deb43eda4b059ac8eacb42cc1d9d0`",
             "For Google Play, the signed AAB is the only binary upload artifact.",
             "Generated release APK outputs under `app/build/outputs/apk/release` are install/testing artifacts only and must not be uploaded to Play.",
             "Последняя asset-правка на 6 июня 2026",
@@ -1490,7 +1490,7 @@ def check_release_report_handoff() -> None:
             "Latest privacy/signing handoff date refresh",
             "Latest completion/traceability date refresh",
             "Current API 36 connected check",
-            "passed 10/10 tests on `Medium_Phone_API_36(AVD) - 16`",
+            "passed 10/10 tests on `Line56_API36_Clean(AVD) - 16`",
             "Latest final release smoke check after onboarding/store screenshot polish",
             "docs/qa_artifacts/release_smoke_onboarding.png",
             "Latest release relaunch smoke check",
@@ -1567,8 +1567,8 @@ def check_release_report_handoff() -> None:
             "`tools/verify_release.py` now parses that fenced block and fails if the order or command set drifts from the final local gate",
             "Latest distinctive UI/UX refresh on 14 June 2026",
             "Latest store screenshot helper hardening on 14 June 2026",
-            "Debug APK: `app/build/outputs/apk/debug/app-debug.apk`, package `com.qgrid.mobile.debug`, 20,373,428 bytes.",
-            "Signed Release AAB: `app/build/outputs/bundle/release/app-release.aab`, 2,969,759 bytes.",
+            "Debug APK: `app/build/outputs/apk/debug/app-debug.apk`, package `com.qgrid.mobile.debug`, 19,900,159 bytes.",
+            "Signed Release AAB: `app/build/outputs/bundle/release/app-release.aab`, 2,984,214 bytes.",
             "Upload runbook: `play_store/upload_runbook_ru.md`.",
             "Post-upload evidence template: `play_store/play_console_post_upload_evidence_ru.md`.",
             "Signing backup evidence and owner template: `play_store/signing_backup_evidence_ru.md`.",
@@ -1615,7 +1615,7 @@ def check_completion_audit_handoff() -> None:
             "Lint passes with no issues: `./gradlew lint`.",
             "Signed release AAB builds: `./gradlew bundleRelease`.",
             "Production AAB cleanliness is checked by `tools/verify_release.py`",
-            "current release AAB is 2,969,759 bytes and current debug APK is 20,373,428 bytes.",
+            "current release AAB is 2,984,214 bytes and current debug APK is 19,900,159 bytes.",
             "latest connected run finished 10 tests covering product name",
             "Latest result replay hardening",
             "Release APK installed on API 35 emulator: `./gradlew installRelease`.",
@@ -1873,7 +1873,7 @@ def check_qa_test_plan_handoff() -> None:
             "refreshed the connected XML to 10 tests, 0 failures, 0 errors and 0 skipped",
             "Latest full managed API36 gate after scoped retry hardening",
             "completed the hosted final local gate and returned `api36_connected_gate_ok`",
-            "portrait onboarding spacing polish and Play screenshot recapture",
+            "gameplay cockpit UI refresh",
             "Latest result replay hardening",
             "completedResultCanReplayCurrentLevel",
             "hint repair UI coverage",
@@ -2394,15 +2394,15 @@ def check_performance_notes() -> None:
         "docs/performance_notes.md",
         [
             "Measured and re-verified on 14 June 2026",
-            "Signed release AAB: `2,969,759` bytes",
-            "Debug APK: `20,373,428` bytes",
-            "Google Play feature graphic: `430,476` bytes",
+            "Signed release AAB: `2,984,214` bytes",
+            "Debug APK: `19,900,159` bytes",
+            "Google Play feature graphic: `459,388` bytes",
             "Google Play store icon: `274,405` bytes",
-            "Largest phone screenshot: `274,755` bytes",
-            "Largest large/tablet screenshot: `222,841` bytes",
+            "Largest phone screenshot: `282,683` bytes",
+            "Largest large/tablet screenshot: `281,653` bytes",
             "ImageGen source background: `1,577,241` bytes",
             "ImageGen source icon: `1,474,693` bytes",
-            "`play_store` directory total: `7,645` KiB",
+            "`play_store` directory total: `8,064` KiB",
             "Native libraries in the signed release AAB: 8 `.so` files",
             "minimum `PT_LOAD` alignment is `0x4000` / 16,384 bytes",
             "Release AAB <= 6 MB",
@@ -2530,11 +2530,11 @@ def check_screenshot_manifest_handoff() -> None:
     require_text_markers(
         manifest_path,
         [
-            "Phone device: Medium_Phone_API_36 emulator, captured at 1080x2400 and exported as 1080x2064, release variant `com.qgrid.mobile`.",
-            "Large/tablet capture: same API 36 emulator with `wm size 1600x2560`, density `320`, exported as 1600x2336, release variant `com.qgrid.mobile`.",
+            "Phone device: Medium_Phone_API_35_Default emulator, captured at 1080x2400 and exported as 1080x2064, release variant `com.qgrid.mobile`.",
+            "Large/tablet capture: same API 35 default emulator with `wm size 1600x2560`, density `320`, exported as 1600x2336, release variant `com.qgrid.mobile`.",
             "Format: 24-bit PNG without alpha; Play screenshot long side is no more than 2x the short side; system status/navigation bars are cropped out of upload images.",
-            "Capture command: `PYTHONUNBUFFERED=1 ./tools/capture_store_screenshots.py --serial emulator-5582`",
-            "isolated ADB server port 5038",
+            "Capture command: `PYTHONUNBUFFERED=1 ./tools/capture_store_screenshots.py --serial emulator-5560`",
+            "clean non-PlayStore `Medium_Phone_API_35_Default` emulator",
             "captures phone files from the 1080x2400 app viewport, crops them to 1080x2064 Play-compliant PNGs, captures large/tablet files and crops them to 1600x2336, runs `./gradlew bundleRelease`, rebuilds `play_store/feature_graphic.png` and updates `play_store/upload_checksums.md`",
             "Screenshots are real app captures, not fake UI.",
             "They should be re-captured after any visual polish, icon replacement, or Play Console screenshot-size decision.",
@@ -2562,6 +2562,7 @@ def check_screenshot_manifest_handoff() -> None:
             "expected RGB PNG without alpha",
             "def rebuild_feature_graphic(",
             "validate_saved_png(out_path, FEATURE_GRAPHIC_SIZE)",
+            "install_release(self.serial)",
             "UPLOAD_CHECKSUM_PATH_SET = set(UPLOAD_CHECKSUM_PATHS)",
             "def configured_sdk_dir(",
             "def adb_binary(",
@@ -2791,7 +2792,7 @@ def check_asset_handoff() -> None:
     require_text_markers(
         "play_store/screenshots/manifest.md",
         [
-            "Phone device: Medium_Phone_API_36 emulator, captured at 1080x2400 and exported as 1080x2064",
+            "Phone device: Medium_Phone_API_35_Default emulator, captured at 1080x2400 and exported as 1080x2064",
             "Large/tablet capture",
             "Format: 24-bit PNG without alpha; Play screenshot long side is no more than 2x the short side; system status/navigation bars are cropped out of upload images.",
             "`phone/01_onboarding.png`",
@@ -3103,7 +3104,7 @@ def check_qa_artifacts() -> None:
     relaunch_state = read("docs/qa_artifacts/release_relaunch_state.txt")
     for marker in [
         "Release relaunch smoke evidence",
-        "avd_name=Medium_Phone_API_36",
+        "avd_name=Line56_API36_Clean",
         "expected_api=36",
         "api=36",
         "package=com.qgrid.mobile",
@@ -3156,7 +3157,7 @@ def check_qa_artifacts() -> None:
         "force-stop/relaunch",
         "background return",
         "Android 16 / API 36",
-        "Medium_Phone_API_36(AVD) - 16",
+        "Line56_API36_Clean(AVD) - 16",
         "fresh API 36 connected XML report",
         "Latest offline release smoke check",
         "airplane-mode enabled",
@@ -3179,7 +3180,7 @@ def check_connected_report_evidence() -> None:
 
     report = reports[0]
     require(
-        "Medium_Phone_API_36" in report.name and "16" in report.name,
+        "Line56_API36_Clean" in report.name and "16" in report.name,
         f"connected report must come from the API 36 AVD, got {report.name}",
     )
     latest_source_mtime = latest_file_mtime(
@@ -3211,8 +3212,8 @@ def check_connected_report_evidence() -> None:
         "",
     )
     require(
-        device_property == "Medium_Phone_API_36(AVD) - 16",
-        f"connected report device property must be Medium_Phone_API_36(AVD) - 16, got {device_property!r}",
+        device_property == "Line56_API36_Clean(AVD) - 16",
+        f"connected report device property must be Line56_API36_Clean(AVD) - 16, got {device_property!r}",
     )
     tests = int(root.attrib.get("tests", "-1"))
     failures = int(root.attrib.get("failures", "-1"))
@@ -4151,7 +4152,7 @@ def check_post_upload_evidence_packet_helper() -> None:
         "Uploaded package name: com.qgrid.mobile.",
         "Uploaded version code: 1.",
         "Uploaded version name: 1.0.0.",
-        "Uploaded AAB SHA-256: e5e1744a2c304cc42e960ba2bb9693cb8671fe47e1231f384c101cea4b90060d.",
+        "Uploaded AAB SHA-256: 0af8449f4da9fbf8933d5e77445f8725d42deb43eda4b059ac8eacb42cc1d9d0.",
         "First release track used: internal testing.",
         "Internal testing upload completed: internal testing upload completed; signed AAB was uploaded to internal testing.",
         "post_upload_evidence_packet_ok",
@@ -4178,7 +4179,7 @@ def check_post_upload_evidence_packet_helper() -> None:
     lines = module.evidence_lines(upload_date="2026-06-12 14:30 local time")
     require("- Uploaded package name: com.qgrid.mobile." in lines, "post-upload helper generated wrong package line")
     require(
-        "- Uploaded AAB SHA-256: e5e1744a2c304cc42e960ba2bb9693cb8671fe47e1231f384c101cea4b90060d." in lines,
+        "- Uploaded AAB SHA-256: 0af8449f4da9fbf8933d5e77445f8725d42deb43eda4b059ac8eacb42cc1d9d0." in lines,
         "post-upload helper generated wrong AAB SHA line",
     )
     require(
@@ -6764,8 +6765,8 @@ def check_remote_release_helper() -> None:
         "remote release helper parsed unexpected upload asset order",
     )
     expected_size, expected_sha = module.expected_aab()
-    require(expected_size == 2969759, "remote release helper parsed unexpected AAB size")
-    require(expected_sha == "e5e1744a2c304cc42e960ba2bb9693cb8671fe47e1231f384c101cea4b90060d", "remote release helper parsed unexpected AAB SHA")
+    require(expected_size == 2984214, "remote release helper parsed unexpected AAB size")
+    require(expected_sha == "0af8449f4da9fbf8933d5e77445f8725d42deb43eda4b059ac8eacb42cc1d9d0", "remote release helper parsed unexpected AAB SHA")
     require(
         module.recorded_privacy_url() == "https://xarok3267742-ai.github.io/56game/privacy_policy_ru.html",
         "remote release helper parsed unexpected recorded privacy URL",

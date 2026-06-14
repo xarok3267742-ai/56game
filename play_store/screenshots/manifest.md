@@ -1,10 +1,10 @@
 # Screenshot Manifest
 
-Phone device: Medium_Phone_API_36 emulator, captured at 1080x2400 and exported as 1080x2064, release variant `com.qgrid.mobile`.
-Large/tablet capture: same API 36 emulator with `wm size 1600x2560`, density `320`, exported as 1600x2336, release variant `com.qgrid.mobile`.
+Phone device: Medium_Phone_API_35_Default emulator, captured at 1080x2400 and exported as 1080x2064, release variant `com.qgrid.mobile`.
+Large/tablet capture: same API 35 default emulator with `wm size 1600x2560`, density `320`, exported as 1600x2336, release variant `com.qgrid.mobile`.
 Format: 24-bit PNG without alpha; Play screenshot long side is no more than 2x the short side; system status/navigation bars are cropped out of upload images.
-Latest recapture: 14 June 2026 after the route-cockpit home polish, snake-map level picker, waypoint cell badges, route-meter score rail and capture-helper hardening. Phone and large/tablet files are newer than the key UI/string/theme inputs, and the feature graphic was rebuilt from the refreshed gameplay screenshot crop.
-Capture command: `PYTHONUNBUFFERED=1 ./tools/capture_store_screenshots.py --serial emulator-5582` against a booted `Medium_Phone_API_36` emulator on isolated ADB server port 5038. The script installs the release app, captures phone files from the 1080x2400 app viewport, crops them to 1080x2064 Play-compliant PNGs, captures large/tablet files and crops them to 1600x2336, runs `./gradlew bundleRelease`, rebuilds `play_store/feature_graphic.png` and updates `play_store/upload_checksums.md`.
+Latest recapture: 14 June 2026 after the gameplay cockpit pass, live selected-value trace, darker route dashboard, animated target rail, value-weight tile marks and capture-helper package re-enable hardening. Phone and large/tablet files are newer than the key UI/string/theme inputs, and the feature graphic was rebuilt from the refreshed gameplay screenshot crop.
+Capture command: `PYTHONUNBUFFERED=1 ./tools/capture_store_screenshots.py --serial emulator-5560` against a booted clean non-PlayStore `Medium_Phone_API_35_Default` emulator. The script installs the release app, captures phone files from the 1080x2400 app viewport, crops them to 1080x2064 Play-compliant PNGs, captures large/tablet files and crops them to 1600x2336, runs `./gradlew bundleRelease`, rebuilds `play_store/feature_graphic.png` and updates `play_store/upload_checksums.md`.
 
 | File | Purpose | Status |
 |---|---|---|

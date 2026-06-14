@@ -8,15 +8,15 @@
 
 Measured and re-verified on 14 June 2026:
 
-- Signed release AAB: `2,969,759` bytes, about 2.8 MB.
-- Debug APK: `20,373,428` bytes, about 19.4 MB.
-- Google Play feature graphic: `430,476` bytes.
+- Signed release AAB: `2,984,214` bytes, about 2.8 MB.
+- Debug APK: `19,900,159` bytes, about 19.0 MB.
+- Google Play feature graphic: `459,388` bytes.
 - Google Play store icon: `274,405` bytes.
-- Largest phone screenshot: `274,755` bytes.
-- Largest large/tablet screenshot: `222,841` bytes.
+- Largest phone screenshot: `282,683` bytes.
+- Largest large/tablet screenshot: `281,653` bytes.
 - ImageGen source background: `1,577,241` bytes, source-only and not a Play upload asset.
 - ImageGen source icon: `1,474,693` bytes, source-only and not a Play upload asset.
-- `play_store` directory total: `7,645` KiB by file bytes, about 7.5 MB.
+- `play_store` directory total: `8,064` KiB by file bytes, about 7.9 MB.
 - Native libraries in the signed release AAB: 8 `.so` files from AndroidX/DataStore dependencies; the minimum `PT_LOAD` alignment is `0x4000` / 16,384 bytes. The release APK stores the same native libraries uncompressed at 16 KB ZIP data offsets with `extractNativeLibs=false`.
 
 ## Size Budgets

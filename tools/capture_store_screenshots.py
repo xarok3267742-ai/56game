@@ -115,7 +115,11 @@ class Adb:
         return self.adb("shell", *args, capture=capture)
 
     def enable_package(self) -> None:
-        self.shell("pm", "enable", PACKAGE)
+        try:
+            self.shell("pm", "enable", PACKAGE)
+        except CaptureError:
+            install_release(self.serial)
+            self.shell("pm", "enable", PACKAGE)
 
 
 def dump_tree(adb: Adb) -> ET.Element:
