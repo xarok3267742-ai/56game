@@ -1,6 +1,6 @@
 # Google Play Sources
 
-Checked on 12 June 2026 against official Google Play / Android Developers sources.
+Checked on 14 June 2026 against official Google Play / Android Developers sources.
 
 Latest source spot-check on 6 June 2026 after the ImageGen icon replacement and final local continuation audit: target API, Android App Bundle upload format, personal-account closed testing, preview assets, Google Play icon design specifications, Data Safety, User Data/privacy policy, content rating and target audience pages were rechecked against the local release candidate.
 
@@ -9,6 +9,8 @@ Continuation source spot-check on 6 June 2026: official Google Play / Android De
 Latest source spot-check on 11 June 2026: official Google Play / Android Developers pages were rechecked for target API 35+ submission posture, Android App Bundle upload/use in Play Console, Android 15+ 16 KB page-size compatibility, preview asset dimensions/format, Google Play icon requirements, Data Safety, User Data/privacy policy, content rating, target audience and personal-account closed-testing owner gates. The Google Play policy announcement page was also checked for the 15 April 2026 update set; no local product change was required because this project has no Contacts data access, no Location data access, no Health apps scope, no prediction market feature and no News app scope.
 
 Latest source spot-check on 12 June 2026: official Google Play / Android Developers pages were rechecked for target API level, 16 KB page-size compatibility, Data Safety, personal-account testing, Developer Program Policy effective 27 May 2026, Play Console developer account required information and Android developer verification/package-name registration rollout. Local code did not require changes, but the owner handoff now explicitly treats Play Console developer identity/profile completion and package-name registration for `com.qgrid.mobile` as external owner evidence before production rollout.
+
+Latest source spot-check on 14 June 2026: official Google Play / Android Developers pages were rechecked again for target API 35+ submission posture, Android App Bundle upload/use, Android 15+ 16 KB page-size compatibility, preview asset dimensions/format, Data Safety, User Data/privacy policy, content rating, target audience and personal-account closed-testing owner gates. No local product change was required because release candidate `v1.0.0-rc72` already targets SDK 36, ships a signed AAB, keeps no-data/no-network/no-ads posture, has verified Play upload assets and keeps Play Console upload/support/testing evidence as owner-controlled external gates.
 
 - Target API level requirements: https://support.google.com/googleplay/android-developer/answer/11926878?hl=en
 - Target API policy summary: https://support.google.com/googleplay/android-developer/answer/11917020?hl=en

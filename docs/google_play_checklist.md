@@ -30,7 +30,7 @@
 - `compileSdk`: 36
 - `targetSdk`: 36, above the current Android 15/API 35 submission requirement documented in `docs/google_play_sources.md`
 - Native 16 KB page-size posture: current signed AAB has 8 packaged `.so` files and `tools/verify_release.py` verifies every ELF `PT_LOAD` alignment is at least 16,384 bytes; `tools/verify_play_generated_apk.py` additionally checks downloaded/generated APK native libraries are uncompressed, 16 KB ZIP-aligned and paired with `extractNativeLibs=false`.
-- Official source audit: rechecked on 12 June 2026 in `docs/google_play_sources.md`; no local product change was required.
+- Official source audit: rechecked on 14 June 2026 in `docs/google_play_sources.md`; no local product change was required.
 - Developer account/package registration gate: owner must verify Play Console developer identity/profile and register or create package name `com.qgrid.mobile`; record only safe evidence through `./tools/print_developer_account_evidence_packet.py`.
 - Format: Android App Bundle
 - Signed AAB path: `app/build/outputs/bundle/release/app-release.aab`
