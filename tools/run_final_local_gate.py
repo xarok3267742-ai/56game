@@ -19,6 +19,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 
@@ -30,6 +31,9 @@ CONNECTED_OUTPUT_DIRS: tuple[Path, ...] = (
     ROOT / "app/build/outputs/androidTest-results/connected/debug",
     ROOT / "app/build/reports/androidTests/connected/debug",
 )
+STALE_CONNECTED_QUIET_SECONDS = 20.0
+STALE_CONNECTED_SETTLE_TIMEOUT_SECONDS = 90.0
+STALE_CONNECTED_POLL_SECONDS = 0.5
 FOCUS_BLOCKING_CONNECTED_PACKAGES: tuple[str, ...] = (
     "com.qgrid.mobile",
 )
@@ -39,9 +43,15 @@ STALE_CONNECTED_PACKAGES: tuple[str, ...] = (
     "com.fiftyfive.seconds",
     "com.fiftyfive.seconds.debug.test",
     "com.fiftyfive.seconds.debug",
+    "com.andrejivliev.pairs57",
+    "com.andrejivliev.pairs57.debug.test",
+    "com.andrejivliev.pairs57.debug",
     "com.andrejivliev.shawarma58",
     "com.andrejivliev.shawarma58.debug.test",
     "com.andrejivliev.shawarma58.debug",
+    "com.sixtygame.phrase60",
+    "com.sixtygame.phrase60.debug.test",
+    "com.sixtygame.phrase60.debug",
     "com.ivliev.line56.debug.test",
     "com.ivliev.line56.debug",
     "com.ivliev.line56",
@@ -191,13 +201,8 @@ def stop_stale_connected_processes(serial: str) -> None:
         )
 
 
-def clean_stale_connected_packages(serial: str | None) -> None:
-    if not serial:
-        return
-    stale_packages = set(STALE_CONNECTED_PACKAGES)
-    stop_stale_connected_processes(serial)
-    installed_stale_packages = installed_packages(serial) & stale_packages
-    for package_name in sorted(installed_stale_packages):
+def uninstall_stale_connected_packages(serial: str, package_names: set[str]) -> None:
+    for package_name in sorted(package_names):
         completed = subprocess.run(
             ["adb", "-s", serial, "uninstall", package_name],
             cwd=ROOT,
@@ -208,6 +213,51 @@ def clean_stale_connected_packages(serial: str | None) -> None:
         if completed.returncode != 0:
             output = (completed.stdout + completed.stderr).strip()
             raise RuntimeError(f"Stale connected package uninstall failed for {package_name}: {output}")
+
+
+def wait_for_stale_connected_packages_to_settle(serial: str) -> None:
+    stale_packages = set(STALE_CONNECTED_PACKAGES)
+    deadline = time.monotonic() + STALE_CONNECTED_SETTLE_TIMEOUT_SECONDS
+    quiet_since: float | None = None
+    while time.monotonic() < deadline:
+        stop_stale_connected_processes(serial)
+        installed_stale_packages = installed_packages(serial) & stale_packages
+        if installed_stale_packages:
+            uninstall_stale_connected_packages(serial, installed_stale_packages)
+            quiet_since = None
+        else:
+            if quiet_since is None:
+                quiet_since = time.monotonic()
+            if time.monotonic() - quiet_since >= STALE_CONNECTED_QUIET_SECONDS:
+                return
+        time.sleep(STALE_CONNECTED_POLL_SECONDS)
+    remaining_stale_packages = installed_packages(serial) & stale_packages
+    if remaining_stale_packages:
+        remaining = ", ".join(sorted(remaining_stale_packages))
+        raise RuntimeError(f"Stale connected packages kept reappearing on {serial}: {remaining}")
+    raise RuntimeError(f"Stale connected package quiet window timed out on {serial}")
+
+
+def clear_connected_logcat(serial: str | None) -> None:
+    if not serial:
+        return
+    subprocess.run(
+        ["adb", "-s", serial, "logcat", "-c"],
+        cwd=ROOT,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+
+
+def clean_stale_connected_packages(serial: str | None) -> None:
+    if not serial:
+        return
+    stale_packages = set(STALE_CONNECTED_PACKAGES)
+    stop_stale_connected_processes(serial)
+    installed_stale_packages = installed_packages(serial) & stale_packages
+    uninstall_stale_connected_packages(serial, installed_stale_packages)
+    wait_for_stale_connected_packages_to_settle(serial)
     remaining_stale_packages = installed_packages(serial) & stale_packages
     if remaining_stale_packages:
         remaining = ", ".join(sorted(remaining_stale_packages))
@@ -232,6 +282,7 @@ def main() -> int:
             if args.dry_run:
                 print("- clean connected test outputs")
                 print("- stop focus-blocking packages and uninstall stale connected debug/test packages on the selected serial")
+                print("- wait for stale connected packages to stay absent and clear selected-device logcat")
             else:
                 print()
                 print("$ clean connected test outputs")
@@ -243,6 +294,9 @@ def main() -> int:
                 except RuntimeError as exc:
                     print(f"final_local_gate_error: {exc}", file=sys.stderr)
                     return 1
+                print()
+                print("$ clear selected-device logcat after stale connected package cleanup")
+                clear_connected_logcat(args.connected_serial)
         if args.dry_run:
             print(f"- {printable}")
             continue

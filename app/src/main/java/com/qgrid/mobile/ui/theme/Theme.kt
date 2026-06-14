@@ -110,7 +110,7 @@ fun Line56Theme(
 }
 
 private object ColorTokens {
-    val SurfaceVariant = androidx.compose.ui.graphics.Color(0xFFE3ECE6)
+    val SurfaceVariant = androidx.compose.ui.graphics.Color(0xFFE9EFE5)
     val OnSurfaceVariant = androidx.compose.ui.graphics.Color(0xFF3D4C46)
     val HighContrastSurfaceVariant = androidx.compose.ui.graphics.Color(0xFFEAF1EC)
 }

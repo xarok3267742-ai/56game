@@ -27,6 +27,7 @@
 - Store screenshot pass: action buttons no longer clip after shortening `Отменить`/`Сбросить` to `Отмена`/`Сброс`.
 - Responsive action bar pass: on compact widths the gameplay controls split into two rows, preserving visible labels for `Отмена`, `Подсказка` and `Сброс`; the landscape control column can scroll instead of clipping controls.
 - Distinctive UI refresh pass on 14 June 2026: coordinate-grid background, home/onboarding route panels, progress rail, board route overlay, level grid panel and refreshed phone/tablet screenshots make the app visually recognizable without fake UI, mascots or decorative noise.
+- Stronger route-map UX pass on 14 June 2026: home now reads as a route cockpit with milestone strip, the level picker is a snake-map instead of a plain grid, selected gameplay cells show waypoint order badges, the score uses a custom route-meter rail, and the warm coordinate-paper background replaces the previous flatter mist surface while preserving 8dp-or-less radii and readable tap targets.
 - Adaptive onboarding pass: normal 1080x2400 viewport centers the first-run screen; compact 720x1280 with `font_scale=1.3` keeps the button fully visible above system navigation.
 - Compact About/privacy pass: 720x1280, density 320, `font_scale=1.3`; top and scrolled-bottom screenshots show the privacy heading, local-data/no-services/backup/delete copy without relying on one long paragraph.
 - Wide/large pass: 2400x1080 landscape override uses a dedicated compact onboarding row layout; 1600x2560 tall override keeps onboarding readable with no overlap.

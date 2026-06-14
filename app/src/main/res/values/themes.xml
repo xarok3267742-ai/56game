@@ -9,7 +9,7 @@
     <style name="Theme.Line56.App" parent="@android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:statusBarColor">#F7FAF6</item>
-        <item name="android:navigationBarColor">#F7FAF6</item>
+        <item name="android:statusBarColor">#FAF7EE</item>
+        <item name="android:navigationBarColor">#FAF7EE</item>
     </style>
 </resources>

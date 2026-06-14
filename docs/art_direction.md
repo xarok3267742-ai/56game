@@ -4,7 +4,7 @@
 
 Чистая спокойная mobile puzzle эстетика: светлый фон, контрастные числовые плитки, аккуратная линия выбора, минимум декоративных элементов.
 
-After the 14 June 2026 UI refresh, the recognizable visual language is a quiet coordinate-paper background, dark route-preview panels, large readable number tiles, warm-gold connected paths and a real board/score crop in store creatives.
+After the 14 June 2026 UI refresh, the recognizable visual language is a quiet coordinate-paper background, route-cockpit home panel, snake-map level picker, large readable number tiles, warm-gold connected paths, waypoint order badges and a real board/score crop in store creatives.
 
 ## Палитра
 
